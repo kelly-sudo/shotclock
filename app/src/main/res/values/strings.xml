@@ -10,18 +10,37 @@
     <!-- Opisy ikon dla czytników ekranu -->
     <string name="action_back">Wróć</string>
     <string name="action_add_alarm">Dodaj alarm</string>
+    <string name="action_delete_alarm">Usuń alarm</string>
+
+    <!-- Przedmioty. Kubek to przykład, dopóki zespół AI nie wybierze drugiego przedmiotu. -->
+    <string name="object_toothbrush">Szczoteczka do zębów</string>
+    <string name="object_toothbrush_short">Szczoteczka</string>
+    <string name="object_toothbrush_tip">Pokaż ją całą, w dobrym świetle.</string>
+    <string name="object_mug">Kubek</string>
+    <string name="object_mug_tip">Najlepiej ujęty lekko z boku, z widocznym uchem.</string>
+    <string name="object_random">Losowy</string>
+    <string name="object_random_description">Losowy przedmiot</string>
 
     <!-- Lista alarmów (przykładowe dane do Etapu 2) -->
-    <string name="alarms_next_sample">Następny alarm za 7 h 20 min</string>
-    <string name="alarms_sample_days">Pn–Pt</string>
-    <string name="alarms_sample_label">Szczoteczka do zębów</string>
-    <string name="alarms_sample_toggle">Włącz alarm</string>
-    <string name="alarms_sample_note">To przykładowa karta. Prawdziwe alarmy pojawią się w Etapie 2.</string>
+    <string name="alarms_next_sample">Następny za 7 h 20 min</string>
+    <string name="alarms_sample_days_work">Pn–Pt · Zajęcia</string>
+    <string name="alarms_sample_days_weekend">So, Nd · Weekend</string>
+    <string name="alarms_sample_days_gym">Śr · Siłownia</string>
+    <string name="alarms_sample_task">Zdjęcie: szczoteczka do zębów</string>
+    <string name="alarms_toggle">Włącz alarm</string>
 
     <!-- Edycja alarmu -->
     <string name="edit_title">Edycja alarmu</string>
-    <string name="edit_days">Dni tygodnia</string>
-    <string name="edit_save">Zapisz</string>
+    <string name="edit_repeat">POWTARZAJ</string>
+    <string name="edit_preset_workdays">Dni robocze</string>
+    <string name="edit_preset_weekend">Weekend</string>
+    <string name="edit_preset_everyday">Codziennie</string>
+    <string name="edit_object">CO SFOTOGRAFOWAĆ</string>
+    <string name="edit_sound">Dźwięk</string>
+    <string name="edit_sound_sample">Poranek</string>
+    <string name="edit_vibration">Wibracje</string>
+    <string name="edit_rising_volume">Narastająca głośność</string>
+    <string name="edit_save">Zapisz alarm</string>
     <string-array name="weekdays_short">
         <item>Pn</item>
         <item>Wt</item>
@@ -42,8 +61,11 @@
     </string-array>
 
     <!-- Ekran dzwonienia -->
-    <string name="ring_message_sample">Zrób zdjęcie: szczoteczka do zębów</string>
+    <string name="ring_status">ALARM DZWONI</string>
+    <string name="ring_label_sample">Pobudka na zajęcia</string>
+    <string name="ring_task">ZRÓB ZDJĘCIE</string>
     <string name="ring_open_camera">Otwórz kamerę</string>
+    <string name="ring_note">Ucichnie dopiero po rozpoznaniu przedmiotu.</string>
 
     <!-- Ekran kamery -->
     <string name="camera_title">Kamera</string>
@@ -54,9 +76,26 @@
     <string name="onboarding_description">Ten budzik ucichnie dopiero wtedy, gdy zrobisz zdjęcie wskazanego przedmiotu. Musisz więc wstać z łóżka.</string>
     <string name="onboarding_next">Dalej</string>
 
-    <!-- Zaślepki zakładek -->
-    <string name="history_placeholder">Tutaj pojawi się historia pobudek i statystyki (Etap 6).</string>
-    <string name="objects_placeholder">Tutaj pojawią się przedmioty, które rozpoznaje model (Etap 6).</string>
+    <!-- Przedmioty -->
+    <string name="objects_description">Te dwa rozpoznaje model. Działa bez internetu.</string>
+    <string name="objects_used_sample">W 1 alarmie</string>
+    <string name="objects_model">Model rozpoznawania</string>
+    <string name="objects_model_test">tryb testowy</string>
+
+    <!-- Historia (przykładowe dane do Etapu 6) -->
+    <string name="history_streak_sample">8</string>
+    <string name="history_streak_label">dni z rzędu</string>
+    <string name="history_best_sample">12</string>
+    <string name="history_best_label">najlepsza seria</string>
+    <string name="history_average_sample">1 min 42 s</string>
+    <string name="history_average_label">średni czas wstania</string>
+    <string name="history_chart_title">Czas wstania, ostatnie 7 dni</string>
+    <string name="history_event_today">Dziś, 7:31</string>
+    <string name="history_event_today_details">Szczoteczka · 96% · 1 próba</string>
+    <string name="history_event_today_time">1 min 42 s</string>
+    <string name="history_event_yesterday">Wczoraj, 9:01</string>
+    <string name="history_event_yesterday_details">Kubek · 91% · 2 próby</string>
+    <string name="history_event_yesterday_time">1 min 15 s</string>
 
     <!-- Ustawienia -->
     <string name="settings_vibration_sample">Wibracje</string>

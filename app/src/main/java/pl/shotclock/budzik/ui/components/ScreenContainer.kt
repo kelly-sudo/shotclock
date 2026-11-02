@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -23,7 +24,7 @@ import pl.shotclock.budzik.ui.theme.Spacing
 
 /**
  * Wspólny układ zwykłego ekranu: tytuł, opcjonalny przycisk cofania i przewijana treść
- * z odstępami od pasków systemowych.
+ * z odstępami od pasków systemowych. Ekran z cofaniem ma mniejszy tytuł, bo obok jest przycisk.
  */
 @Composable
 fun ScreenContainer(
@@ -31,6 +32,7 @@ fun ScreenContainer(
     modifier: Modifier = Modifier,
     hasBottomBar: Boolean = false,
     onBack: (() -> Unit)? = null,
+    trailing: @Composable RowScope.() -> Unit = {},
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
@@ -38,25 +40,34 @@ fun ScreenContainer(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .systemBarsPadding()
-            .padding(horizontal = Spacing.large)
+            .padding(horizontal = Spacing.screenEdge)
             .padding(
                 top = Spacing.medium,
                 bottom = if (hasBottomBar) Sizes.bottomBarClearance else Spacing.large,
             ),
-        verticalArrangement = Arrangement.spacedBy(Spacing.medium),
+        verticalArrangement = Arrangement.spacedBy(Spacing.smallMedium),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Spacing.medium),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.smallMedium),
         ) {
             if (onBack != null) {
-                GlassIconButton(
+                AppIconButton(
                     icon = R.drawable.ic_arrow_back,
                     contentDescription = stringResource(R.string.action_back),
                     onClick = onBack,
                 )
             }
-            Text(text = title, style = MaterialTheme.typography.headlineMedium)
+            Text(
+                text = title,
+                modifier = Modifier.weight(1f),
+                style = if (onBack != null) {
+                    MaterialTheme.typography.titleLarge
+                } else {
+                    MaterialTheme.typography.headlineLarge
+                },
+            )
+            trailing()
         }
         content()
     }
@@ -66,9 +77,9 @@ fun ScreenContainer(
 @Composable
 private fun ScreenContainerPreview() {
     ShotClockTheme {
-        GlassBackground {
+        AppBackground {
             ScreenContainer(title = stringResource(R.string.camera_title), onBack = {}) {
-                GlassCard {
+                AppCard {
                     Text(
                         text = stringResource(R.string.camera_placeholder),
                         style = MaterialTheme.typography.bodyLarge,

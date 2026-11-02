@@ -5,7 +5,6 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -29,8 +28,7 @@ import androidx.compose.ui.unit.dp
 import pl.shotclock.budzik.R
 import pl.shotclock.budzik.ui.theme.Accent
 import pl.shotclock.budzik.ui.theme.AppShapes
-import pl.shotclock.budzik.ui.theme.GlassBorder
-import pl.shotclock.budzik.ui.theme.GlassFill
+import pl.shotclock.budzik.ui.theme.ControlOffColor
 import pl.shotclock.budzik.ui.theme.OnAccent
 import pl.shotclock.budzik.ui.theme.ShotClockTheme
 import pl.shotclock.budzik.ui.theme.Sizes
@@ -38,7 +36,7 @@ import pl.shotclock.budzik.ui.theme.Spacing
 import pl.shotclock.budzik.ui.theme.TextPrimary
 
 @Composable
-fun GlassToggle(
+fun AppToggle(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     contentDescription: String,
@@ -47,10 +45,10 @@ fun GlassToggle(
     val thumbTravel = Sizes.toggleWidth - Sizes.toggleThumb - Sizes.togglePadding * 2
     val thumbOffset by animateDpAsState(
         targetValue = if (checked) thumbTravel else 0.dp,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy),
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
         label = "toggle thumb",
     )
-    val trackColor by animateColorAsState(if (checked) Accent else GlassFill, label = "toggle track")
+    val trackColor by animateColorAsState(if (checked) Accent else ControlOffColor, label = "toggle track")
     val thumbColor by animateColorAsState(if (checked) OnAccent else TextPrimary, label = "toggle color")
 
     // Zewnętrzny Box daje pole dotyku min. 48 dp, a widoczny tor przełącznika jest niższy.
@@ -67,7 +65,6 @@ fun GlassToggle(
                 .size(Sizes.toggleWidth, Sizes.toggleHeight)
                 .clip(AppShapes.pill)
                 .background(trackColor)
-                .border(Sizes.glassBorder, GlassBorder, AppShapes.pill)
                 .padding(Sizes.togglePadding),
         ) {
             Box(
@@ -81,18 +78,18 @@ fun GlassToggle(
     }
 }
 
-@Preview(widthDp = 200, heightDp = 100)
+@Preview(widthDp = 200, heightDp = 90)
 @Composable
-private fun GlassTogglePreview() {
+private fun AppTogglePreview() {
     ShotClockTheme {
-        GlassBackground {
+        AppBackground {
             Row(
                 modifier = Modifier.padding(Spacing.medium),
                 horizontalArrangement = Arrangement.spacedBy(Spacing.medium),
             ) {
-                val description = stringResource(R.string.alarms_sample_toggle)
-                GlassToggle(checked = true, onCheckedChange = {}, contentDescription = description)
-                GlassToggle(checked = false, onCheckedChange = {}, contentDescription = description)
+                val description = stringResource(R.string.alarms_toggle)
+                AppToggle(checked = true, onCheckedChange = {}, contentDescription = description)
+                AppToggle(checked = false, onCheckedChange = {}, contentDescription = description)
             }
         }
     }

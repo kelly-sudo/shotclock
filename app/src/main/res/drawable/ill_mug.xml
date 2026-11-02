@@ -1,0 +1,27 @@
+<!-- Ilustracja kubka, narysowana dla ShotClock. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <path android:pathData="M78,54c-9,-11 9,-16 0,-30" android:strokeColor="#FFFFFFFF" android:strokeWidth="7" android:strokeAlpha="0.7" android:strokeLineCap="round" />
+    <path android:pathData="M112,54c-9,-11 9,-16 0,-30" android:strokeColor="#FFFFFFFF" android:strokeWidth="7" android:strokeAlpha="0.5" android:strokeLineCap="round" />
+    <path android:pathData="M148,92h12a25,25 0 0 1 0,50h-18" android:strokeColor="#FFE97C3D" android:strokeWidth="15" android:strokeAlpha="1" android:strokeLineCap="round" />
+    <path android:pathData="M40,76h112v74a30,30 0 0 1 -30,30H70a30,30 0 0 1 -30,-30z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="40" android:startY="76"
+                android:endX="152" android:endY="180"
+                android:startColor="#FFFFD9AE" android:endColor="#FFF08A4B" />
+        </aapt:attr>
+    </path>
+    <path android:pathData="M40,76a56,15 0 1 0 112,0a56,15 0 1 0 -112,0z" android:fillColor="#FFFFEBD3" />
+    <path android:pathData="M50,77a46,10 0 1 0 92,0a46,10 0 1 0 -92,0z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="50" android:startY="67"
+                android:endX="142" android:endY="87"
+                android:startColor="#FF8A4A24" android:endColor="#FF4A2410" />
+        </aapt:attr>
+    </path>
+    <path android:pathData="M59.5,96h0.0a5.5,5.5 0 0 1 5.5,5.5v47.0a5.5,5.5 0 0 1 -5.5,5.5h-0.0a5.5,5.5 0 0 1 -5.5,-5.5v-47.0a5.5,5.5 0 0 1 5.5,-5.5z" android:fillColor="#FFFFFFFF" android:fillAlpha="0.42" />
+</vector>

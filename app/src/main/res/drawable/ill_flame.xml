@@ -1,0 +1,22 @@
+<!-- Ilustracja płomienia serii dni, narysowana dla ShotClock. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <path android:pathData="M106,14c8,36 54,56 54,108a60,60 0 0 1 -120,0c0,-28 15,-44 28,-61 4,17 13,24 22,27 -4,-28 1,-54 16,-74z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="100" android:startY="182"
+                android:endX="100" android:endY="14"
+                android:startColor="#FFFF6B35" android:endColor="#FFFFC24D" />
+        </aapt:attr>
+    </path>
+    <path android:pathData="M103,94c4,20 29,29 29,56a31,31 0 0 1 -62,0c0,-18 11,-27 18,-36 2,9 7,12 9,14 -1,-14 1,-24 6,-34z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="100" android:startY="181"
+                android:endX="100" android:endY="94"
+                android:startColor="#FFFFF7D6" android:endColor="#FFFFD966" />
+        </aapt:attr>
+    </path>
+</vector>

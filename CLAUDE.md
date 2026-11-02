@@ -26,11 +26,11 @@ Zakres uzgodniony z prowadzącym: **2 przedmioty**.
 ## Urządzenia testowe
 
 - Na co dzień: **emulator** Android Studio (kamera emulatora ustawiona na Webcam0, czyli kamerę laptopa).
-- Testy na fizycznym urządzeniu: **starszy Samsung** i jeden nowszy Android. Pamiętaj o ograniczeniach starszych telefonów (słabsza wydajność, brak rozmycia tła poniżej API 31, agresywne oszczędzanie baterii w One UI).
+- Testy na fizycznym urządzeniu: **starszy Samsung** i jeden nowszy Android. Pamiętaj o ograniczeniach starszych telefonów (słabsza wydajność, często wąski ekran 360 dp, agresywne oszczędzanie baterii w One UI).
 
 ## Stos technologiczny
 
-- Kotlin, Jetpack Compose, Material 3 (jako baza, z własnym stylem „glass”)
+- Kotlin, Jetpack Compose, Material 3 (jako baza, z własnym ciemnym stylem)
 - Navigation Compose
 - ViewModel + StateFlow, Kotlin Coroutines
 - Room (SQLite), KSP
@@ -39,7 +39,7 @@ Zakres uzgodniony z prowadzącym: **2 przedmioty**.
 - TensorFlow Lite / LiteRT (klasyfikacja obrazu)
 - AlarmManager (`setAlarmClock`) + powiadomienie z full-screen intent + foreground service do dzwonienia
 - Proste ręczne wstrzykiwanie zależności (klasa `AppContainer`), **bez Hilta**
-- Opcjonalnie biblioteka Haze do rozmycia tła pod szklanymi panelami (zapytaj przed dodaniem)
+- Czcionka Manrope w `res/font` (licencja OFL w `licenses/`), animacje tylko w Compose, bez dodatkowych bibliotek
 
 Zanim dodasz nową bibliotekę, zapytaj i wyjaśnij, po co jest potrzebna.
 
@@ -48,8 +48,8 @@ Zanim dodasz nową bibliotekę, zapytaj i wyjaśnij, po co jest potrzebna.
 ```
 pl.shotclock.budzik
 ├── ui/
-│   ├── theme/        kolory, typografia, kształty, komponenty glass
-│   ├── components/   GlassCard, GlassButton, GlassToggle, TimeDisplay, ...
+│   ├── theme/        kolory, typografia, kształty, powierzchnie, animacje
+│   ├── components/   AppCard, AppButton, AppToggle, TimeDisplay, ...
 │   ├── onboarding/   powitanie + uprawnienia
 │   ├── alarms/       lista alarmów
 │   ├── edit/         dodawanie/edycja alarmu
@@ -65,39 +65,41 @@ pl.shotclock.budzik
 └── ml/               ObjectClassifier, FakeObjectClassifier, TfliteObjectClassifier
 ```
 
-## Design: styl „liquid glass”
+## Design: ciemny, mocny kontrast
 
-Nowoczesny, ciemny, półprzezroczysty interfejs inspirowany stylem liquid glass / glassmorphism.
+Nowoczesny, ciemny interfejs z wyraźną hierarchią: grube cyfry, duże ilustracje przedmiotów i karty w kolorze przedmiotu. Bez rozmycia i przezroczystości, więc aplikacja wygląda tak samo na każdej wersji Androida. Wzór wyglądu: [makieta UI](https://claude.ai/artifact/8jT83f83Ap4oo2RqtJR5Q4), rząd „Kierunek C” i pobudka.
 
 **Zasady wizualne:**
-- Tło: ciemny, płynny gradient (np. granat → fiolet → głęboki błękit), lekko animowany na ekranie dzwonienia.
-- Panele „szklane”: półprzezroczyste powierzchnie (biel z alfą ok. 8–15%), cienka jasna krawędź (biel z alfą ok. 20–30%), subtelny połysk u góry panelu (gradient od jaśniejszego do przezroczystego).
-- Rozmycie tła pod panelami tylko na **API 31+** (RenderEffect / Haze). Na starszych wersjach **fallback**: mocniej kryjący półprzezroczysty panel bez rozmycia. Aplikacja musi wyglądać dobrze w obu przypadkach.
-- Duże zaokrąglenia (24–32 dp dla kart, pełne zaokrąglenie dla przycisków), miękkie cienie, dużo przestrzeni.
-- Typografia: bardzo duża, cienka cyfra godziny na liście i ekranie dzwonienia; reszta tekstów czytelna, średniej grubości.
-- Kolor akcentu jeden (np. jasny turkus lub ciepły pomarańcz), używany oszczędnie: aktywne przełączniki, główne przyciski, sukces rozpoznania.
-- Animacje: płynne przejścia między ekranami, sprężyste reakcje przycisków, animacja sukcesu po rozpoznaniu przedmiotu. Bez przesady – animacje nie mogą spowalniać starszego Samsunga.
-- Obsługa trybu ciemnego jako domyślnego; tryb jasny opcjonalnie później.
+- Tło: jednolite, prawie czarne. Karty: ciemnoszare z cienką krawędzią.
+- Karta główna ekranu ma ciemny kolor przedmiotu (`MintTint`, `PeachTint`, `LilacTint`), żeby ekran nie był ponury.
+- Duże zaokrąglenia (22–32 dp dla kart i kafelków, pełne zaokrąglenie dla przycisków), dużo przestrzeni.
+- Typografia: Manrope. Bardzo duża, gruba cyfra godziny na liście i ekranie dzwonienia; reszta tekstów czytelna, średniej grubości.
+- Kolor akcentu jeden (jasny turkus `#5EEAD4`), używany oszczędnie: aktywne przełączniki, główne przyciski, sukces rozpoznania.
+- Dni tygodnia i aktywna zakładka są białe, żeby mocno odcinały się od tła.
+- Ilustracje przedmiotów to pliki `ill_*.xml` w `res/drawable`. Nazwa, ilustracja i kolor przedmiotu są w jednym miejscu: `ui/objects/ObjectVisual.kt`.
+- Szkło tylko na panelach kamery (Etap 4): półprzezroczysty ciemny panel nad podglądem, bez rozmycia.
+- Animacje: krótkie przenikanie między ekranami, wjazd elementów po otwarciu ekranu, sprężyste reakcje przycisków, fale wokół przedmiotu na ekranie dzwonienia, animacja sukcesu po rozpoznaniu przedmiotu. Wspólne animacje są w `ui/theme/Motion.kt` i czytają wartości wewnątrz `graphicsLayer`, żeby nie spowalniać starszego Samsunga.
+- Motyw ciemny jest domyślny; tryb jasny opcjonalnie później.
 
 **Komponenty wielokrotnego użytku** (w `ui/components`, wszystkie ekrany z nich korzystają):
-`GlassBackground`, `GlassCard`, `GlassButton`, `GlassIconButton`, `GlassToggle`, `GlassChip` (dni tygodnia), `GlassBottomBar`, `TimeDisplay`, `ScreenContainer` (wspólny układ zwykłego ekranu).
+`AppBackground`, `AppCard`, `AppButton`, `AppIconButton`, `AppToggle`, `AppChip` (dni tygodnia), `PresetChip` (szybkie wybory), `ObjectTile` (wybór przedmiotu), `AppBottomBar`, `PulsingHalo` (ekran dzwonienia), `TimeDisplay`, `ScreenContainer` (wspólny układ zwykłego ekranu).
 
-**Dostępność:** kontrast tekstu na szkle sprawdzony (tekst główny prawie biały), elementy dotykowe min. 48 dp, opisy `contentDescription` dla ikon.
+**Dostępność:** kontrast tekstu co najmniej 4.5:1 (tekst główny prawie biały), elementy dotykowe min. 48 dp, opisy `contentDescription` dla ikon.
 
 ## Ekrany i UX
 
 1. **Onboarding (pierwsze uruchomienie):** 2–3 karty z wyjaśnieniem, jak działa budzik, potem prośby o uprawnienia z wyjaśnieniem, po co są (powiadomienia, dokładne alarmy, kamera, full-screen intent). Obsługa odmowy z przejściem do ustawień systemu.
-2. **Lista alarmów (ekran główny):** karty glass z godziną, dniami tygodnia, etykietą, ikoną wymaganego przedmiotu i przełącznikiem. Na górze informacja „Następny alarm za 7 h 20 min”. Pływający przycisk dodawania. Pusty stan z ilustracją i zachętą do dodania pierwszego alarmu. Przesunięcie karty = usunięcie z możliwością cofnięcia.
-3. **Edycja alarmu:** duży wybór godziny, chipy dni tygodnia, etykieta, wybór przedmiotu (przedmiot 1 / przedmiot 2 / losowy), dźwięk, wibracje, stopniowe zwiększanie głośności. Zapis i usuwanie.
-4. **Ekran dzwonienia (full screen, także na zablokowanym ekranie):** animowane tło, ogromna godzina, komunikat „Zrób zdjęcie: szczoteczka do zębów” z ikoną przedmiotu, główny przycisk „Otwórz kamerę”. **Brak przycisku drzemki** (to cel aplikacji).
-5. **Ekran kamery:** podgląd na pełnym ekranie, szklana ramka-celownik na środku, na dole szklany panel z podpowiedzią. Rozpoznawanie na żywo (analiza klatek co ok. 300–500 ms) z paskiem pewności; gdy pewność przekroczy próg przez ok. 1 sekundę → alarm się wyłącza. Przycisk ręcznego zdjęcia jako alternatywa. Komunikaty: „Nie widzę przedmiotu”, „Przybliż”, „Jeszcze chwilę…”.
-6. **Sukces:** animacja potwierdzenia, czas wstania („Wstałeś w 1 min 42 s”), seria dni z rzędu.
+2. **Lista alarmów (ekran główny):** karty z godziną, dniami tygodnia, etykietą, ikoną wymaganego przedmiotu i przełącznikiem. Na górze informacja „Następny alarm za 7 h 20 min”. Pływający przycisk dodawania. Pusty stan z ilustracją i zachętą do dodania pierwszego alarmu. Przesunięcie karty = usunięcie z możliwością cofnięcia.
+3. **Edycja alarmu:** duży wybór godziny, szybkie wybory („Dni robocze”, „Weekend”, „Codziennie”), chipy dni tygodnia, etykieta, wybór przedmiotu (przedmiot 1 / przedmiot 2 / losowy), dźwięk, wibracje, stopniowe zwiększanie głośności. Zapis i usuwanie.
+4. **Ekran dzwonienia (full screen, także na zablokowanym ekranie):** pulsująca poświata i fale wokół przedmiotu, ogromna godzina, komunikat „Zrób zdjęcie: szczoteczka do zębów” z ikoną przedmiotu, główny przycisk „Otwórz kamerę”. **Brak przycisku drzemki** (to cel aplikacji).
+5. **Ekran kamery:** podgląd na pełnym ekranie, ramka-celownik z linią skanowania na środku, na dole półprzezroczysty panel z podpowiedzią. Rozpoznawanie na żywo (analiza klatek co ok. 300–500 ms) z paskiem pewności; gdy pewność przekroczy próg przez ok. 1 sekundę → alarm się wyłącza. Przycisk ręcznego zdjęcia jako alternatywa. Komunikaty: „Nie widzę przedmiotu”, „Przybliż”, „Jeszcze chwilę…”.
+6. **Sukces:** animacja potwierdzenia, czas wstania („Czas wstania: 1 min 42 s”), seria dni z rzędu.
 7. **Wyjście awaryjne:** po np. 10 nieudanych próbach lub 10 minutach dzwonienia pojawia się opcja „Nie mogę znaleźć przedmiotu” → wyłączenie przez zadanie matematyczne. Zapisywane w historii jako wyłączenie awaryjne.
 8. **Przedmioty:** dwie karty przedmiotów, które rozpoznaje model (nazwa, ikona, przykładowe zdjęcie), informacja o wersji modelu.
 9. **Historia i statystyki:** lista pobudek (data, czas wyłączenia, liczba prób, rozpoznany przedmiot, pewność), średni czas wstania, seria dni. Prosty wykres z ostatnich 7 dni.
 10. **Ustawienia:** domyślny dźwięk, wibracje, próg pewności (tylko w trybie deweloperskim), **przełącznik trybu testowego** (FakeObjectClassifier), informacje o aplikacji.
 
-Nawigacja: dolny pasek glass z zakładkami Alarmy / Historia / Przedmioty / Ustawienia. Ekrany dzwonienia i kamery bez paska.
+Nawigacja: pływający dolny pasek z zakładkami Alarmy / Historia / Przedmioty / Ustawienia. Ekrany dzwonienia i kamery bez paska.
 
 ## Kontrakt z zespołem AI (integracja modelu)
 
@@ -149,12 +151,12 @@ Ustawienia aplikacji w DataStore, nie w Room.
 
 Realizuj etapami, w tej kolejności. Po każdym etapie zatrzymaj się i poczekaj na sprawdzenie na telefonie.
 
-- [x] **Etap 1 – Fundament:** zależności, struktura pakietów, AppContainer, motyw glass i komponenty z podglądami, nawigacja z dolnym paskiem, ekrany-zaślepki
+- [x] **Etap 1 – Fundament:** zależności, struktura pakietów, AppContainer, ciemny motyw i komponenty z podglądami, nawigacja z dolnym paskiem, ekrany na przykładowych danych
 - [ ] **Etap 2 – Alarmy w bazie:** Room, lista alarmów, edycja alarmu, testy DAO
 - [ ] **Etap 3 – Dzwonienie:** AlarmManager, foreground service, dźwięk z narastającą głośnością, wibracje, full-screen intent, ekran dzwonienia, boot receiver
 - [ ] **Etap 4 – Kamera:** uprawnienia, CameraX, celownik, analiza klatek z FakeObjectClassifier, decyzja o wyłączeniu + testy
 - [ ] **Etap 5 – Pełny scenariusz:** dzwonienie → kamera → sukces, zapis WakeEvent, wyjście awaryjne
 - [ ] **Etap 6 – Historia, przedmioty, ustawienia:** statystyki, wykres, DataStore, tryb testowy
-- [ ] **Etap 7 – Onboarding i dopracowanie:** uprawnienia z wyjaśnieniem, animacje, puste stany, fallback bez rozmycia na starszym Androidzie
+- [ ] **Etap 7 – Onboarding i dopracowanie:** uprawnienia z wyjaśnieniem, animacje, puste stany
 - [ ] **Etap 8 – Integracja modelu:** TfliteObjectClassifier, podmiana plików od zespołu AI, testy na zdjęciach
 - [ ] **Etap 9 – Stabilizacja:** testy na Samsungu, poprawki wydajności, przygotowanie do demo

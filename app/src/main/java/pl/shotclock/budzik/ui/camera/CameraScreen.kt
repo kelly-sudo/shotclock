@@ -8,8 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import pl.shotclock.budzik.R
-import pl.shotclock.budzik.ui.components.GlassBackground
-import pl.shotclock.budzik.ui.components.GlassCard
+import pl.shotclock.budzik.ui.components.AppBackground
+import pl.shotclock.budzik.ui.components.AppCard
 import pl.shotclock.budzik.ui.components.ScreenContainer
 import pl.shotclock.budzik.ui.theme.ShotClockTheme
 
@@ -24,7 +24,7 @@ fun CameraScreen(
         modifier = modifier,
         onBack = onBack,
     ) {
-        GlassCard(Modifier.fillMaxWidth()) {
+        AppCard(Modifier.fillMaxWidth()) {
             Text(
                 text = stringResource(R.string.camera_placeholder),
                 style = MaterialTheme.typography.bodyLarge,
@@ -33,11 +33,11 @@ fun CameraScreen(
     }
 }
 
-@Preview(widthDp = 360, heightDp = 640)
+@Preview(widthDp = 390, heightDp = 844)
 @Composable
 private fun CameraScreenPreview() {
     ShotClockTheme {
-        GlassBackground {
+        AppBackground {
             CameraScreen(onBack = {})
         }
     }

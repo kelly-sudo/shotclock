@@ -16,6 +16,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import pl.shotclock.budzik.R
 import pl.shotclock.budzik.ui.theme.AppShapes
 import pl.shotclock.budzik.ui.theme.ShotClockTheme
@@ -25,12 +26,13 @@ import pl.shotclock.budzik.ui.theme.rememberPressScale
 import pl.shotclock.budzik.ui.theme.scaledBy
 
 @Composable
-fun GlassIconButton(
+fun AppIconButton(
     @DrawableRes icon: Int,
     contentDescription: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    style: GlassButtonStyle = GlassButtonStyle.Secondary,
+    style: AppButtonStyle = AppButtonStyle.Secondary,
+    size: Dp = Sizes.iconButton,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val scale = rememberPressScale(interactionSource)
@@ -38,7 +40,7 @@ fun GlassIconButton(
     Box(
         modifier = modifier
             .scaledBy(scale)
-            .size(Sizes.iconButton)
+            .size(size)
             .buttonSurface(style, AppShapes.pill)
             .clickable(
                 interactionSource = interactionSource,
@@ -58,10 +60,10 @@ fun GlassIconButton(
 
 @Preview(widthDp = 120, heightDp = 100)
 @Composable
-private fun GlassIconButtonPreview() {
+private fun AppIconButtonPreview() {
     ShotClockTheme {
-        GlassBackground {
-            GlassIconButton(
+        AppBackground {
+            AppIconButton(
                 icon = R.drawable.ic_arrow_back,
                 contentDescription = stringResource(R.string.action_back),
                 onClick = {},
@@ -73,15 +75,16 @@ private fun GlassIconButtonPreview() {
 
 @Preview(widthDp = 120, heightDp = 100)
 @Composable
-private fun GlassIconButtonPrimaryPreview() {
+private fun AppIconButtonPrimaryPreview() {
     ShotClockTheme {
-        GlassBackground {
-            GlassIconButton(
+        AppBackground {
+            AppIconButton(
                 icon = R.drawable.ic_add,
                 contentDescription = stringResource(R.string.action_add_alarm),
                 onClick = {},
                 modifier = Modifier.padding(Spacing.medium),
-                style = GlassButtonStyle.Primary,
+                style = AppButtonStyle.Primary,
+                size = Sizes.floatingButton,
             )
         }
     }

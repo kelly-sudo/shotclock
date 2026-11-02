@@ -9,9 +9,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 private val DarkColorScheme = darkColorScheme(
     primary = Accent,
     onPrimary = OnAccent,
-    background = GradientNavy,
+    background = BackgroundColor,
     onBackground = TextPrimary,
-    surface = GradientNavy,
+    surface = SurfaceColor,
     onSurface = TextPrimary,
     onSurfaceVariant = TextSecondary,
 )

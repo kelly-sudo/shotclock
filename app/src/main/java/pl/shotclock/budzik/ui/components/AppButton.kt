@@ -29,31 +29,31 @@ import pl.shotclock.budzik.ui.theme.ShotClockTheme
 import pl.shotclock.budzik.ui.theme.Spacing
 import pl.shotclock.budzik.ui.theme.TextPrimary
 import pl.shotclock.budzik.ui.theme.accentSurface
-import pl.shotclock.budzik.ui.theme.glassSurface
+import pl.shotclock.budzik.ui.theme.cardSurface
 import pl.shotclock.budzik.ui.theme.rememberPressScale
 import pl.shotclock.budzik.ui.theme.scaledBy
 
-/** Primary: wypełniony akcentem, do głównej akcji na ekranie. Secondary: szklany. */
-enum class GlassButtonStyle { Primary, Secondary }
+/** Primary: wypełniony akcentem, do głównej akcji na ekranie. Secondary: w kolorze karty. */
+enum class AppButtonStyle { Primary, Secondary }
 
-internal fun Modifier.buttonSurface(style: GlassButtonStyle, shape: Shape): Modifier =
+internal fun Modifier.buttonSurface(style: AppButtonStyle, shape: Shape): Modifier =
     when (style) {
-        GlassButtonStyle.Primary -> accentSurface(shape)
-        GlassButtonStyle.Secondary -> glassSurface(shape)
+        AppButtonStyle.Primary -> accentSurface(shape)
+        AppButtonStyle.Secondary -> cardSurface(shape = shape)
     }
 
-internal fun buttonContentColor(style: GlassButtonStyle): Color =
+internal fun buttonContentColor(style: AppButtonStyle): Color =
     when (style) {
-        GlassButtonStyle.Primary -> OnAccent
-        GlassButtonStyle.Secondary -> TextPrimary
+        AppButtonStyle.Primary -> OnAccent
+        AppButtonStyle.Secondary -> TextPrimary
     }
 
 @Composable
-fun GlassButton(
+fun AppButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    style: GlassButtonStyle = GlassButtonStyle.Primary,
+    style: AppButtonStyle = AppButtonStyle.Primary,
     @DrawableRes icon: Int? = null,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -83,12 +83,12 @@ fun GlassButton(
     }
 }
 
-@Preview(widthDp = 360, heightDp = 120)
+@Preview(widthDp = 360, heightDp = 100)
 @Composable
-private fun GlassButtonPrimaryPreview() {
+private fun AppButtonPrimaryPreview() {
     ShotClockTheme {
-        GlassBackground {
-            GlassButton(
+        AppBackground {
+            AppButton(
                 text = stringResource(R.string.ring_open_camera),
                 onClick = {},
                 modifier = Modifier.padding(Spacing.medium),
@@ -98,16 +98,16 @@ private fun GlassButtonPrimaryPreview() {
     }
 }
 
-@Preview(widthDp = 360, heightDp = 120)
+@Preview(widthDp = 360, heightDp = 100)
 @Composable
-private fun GlassButtonSecondaryPreview() {
+private fun AppButtonSecondaryPreview() {
     ShotClockTheme {
-        GlassBackground {
-            GlassButton(
+        AppBackground {
+            AppButton(
                 text = stringResource(R.string.settings_preview_camera),
                 onClick = {},
                 modifier = Modifier.padding(Spacing.medium),
-                style = GlassButtonStyle.Secondary,
+                style = AppButtonStyle.Secondary,
             )
         }
     }

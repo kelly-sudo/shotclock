@@ -17,15 +17,16 @@ import androidx.navigation.compose.rememberNavController
 import pl.shotclock.budzik.R
 import pl.shotclock.budzik.ui.alarms.AlarmsScreen
 import pl.shotclock.budzik.ui.camera.CameraScreen
+import pl.shotclock.budzik.ui.components.AppBackground
+import pl.shotclock.budzik.ui.components.AppBottomBar
 import pl.shotclock.budzik.ui.components.BottomBarItem
-import pl.shotclock.budzik.ui.components.GlassBackground
-import pl.shotclock.budzik.ui.components.GlassBottomBar
 import pl.shotclock.budzik.ui.edit.EditAlarmScreen
 import pl.shotclock.budzik.ui.history.HistoryScreen
 import pl.shotclock.budzik.ui.objects.ObjectsScreen
 import pl.shotclock.budzik.ui.onboarding.OnboardingScreen
 import pl.shotclock.budzik.ui.ring.RingScreen
 import pl.shotclock.budzik.ui.settings.SettingsScreen
+import pl.shotclock.budzik.ui.theme.ScreenTransitionMillis
 import pl.shotclock.budzik.ui.theme.ShotClockTheme
 
 /** Nazwy wszystkich ekranów w jednym miejscu. */
@@ -39,8 +40,6 @@ private object Routes {
     const val CAMERA = "camera"
     const val ONBOARDING = "onboarding"
 }
-
-private const val TransitionMillis = 200
 
 // Dolny pasek widać tylko na tych czterech ekranach.
 private val bottomBarItems = listOf(
@@ -56,14 +55,14 @@ fun AppNavigation() {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
 
-    GlassBackground {
+    AppBackground {
         NavHost(
             navController = navController,
             startDestination = Routes.ALARMS,
-            enterTransition = { fadeIn(tween(TransitionMillis)) },
-            exitTransition = { fadeOut(tween(TransitionMillis)) },
-            popEnterTransition = { fadeIn(tween(TransitionMillis)) },
-            popExitTransition = { fadeOut(tween(TransitionMillis)) },
+            enterTransition = { fadeIn(tween(ScreenTransitionMillis)) },
+            exitTransition = { fadeOut(tween(ScreenTransitionMillis)) },
+            popEnterTransition = { fadeIn(tween(ScreenTransitionMillis)) },
+            popExitTransition = { fadeOut(tween(ScreenTransitionMillis)) },
         ) {
             composable(Routes.ALARMS) {
                 AlarmsScreen(onAddAlarm = { navController.navigate(Routes.EDIT_ALARM) })
@@ -97,7 +96,7 @@ fun AppNavigation() {
         }
 
         if (bottomBarItems.any { it.route == currentRoute }) {
-            GlassBottomBar(
+            AppBottomBar(
                 items = bottomBarItems,
                 selectedRoute = currentRoute,
                 onItemClick = { item -> navController.openTab(item.route) },

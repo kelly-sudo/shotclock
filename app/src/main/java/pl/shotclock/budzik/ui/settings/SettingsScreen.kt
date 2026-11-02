@@ -14,11 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import pl.shotclock.budzik.R
-import pl.shotclock.budzik.ui.components.GlassBackground
-import pl.shotclock.budzik.ui.components.GlassButton
-import pl.shotclock.budzik.ui.components.GlassButtonStyle
-import pl.shotclock.budzik.ui.components.GlassCard
-import pl.shotclock.budzik.ui.components.GlassToggle
+import pl.shotclock.budzik.ui.components.AppBackground
+import pl.shotclock.budzik.ui.components.AppButton
+import pl.shotclock.budzik.ui.components.AppButtonStyle
+import pl.shotclock.budzik.ui.components.AppCard
+import pl.shotclock.budzik.ui.components.AppToggle
 import pl.shotclock.budzik.ui.components.ScreenContainer
 import pl.shotclock.budzik.ui.theme.ShotClockTheme
 import pl.shotclock.budzik.ui.theme.TextSecondary
@@ -43,14 +43,14 @@ fun SettingsScreen(
         modifier = modifier,
         hasBottomBar = true,
     ) {
-        GlassCard(Modifier.fillMaxWidth()) {
+        AppCard(Modifier.fillMaxWidth()) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = stringResource(R.string.settings_vibration_sample),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.weight(1f),
                 )
-                GlassToggle(
+                AppToggle(
                     checked = vibration,
                     onCheckedChange = { vibration = it },
                     contentDescription = stringResource(R.string.settings_vibration_sample),
@@ -62,7 +62,7 @@ fun SettingsScreen(
                 color = TextSecondary,
             )
         }
-        GlassCard(Modifier.fillMaxWidth()) {
+        AppCard(Modifier.fillMaxWidth()) {
             Text(
                 text = stringResource(R.string.settings_preview_title),
                 style = MaterialTheme.typography.titleMedium,
@@ -81,19 +81,19 @@ fun SettingsScreen(
 
 @Composable
 private fun PreviewButton(text: String, onClick: () -> Unit) {
-    GlassButton(
+    AppButton(
         text = text,
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-        style = GlassButtonStyle.Secondary,
+        style = AppButtonStyle.Secondary,
     )
 }
 
-@Preview(widthDp = 360, heightDp = 760)
+@Preview(widthDp = 390, heightDp = 844)
 @Composable
 private fun SettingsScreenPreview() {
     ShotClockTheme {
-        GlassBackground {
+        AppBackground {
             SettingsScreen(onOpenOnboarding = {}, onOpenRing = {}, onOpenCamera = {})
         }
     }
