@@ -39,6 +39,9 @@ private const val FloatMillis = 2000
 private const val FloatDistancePx = 16f
 private const val FloatAngle = 4f
 
+// Na razie aplikacja działa tylko na FakeObjectClassifier. Prawdziwy stan przyjdzie z ustawień w Etapie 6.
+private const val SampleTestMode = true
+
 /** Przedmioty na przykładowych danych. Liczba alarmów i wersja modelu dojdą w Etapie 6. */
 @Composable
 fun ObjectsScreen(modifier: Modifier = Modifier) {
@@ -62,6 +65,8 @@ fun ObjectsScreen(modifier: Modifier = Modifier) {
             visual = ObjectVisual.Mug,
             tipRes = R.string.object_mug_tip,
             modifier = Modifier.entranceFrom(rememberEntrance(order = 2)),
+            // Kubek unosi się w przeciwnej fazie niż szczoteczka, jak w makiecie.
+            floatOffsetMillis = FloatMillis,
         )
         ModelStatusCard(Modifier.entranceFrom(rememberEntrance(order = 3)))
     }
@@ -72,8 +77,9 @@ private fun ObjectCard(
     visual: ObjectVisual,
     @StringRes tipRes: Int,
     modifier: Modifier = Modifier,
+    floatOffsetMillis: Int = 0,
 ) {
-    val float = rememberPulse(FloatMillis, label = "object float")
+    val float = rememberPulse(FloatMillis, label = "object float", startOffsetMillis = floatOffsetMillis)
 
     AppCard(
         modifier = modifier.fillMaxWidth(),
@@ -133,11 +139,12 @@ private fun ModelStatusCard(modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(Spacing.smallMedium),
         ) {
+            // Turkus znaczy „działa”, więc w trybie testowym (bez prawdziwego modelu) kropka jest szara.
             Box(
                 modifier = Modifier
                     .size(Sizes.modelDot)
                     .clip(AppShapes.pill)
-                    .background(Accent),
+                    .background(if (SampleTestMode) TextSecondary else Accent),
             )
             Text(
                 text = stringResource(R.string.objects_model),

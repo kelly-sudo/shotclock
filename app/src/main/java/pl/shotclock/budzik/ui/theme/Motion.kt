@@ -5,6 +5,8 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.StartOffset
+import androidx.compose.animation.core.StartOffsetType
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
@@ -88,15 +90,20 @@ fun Modifier.entranceFrom(progress: State<Float>): Modifier = graphicsLayer {
     translationY = (1f - progress.value) * EntranceOffset.toPx()
 }
 
-/** Wartość od 0 do 1 i z powrotem, bez końca: do pulsowania, migania i unoszenia się. */
+/**
+ * Wartość od 0 do 1 i z powrotem, bez końca: do pulsowania, migania i unoszenia się.
+ * [startOffsetMillis] przesuwa start, żeby dwa elementy obok siebie nie ruszały się idealnie równo.
+ */
 @Composable
-fun rememberPulse(durationMillis: Int, label: String): State<Float> =
+fun rememberPulse(durationMillis: Int, label: String, startOffsetMillis: Int = 0): State<Float> =
     rememberInfiniteTransition(label = label).animateFloat(
         initialValue = 0f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse,
+            // FastForward: animacja od razu zaczyna się „w połowie”, bez czekania.
+            initialStartOffset = StartOffset(startOffsetMillis, StartOffsetType.FastForward),
         ),
         label = label,
     )
