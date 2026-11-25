@@ -35,6 +35,8 @@ object Sizes {
     val statusDot = 8.dp
     val modelDot = 10.dp
     val chartHeight = 104.dp
+    // Miejsce nad słupkami na wartość dzisiejszego dnia, żeby zmieściła się nawet nad najwyższym słupkiem.
+    val chartValueSpace = 24.dp
 
     // Ilustracje przedmiotów
     val illustrationSmall = 32.dp

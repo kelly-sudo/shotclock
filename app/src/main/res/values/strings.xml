@@ -90,6 +90,16 @@
     <string name="history_average_sample">1 min 42 s</string>
     <string name="history_average_label">średni czas wstania</string>
     <string name="history_chart_title">Czas wstania, ostatnie 7 dni</string>
+    <string name="history_chart_today">Dziś</string>
+    <!-- Wartość nad dzisiejszym słupkiem: minuty i sekundy, np. 1:42 -->
+    <string name="history_chart_value">%1$d:%2$02d</string>
+    <!-- Opis wykresu czytany przez TalkBack, np. „Czas wstania z ostatnich 7 dni: Wtorek 47 s, …” -->
+    <string name="history_chart_description">Czas wstania z ostatnich 7 dni: %1$s</string>
+    <string name="history_chart_day">%1$s %2$s</string>
+    <string name="history_events_title">Ostatnie pobudki</string>
+    <string name="duration_minutes_seconds">%1$d min %2$d s</string>
+    <string name="duration_minutes">%1$d min</string>
+    <string name="duration_seconds">%1$d s</string>
     <string name="history_event_today">Dziś, 7:31</string>
     <string name="history_event_today_details">Szczoteczka · 96% · 1 próba</string>
     <string name="history_event_today_time">1 min 42 s</string>

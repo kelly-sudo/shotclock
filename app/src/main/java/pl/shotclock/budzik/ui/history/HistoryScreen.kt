@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,6 +26,10 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import pl.shotclock.budzik.R
@@ -39,8 +45,10 @@ import pl.shotclock.budzik.ui.theme.NeutralTint
 import pl.shotclock.budzik.ui.theme.PeachTint
 import pl.shotclock.budzik.ui.theme.ShotClockTheme
 import pl.shotclock.budzik.ui.theme.Sizes
+import pl.shotclock.budzik.ui.theme.SmallLabelMinSize
 import pl.shotclock.budzik.ui.theme.Spacing
 import pl.shotclock.budzik.ui.theme.StatNumberText
+import pl.shotclock.budzik.ui.theme.TextPrimary
 import pl.shotclock.budzik.ui.theme.TextSecondary
 import pl.shotclock.budzik.ui.theme.entranceFrom
 import pl.shotclock.budzik.ui.theme.rememberEntrance
@@ -125,39 +133,87 @@ private fun StreakStat(@StringRes value: Int, @StringRes label: Int) {
 @Composable
 private fun WakeChartCard(modifier: Modifier = Modifier) {
     val dayNames = stringArrayResource(R.array.weekdays_short)
+    val fullDayNames = stringArrayResource(R.array.weekdays_full)
     val longest = SampleWakeSeconds.max()
+
+    // Czytnik ekranu nie „widzi” słupków, więc dostaje cały wykres jako jedno zdanie z wartościami.
+    val chartDescription = stringResource(
+        R.string.history_chart_description,
+        SampleWakeSeconds.indices.map { index ->
+            stringResource(
+                R.string.history_chart_day,
+                fullDayNames[SampleDayOrder[index]],
+                formatDuration(SampleWakeSeconds[index]),
+            )
+        }.joinToString(", "),
+    )
 
     AppCard(modifier = modifier.fillMaxWidth()) {
         Text(
             text = stringResource(R.string.history_chart_title),
             style = MaterialTheme.typography.titleMedium,
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.small)) {
+        Row(
+            modifier = Modifier.clearAndSetSemantics { contentDescription = chartDescription },
+            horizontalArrangement = Arrangement.spacedBy(Spacing.small),
+        ) {
             SampleWakeSeconds.forEachIndexed { index, seconds ->
+                val isToday = index == SampleWakeSeconds.lastIndex
                 Column(
                     modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(Spacing.small),
                 ) {
-                    Box(
-                        modifier = Modifier.height(Sizes.chartHeight),
-                        contentAlignment = Alignment.BottomCenter,
+                    Column(
+                        modifier = Modifier.height(Sizes.chartHeight + Sizes.chartValueSpace),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(Spacing.extraSmall, Alignment.Bottom),
                     ) {
+                        // Dzisiejszy wynik jest podpisany liczbą, żeby nie trzeba było zgadywać z wysokości słupka.
+                        if (isToday) {
+                            val valueStyle = MaterialTheme.typography.labelMedium
+                            Text(
+                                text = stringResource(R.string.history_chart_value, seconds / 60, seconds % 60),
+                                modifier = Modifier.entranceFrom(rememberEntrance(index)),
+                                style = valueStyle,
+                                color = Accent,
+                                maxLines = 1,
+                                // Kolumna słupka jest wąska, więc przy dużej czcionce liczba zmniejsza się zamiast uciąć.
+                                autoSize = TextAutoSize.StepBased(
+                                    minFontSize = SmallLabelMinSize,
+                                    maxFontSize = valueStyle.fontSize,
+                                ),
+                            )
+                        }
                         ChartBar(
                             heightFraction = seconds.toFloat() / longest,
-                            isToday = index == SampleWakeSeconds.lastIndex,
+                            isToday = isToday,
                             order = index,
                         )
                     }
+                    // Dziś wyróżnia nie tylko kolor słupka, ale też napis „Dziś” w jasnym kolorze.
                     Text(
-                        text = dayNames[SampleDayOrder[index]],
+                        text = if (isToday) stringResource(R.string.history_chart_today) else dayNames[SampleDayOrder[index]],
                         style = MaterialTheme.typography.labelSmall,
-                        color = TextSecondary,
+                        color = if (isToday) TextPrimary else TextSecondary,
                         textAlign = TextAlign.Center,
+                        maxLines = 1,
                     )
                 }
             }
         }
+    }
+}
+
+/** Czas w sekundach jako tekst, np. „1 min 42 s”, „3 min” albo „47 s”. */
+@Composable
+private fun formatDuration(seconds: Int): String {
+    val minutes = seconds / 60
+    val rest = seconds % 60
+    return when {
+        minutes == 0 -> stringResource(R.string.duration_seconds, rest)
+        rest == 0 -> stringResource(R.string.duration_minutes, minutes)
+        else -> stringResource(R.string.duration_minutes_seconds, minutes, rest)
     }
 }
 
@@ -186,6 +242,13 @@ private fun WakeEventsCard(modifier: Modifier = Modifier) {
         contentPadding = PaddingValues(horizontal = Spacing.screenEdge, vertical = Spacing.extraSmall),
         verticalSpacing = Spacing.none,
     ) {
+        Text(
+            text = stringResource(R.string.history_events_title),
+            modifier = Modifier
+                .padding(top = Spacing.medium, bottom = Spacing.extraSmall)
+                .semantics { heading() },
+            style = MaterialTheme.typography.titleMedium,
+        )
         WakeEventRow(
             visual = ObjectVisual.Toothbrush,
             title = R.string.history_event_today,

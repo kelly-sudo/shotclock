@@ -37,8 +37,8 @@ import pl.shotclock.budzik.ui.theme.HighlightColor
 import pl.shotclock.budzik.ui.theme.OnHighlight
 import pl.shotclock.budzik.ui.theme.ShotClockTheme
 import pl.shotclock.budzik.ui.theme.Sizes
+import pl.shotclock.budzik.ui.theme.SmallLabelMinSize
 import pl.shotclock.budzik.ui.theme.Spacing
-import pl.shotclock.budzik.ui.theme.TabLabelMinSize
 import pl.shotclock.budzik.ui.theme.TextSecondary
 import pl.shotclock.budzik.ui.theme.cardSurface
 import pl.shotclock.budzik.ui.theme.rememberPressScale
@@ -127,7 +127,7 @@ private fun BottomBarTab(
             style = labelStyle,
             color = color,
             maxLines = 1,
-            autoSize = TextAutoSize.StepBased(minFontSize = TabLabelMinSize, maxFontSize = labelStyle.fontSize),
+            autoSize = TextAutoSize.StepBased(minFontSize = SmallLabelMinSize, maxFontSize = labelStyle.fontSize),
         )
     }
 }
