@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -113,6 +113,16 @@ fun EditAlarmScreen(
                 )
             }
         },
+        // „Zapisz alarm” jest zawsze widoczny na dole, niezależnie od przewinięcia.
+        pinnedBottom = {
+            if (!uiState.isLoading) {
+                AppButton(
+                    text = stringResource(R.string.edit_save),
+                    onClick = actions.onSave,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        },
     ) {
         // Zanim alarm wczyta się z bazy, pokazujemy tylko tytuł.
         if (!uiState.isLoading) {
@@ -154,11 +164,6 @@ private fun ColumnScope.EditAlarmForm(alarm: Alarm, actions: EditAlarmActions) {
         }
     }
     AlarmOptionsCard(alarm, actions)
-    AppButton(
-        text = stringResource(R.string.edit_save),
-        onClick = actions.onSave,
-        modifier = Modifier.fillMaxWidth(),
-    )
 }
 
 @Composable
@@ -211,11 +216,9 @@ private fun WeekdayChips(selectedDays: Set<DayOfWeek>, onChange: (Set<DayOfWeek>
     val shortNames = stringArrayResource(R.array.weekdays_short)
     val fullNames = stringArrayResource(R.array.weekdays_full)
 
-    // FlowRow przenosi chipy do drugiego wiersza na wąskim ekranie (7 chipów po 48 dp nie zawsze się mieści).
-    FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(Spacing.extraSmall),
-        verticalArrangement = Arrangement.spacedBy(Spacing.extraSmall),
-    ) {
+    // Siedem chipów dzieli szerokość po równo, więc zawsze mieszczą się w jednym wierszu.
+    // Na wąskim ekranie (360 dp) są nieco węższe niż 48 dp, ale wysokość zostaje 48 dp.
+    Row(horizontalArrangement = Arrangement.spacedBy(Spacing.extraSmall)) {
         DayOfWeek.entries.forEachIndexed { index, day ->
             AppChip(
                 label = shortNames[index],
@@ -224,6 +227,7 @@ private fun WeekdayChips(selectedDays: Set<DayOfWeek>, onChange: (Set<DayOfWeek>
                     onChange(if (selected) selectedDays + day else selectedDays - day)
                 },
                 contentDescription = fullNames[index],
+                modifier = Modifier.weight(1f),
             )
         }
     }
@@ -271,8 +275,9 @@ private fun OptionRow(
     @StringRes label: Int,
     trailing: @Composable RowScope.() -> Unit,
 ) {
+    // Wiersz rośnie, gdy przy dużej czcionce opis łamie się na dwie linie.
     Row(
-        modifier = Modifier.height(Sizes.settingRowHeight),
+        modifier = Modifier.heightIn(min = Sizes.settingRowHeight),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.smallMedium),
     ) {

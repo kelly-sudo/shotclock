@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
@@ -31,6 +32,7 @@ import pl.shotclock.budzik.ui.objects.ObjectVisual
 import pl.shotclock.budzik.ui.theme.Accent
 import pl.shotclock.budzik.ui.theme.AppShapes
 import pl.shotclock.budzik.ui.theme.ShotClockTheme
+import pl.shotclock.budzik.ui.theme.SmallLabelMinSize
 import pl.shotclock.budzik.ui.theme.Sizes
 import pl.shotclock.budzik.ui.theme.Spacing
 import pl.shotclock.budzik.ui.theme.rememberPressScale
@@ -73,11 +75,16 @@ fun ObjectTile(
     ) {
         // Opis nie jest potrzebny, bo pod ilustracją jest nazwa.
         ObjectImage(visual, contentDescription = null, modifier = Modifier.size(Sizes.illustrationTile))
+        // Przy dużej czcionce na wąskim ekranie nazwa się zmniejsza, zamiast ucinać („Szczoteczka”).
         Text(
             text = stringResource(visual.shortNameRes),
             style = MaterialTheme.typography.labelMedium,
             textAlign = TextAlign.Center,
             maxLines = 1,
+            autoSize = TextAutoSize.StepBased(
+                minFontSize = SmallLabelMinSize,
+                maxFontSize = MaterialTheme.typography.labelMedium.fontSize,
+            ),
         )
     }
 }
