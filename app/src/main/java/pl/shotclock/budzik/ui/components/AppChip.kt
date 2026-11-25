@@ -19,6 +19,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -51,6 +53,7 @@ fun AppChip(
     val surface by animateColorAsState(if (selected) HighlightColor else SurfaceColor, label = "chip surface")
     val border by animateColorAsState(if (selected) HighlightColor else ControlBorder, label = "chip border")
     val textColor by animateColorAsState(if (selected) OnHighlight else TextPrimary, label = "chip text")
+    val haptics = LocalHapticFeedback.current
 
     Box(
         modifier = modifier
@@ -64,7 +67,12 @@ fun AppChip(
                 interactionSource = interactionSource,
                 indication = ripple(),
                 role = Role.Checkbox,
-                onValueChange = onSelectedChange,
+                onValueChange = { isSelected ->
+                    haptics.performHapticFeedback(
+                        if (isSelected) HapticFeedbackType.ToggleOn else HapticFeedbackType.ToggleOff,
+                    )
+                    onSelectedChange(isSelected)
+                },
             )
             .semantics { this.contentDescription = contentDescription },
         contentAlignment = Alignment.Center,

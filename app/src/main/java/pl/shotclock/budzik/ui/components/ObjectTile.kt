@@ -20,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
@@ -45,6 +47,7 @@ fun ObjectTile(
     val interactionSource = remember { MutableInteractionSource() }
     val scale = rememberPressScale(interactionSource)
     val border by animateColorAsState(if (selected) Accent else Color.Transparent, label = "tile border")
+    val haptics = LocalHapticFeedback.current
 
     Column(
         modifier = modifier
@@ -58,7 +61,11 @@ fun ObjectTile(
                 interactionSource = interactionSource,
                 indication = ripple(),
                 role = Role.RadioButton,
-                onClick = onClick,
+                onClick = {
+                    // Lekkie „tyknięcie” tylko wtedy, gdy wybór naprawdę się zmienia.
+                    if (!selected) haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                    onClick()
+                },
             )
             .padding(Spacing.extraSmall),
         horizontalAlignment = Alignment.CenterHorizontally,

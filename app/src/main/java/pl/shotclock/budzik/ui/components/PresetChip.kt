@@ -17,6 +17,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,6 +48,7 @@ fun PresetChip(
     val surface by animateColorAsState(if (selected) MintTint.surface else SurfaceColor, label = "preset surface")
     val border by animateColorAsState(if (selected) Accent else ControlBorder, label = "preset border")
     val textColor by animateColorAsState(if (selected) Accent else TextPrimary, label = "preset text")
+    val haptics = LocalHapticFeedback.current
 
     Box(
         modifier = modifier
@@ -55,7 +58,11 @@ fun PresetChip(
                 interactionSource = interactionSource,
                 indication = null,
                 role = Role.RadioButton,
-                onClick = onClick,
+                onClick = {
+                    // Lekkie „tyknięcie” tylko wtedy, gdy wybór naprawdę się zmienia.
+                    if (!selected) haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                    onClick()
+                },
             ),
         contentAlignment = Alignment.Center,
     ) {

@@ -18,6 +18,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -50,12 +52,21 @@ fun AppToggle(
     )
     val trackColor by animateColorAsState(if (checked) Accent else ControlOffColor, label = "toggle track")
     val thumbColor by animateColorAsState(if (checked) OnAccent else TextPrimary, label = "toggle color")
+    val haptics = LocalHapticFeedback.current
 
     // Zewnętrzny Box daje pole dotyku min. 48 dp, a widoczny tor przełącznika jest niższy.
     Box(
         modifier = modifier
             .clip(AppShapes.pill)
-            .toggleable(value = checked, role = Role.Switch, onValueChange = onCheckedChange)
+            .toggleable(
+                value = checked,
+                role = Role.Switch,
+                onValueChange = { isOn ->
+                    // Krótkie, wyczuwalne potwierdzenie zmiany, takie jak w systemowych przełącznikach.
+                    haptics.performHapticFeedback(if (isOn) HapticFeedbackType.ToggleOn else HapticFeedbackType.ToggleOff)
+                    onCheckedChange(isOn)
+                },
+            )
             .semantics { this.contentDescription = contentDescription }
             .defaultMinSize(minWidth = Sizes.minTouchTarget, minHeight = Sizes.minTouchTarget),
         contentAlignment = Alignment.Center,
