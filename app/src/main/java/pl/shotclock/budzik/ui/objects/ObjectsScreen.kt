@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -48,20 +49,21 @@ fun ObjectsScreen(modifier: Modifier = Modifier) {
     ) {
         Text(
             text = stringResource(R.string.objects_description),
+            modifier = Modifier.entranceFrom(rememberEntrance(order = 0)),
             style = MaterialTheme.typography.bodyMedium,
             color = TextSecondary,
         )
         ObjectCard(
             visual = ObjectVisual.Toothbrush,
             tipRes = R.string.object_toothbrush_tip,
-            modifier = Modifier.entranceFrom(rememberEntrance(order = 0)),
+            modifier = Modifier.entranceFrom(rememberEntrance(order = 1)),
         )
         ObjectCard(
             visual = ObjectVisual.Mug,
             tipRes = R.string.object_mug_tip,
-            modifier = Modifier.entranceFrom(rememberEntrance(order = 1)),
+            modifier = Modifier.entranceFrom(rememberEntrance(order = 2)),
         )
-        ModelStatusCard(Modifier.entranceFrom(rememberEntrance(order = 2)))
+        ModelStatusCard(Modifier.entranceFrom(rememberEntrance(order = 3)))
     }
 }
 
@@ -121,7 +123,12 @@ private fun ObjectCard(
 
 @Composable
 private fun ModelStatusCard(modifier: Modifier = Modifier) {
-    AppCard(modifier = modifier.fillMaxWidth()) {
+    // Pasek informacyjny, nie karta z treścią: mniejsze zaokrąglenie i niższy odstęp w pionie, jak w makiecie.
+    AppCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = AppShapes.tile,
+        contentPadding = PaddingValues(horizontal = Spacing.screenEdge, vertical = Spacing.smallMedium),
+    ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(Spacing.smallMedium),

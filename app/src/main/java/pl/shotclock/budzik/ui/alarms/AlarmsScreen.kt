@@ -131,7 +131,9 @@ private fun HeroAlarmCard(modifier: Modifier = Modifier) {
             start = Spacing.screenEdge,
             end = Spacing.screenEdge,
             top = Spacing.screenEdge,
-            bottom = Spacing.extraSmall,
+            // Przełącznik ma pole dotyku 48 dp, czyli 8 dp niewidocznego marginesu pod torem.
+            // Razem z tym odstępem daje to wizualnie 20 dp, tyle samo co u góry i po bokach.
+            bottom = Spacing.smallMedium,
         ),
     ) {
         Row(

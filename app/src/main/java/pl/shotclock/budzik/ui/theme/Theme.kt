@@ -14,6 +14,23 @@ private val DarkColorScheme = darkColorScheme(
     surface = SurfaceColor,
     onSurface = TextPrimary,
     onSurfaceVariant = TextSecondary,
+    // Pozostałe role też ustawiamy na nasze kolory. Bez tego komponenty Material 3
+    // (np. Snackbar „Cofnij” w Etapie 2, wybór godziny, linie podziału) dostałyby domyślny fiolet.
+    secondary = Accent,
+    onSecondary = OnAccent,
+    tertiary = Accent,
+    onTertiary = OnAccent,
+    surfaceVariant = SurfaceColor,
+    surfaceContainerLowest = BackgroundColor,
+    surfaceContainerLow = SurfaceColor,
+    surfaceContainer = SurfaceColor,
+    surfaceContainerHigh = SurfaceColor,
+    surfaceContainerHighest = ControlOffColor,
+    outline = ControlBorder,
+    outlineVariant = SurfaceBorder,
+    inverseSurface = TextPrimary,
+    inverseOnSurface = BackgroundColor,
+    inversePrimary = OnAccent,
 )
 
 @Composable

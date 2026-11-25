@@ -9,6 +9,8 @@ object AppShapes {
     val card = RoundedCornerShape(26.dp)
     val tile = RoundedCornerShape(22.dp)
     val thumbnail = RoundedCornerShape(16.dp)
+    // Mniejsze pole (40 dp) dostaje mniejsze zaokrąglenie, żeby nie wyglądało jak kółko.
+    val thumbnailSmall = RoundedCornerShape(12.dp)
     val chip = RoundedCornerShape(16.dp)
     val chartBar = RoundedCornerShape(10.dp)
     val pill = CircleShape

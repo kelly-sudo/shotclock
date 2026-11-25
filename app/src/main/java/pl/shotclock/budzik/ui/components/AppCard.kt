@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.tooling.preview.Preview
 import pl.shotclock.budzik.R
 import pl.shotclock.budzik.ui.theme.AppShapes
@@ -27,13 +28,15 @@ fun AppCard(
     tint: CardTint = NeutralTint,
     shape: Shape = AppShapes.card,
     contentPadding: PaddingValues = PaddingValues(Spacing.screenEdge),
+    // Lista z rzędami i liniami podziału (np. historia) potrzebuje 0, bo rzędy mają własną wysokość.
+    verticalSpacing: Dp = Spacing.smallMedium,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
         modifier = modifier
             .cardSurface(tint, shape)
             .padding(contentPadding),
-        verticalArrangement = Arrangement.spacedBy(Spacing.smallMedium),
+        verticalArrangement = Arrangement.spacedBy(verticalSpacing),
         content = content,
     )
 }

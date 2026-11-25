@@ -6,9 +6,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -33,12 +35,12 @@ import pl.shotclock.budzik.ui.objects.ObjectVisual
 import pl.shotclock.budzik.ui.theme.Accent
 import pl.shotclock.budzik.ui.theme.AppShapes
 import pl.shotclock.budzik.ui.theme.ChartBarColor
+import pl.shotclock.budzik.ui.theme.NeutralTint
 import pl.shotclock.budzik.ui.theme.PeachTint
 import pl.shotclock.budzik.ui.theme.ShotClockTheme
 import pl.shotclock.budzik.ui.theme.Sizes
 import pl.shotclock.budzik.ui.theme.Spacing
 import pl.shotclock.budzik.ui.theme.StatNumberText
-import pl.shotclock.budzik.ui.theme.SurfaceBorder
 import pl.shotclock.budzik.ui.theme.TextSecondary
 import pl.shotclock.budzik.ui.theme.entranceFrom
 import pl.shotclock.budzik.ui.theme.rememberEntrance
@@ -178,14 +180,19 @@ private fun ChartBar(heightFraction: Float, isToday: Boolean, order: Int) {
 
 @Composable
 private fun WakeEventsCard(modifier: Modifier = Modifier) {
-    AppCard(modifier = modifier.fillMaxWidth()) {
+    // Rzędy mają stałą wysokość, więc karta ma mały odstęp w pionie i nie dodaje przerw między rzędami.
+    AppCard(
+        modifier = modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = Spacing.screenEdge, vertical = Spacing.extraSmall),
+        verticalSpacing = Spacing.none,
+    ) {
         WakeEventRow(
             visual = ObjectVisual.Toothbrush,
             title = R.string.history_event_today,
             details = R.string.history_event_today_details,
             time = R.string.history_event_today_time,
         )
-        HorizontalDivider(color = SurfaceBorder)
+        HorizontalDivider(color = NeutralTint.border)
         WakeEventRow(
             visual = ObjectVisual.Mug,
             title = R.string.history_event_yesterday,
@@ -203,13 +210,14 @@ private fun WakeEventRow(
     @StringRes time: Int,
 ) {
     Row(
+        modifier = Modifier.heightIn(min = Sizes.listRowHeight),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.smallMedium),
     ) {
         Box(
             modifier = Modifier
                 .size(Sizes.illustrationHistoryBox)
-                .clip(AppShapes.thumbnail)
+                .clip(AppShapes.thumbnailSmall)
                 .background(visual.tint.surface),
             contentAlignment = Alignment.Center,
         ) {
