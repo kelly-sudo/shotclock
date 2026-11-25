@@ -5,29 +5,35 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import pl.shotclock.budzik.R
-import pl.shotclock.budzik.ui.alarms.AlarmsScreen
+import pl.shotclock.budzik.ui.alarms.AlarmsRoute
 import pl.shotclock.budzik.ui.camera.CameraScreen
 import pl.shotclock.budzik.ui.components.AppBackground
 import pl.shotclock.budzik.ui.components.AppBottomBar
 import pl.shotclock.budzik.ui.components.BottomBarItem
-import pl.shotclock.budzik.ui.edit.EditAlarmScreen
+import pl.shotclock.budzik.ui.edit.EditAlarmRoute
 import pl.shotclock.budzik.ui.history.HistoryScreen
 import pl.shotclock.budzik.ui.objects.ObjectsScreen
 import pl.shotclock.budzik.ui.onboarding.OnboardingScreen
 import pl.shotclock.budzik.ui.ring.RingScreen
 import pl.shotclock.budzik.ui.settings.SettingsScreen
 import pl.shotclock.budzik.ui.theme.ScreenTransitionMillis
-import pl.shotclock.budzik.ui.theme.ShotClockTheme
+import pl.shotclock.budzik.viewmodel.AlarmsViewModel
+import pl.shotclock.budzik.viewmodel.AppViewModelProvider
+import pl.shotclock.budzik.viewmodel.EditAlarmViewModel.Companion.ALARM_ID_ARG
+import pl.shotclock.budzik.viewmodel.EditAlarmViewModel.Companion.NEW_ALARM_ID
 
 /** Nazwy wszystkich ekranów w jednym miejscu. */
 private object Routes {
@@ -35,10 +41,15 @@ private object Routes {
     const val HISTORY = "history"
     const val OBJECTS = "objects"
     const val SETTINGS = "settings"
-    const val EDIT_ALARM = "edit_alarm"
+    // Ekran edycji może dostać id alarmu, np. "edit_alarm?alarmId=3". Bez niego tworzymy nowy alarm.
+    const val EDIT_ALARM = "edit_alarm?$ALARM_ID_ARG={$ALARM_ID_ARG}"
     const val RING = "ring"
     const val CAMERA = "camera"
     const val ONBOARDING = "onboarding"
+
+    fun newAlarm() = "edit_alarm"
+
+    fun editAlarm(alarmId: Long) = "edit_alarm?$ALARM_ID_ARG=$alarmId"
 }
 
 // Dolny pasek widać tylko na tych czterech ekranach.
@@ -65,7 +76,10 @@ fun AppNavigation() {
             popExitTransition = { fadeOut(tween(ScreenTransitionMillis)) },
         ) {
             composable(Routes.ALARMS) {
-                AlarmsScreen(onAddAlarm = { navController.navigate(Routes.EDIT_ALARM) })
+                AlarmsRoute(
+                    onAddAlarm = { navController.navigate(Routes.newAlarm()) },
+                    onOpenAlarm = { alarmId -> navController.navigate(Routes.editAlarm(alarmId)) },
+                )
             }
             composable(Routes.HISTORY) { HistoryScreen() }
             composable(Routes.OBJECTS) { ObjectsScreen() }
@@ -76,10 +90,26 @@ fun AppNavigation() {
                     onOpenCamera = { navController.navigate(Routes.CAMERA) },
                 )
             }
-            composable(Routes.EDIT_ALARM) {
-                EditAlarmScreen(
+            composable(
+                route = Routes.EDIT_ALARM,
+                arguments = listOf(
+                    navArgument(ALARM_ID_ARG) {
+                        type = NavType.LongType
+                        defaultValue = NEW_ALARM_ID
+                    },
+                ),
+            ) { backStackEntry ->
+                // ViewModel listy alarmów (ten sam obiekt, którego używa lista). Usuwa alarm, żeby lista mogła go przywrócić.
+                val alarmsEntry = remember(backStackEntry) { navController.getBackStackEntry(Routes.ALARMS) }
+                val alarmsViewModel: AlarmsViewModel = viewModel(alarmsEntry, factory = AppViewModelProvider.Factory)
+
+                EditAlarmRoute(
                     onBack = { navController.popBackStack() },
-                    onSave = { navController.popBackStack() },
+                    onSaved = { navController.popBackStack() },
+                    onDelete = { alarmId ->
+                        alarmsViewModel.delete(alarmId)
+                        navController.popBackStack()
+                    },
                 )
             }
             composable(Routes.RING) {
@@ -112,13 +142,5 @@ private fun NavHostController.openTab(route: String) {
         popUpTo(graph.findStartDestination().id) { saveState = true }
         launchSingleTop = true
         restoreState = true
-    }
-}
-
-@Preview(widthDp = 360, heightDp = 640)
-@Composable
-private fun AppNavigationPreview() {
-    ShotClockTheme {
-        AppNavigation()
     }
 }

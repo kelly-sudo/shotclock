@@ -21,23 +21,43 @@
     <string name="object_random">Losowy</string>
     <string name="object_random_description">Losowy przedmiot</string>
 
-    <!-- Lista alarmów (przykładowe dane do Etapu 2) -->
-    <string name="alarms_next_sample">Następny za 7 h 20 min</string>
-    <string name="alarms_sample_days_work">Pn–Pt · Zajęcia</string>
-    <string name="alarms_sample_days_weekend">So, Nd · Weekend</string>
-    <string name="alarms_sample_days_gym">Śr · Siłownia</string>
-    <string name="alarms_sample_task">Zdjęcie: szczoteczka do zębów</string>
+    <!-- Lista alarmów -->
+    <string name="alarms_next_minutes">Następny za %1$d min</string>
+    <string name="alarms_next_hours">Następny za %1$d h %2$d min</string>
+    <string name="alarms_next_days">Następny za %1$d d %2$d h</string>
+    <string name="alarms_none_enabled">Żaden alarm nie jest włączony</string>
+    <string name="alarms_days_once">Jednorazowo</string>
+    <string name="alarms_days_everyday">Codziennie</string>
+    <string name="alarms_days_workdays">Pn–Pt</string>
+    <string name="alarms_days_weekend">So, Nd</string>
+    <!-- Dni i etykieta alarmu, np. „Pn–Pt · Zajęcia” -->
+    <string name="alarms_subtitle">%1$s · %2$s</string>
+    <!-- Przedmiot do sfotografowania, np. „Zdjęcie: szczoteczka do zębów” -->
+    <string name="alarms_task">Zdjęcie: %1$s</string>
     <string name="alarms_toggle">Włącz alarm</string>
+    <string name="alarms_open">Edytuj alarm</string>
+    <string name="alarms_empty_title">Nie masz jeszcze alarmów</string>
+    <string name="alarms_empty_description">Ustaw pierwszy alarm. Wyłączysz go dopiero zdjęciem wskazanego przedmiotu.</string>
+    <string name="alarms_empty_action">Dodaj pierwszy alarm</string>
+    <!-- Pasek po usunięciu alarmu, np. „Usunięto alarm 07:30” -->
+    <string name="alarms_deleted">Usunięto alarm %1$s</string>
+    <string name="alarms_undo">Cofnij</string>
 
     <!-- Edycja alarmu -->
     <string name="edit_title">Edycja alarmu</string>
+    <string name="edit_title_new">Nowy alarm</string>
+    <string name="time_wheel_hours">Godziny</string>
+    <string name="time_wheel_minutes">Minuty</string>
     <string name="edit_repeat">POWTARZAJ</string>
     <string name="edit_preset_workdays">Dni robocze</string>
     <string name="edit_preset_weekend">Weekend</string>
     <string name="edit_preset_everyday">Codziennie</string>
+    <string name="edit_days_once_hint">Bez zaznaczonych dni alarm zadzwoni tylko raz.</string>
+    <string name="edit_label">ETYKIETA</string>
+    <string name="edit_label_placeholder">Np. Zajęcia</string>
     <string name="edit_object">CO SFOTOGRAFOWAĆ</string>
     <string name="edit_sound">Dźwięk</string>
-    <string name="edit_sound_sample">Poranek</string>
+    <string name="edit_sound_default">Domyślny</string>
     <string name="edit_vibration">Wibracje</string>
     <string name="edit_rising_volume">Narastająca głośność</string>
     <string name="edit_save">Zapisz alarm</string>
