@@ -82,7 +82,7 @@ Nowoczesny, ciemny interfejs z wyraźną hierarchią: grube cyfry, duże ilustra
 - Motyw ciemny jest domyślny; tryb jasny opcjonalnie później.
 
 **Komponenty wielokrotnego użytku** (w `ui/components`, wszystkie ekrany z nich korzystają):
-`AppBackground`, `AppCard`, `AppButton`, `AppIconButton`, `AppToggle`, `AppChip` (dni tygodnia), `PresetChip` (szybkie wybory), `ObjectTile` (wybór przedmiotu), `AppBottomBar`, `PulsingHalo` (ekran dzwonienia), `TimeDisplay`, `ScreenContainer` (wspólny układ zwykłego ekranu).
+`AppBackground`, `AppCard`, `AppButton`, `AppIconButton`, `AppToggle`, `AppChip` (dni tygodnia), `PresetChip` (szybkie wybory), `ObjectTile` (wybór przedmiotu), `AppBottomBar`, `PulsingHalo` (ekran dzwonienia), `TimeDisplay`, `TimeWheel` (przewijany wybór godziny), `AppTextField` (pole tekstowe), `AppSnackbar` (komunikat z „Cofnij”), `ScreenContainer` (wspólny układ zwykłego ekranu, opcjonalnie z przyciskiem przypiętym na dole).
 
 **Dostępność:** kontrast tekstu co najmniej 4.5:1 (tekst główny prawie biały), elementy dotykowe min. 48 dp, opisy `contentDescription` dla ikon.
 
@@ -152,7 +152,7 @@ Ustawienia aplikacji w DataStore, nie w Room.
 Realizuj etapami, w tej kolejności. Po każdym etapie zatrzymaj się i poczekaj na sprawdzenie na telefonie.
 
 - [x] **Etap 1 – Fundament:** zależności, struktura pakietów, AppContainer, ciemny motyw i komponenty z podglądami, nawigacja z dolnym paskiem, ekrany na przykładowych danych
-- [ ] **Etap 2 – Alarmy w bazie:** Room, lista alarmów, edycja alarmu, testy DAO
+- [x] **Etap 2 – Alarmy w bazie:** Room, lista alarmów, edycja alarmu, testy DAO
 - [ ] **Etap 3 – Dzwonienie:** AlarmManager, foreground service, dźwięk z narastającą głośnością, wibracje, full-screen intent, ekran dzwonienia, boot receiver
 - [ ] **Etap 4 – Kamera:** uprawnienia, CameraX, celownik, analiza klatek z FakeObjectClassifier, decyzja o wyłączeniu + testy
 - [ ] **Etap 5 – Pełny scenariusz:** dzwonienie → kamera → sukces, zapis WakeEvent, wyjście awaryjne
