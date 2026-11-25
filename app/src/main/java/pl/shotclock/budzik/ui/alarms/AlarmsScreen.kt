@@ -19,16 +19,29 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -44,6 +57,7 @@ import pl.shotclock.budzik.ui.components.AppButton
 import pl.shotclock.budzik.ui.components.AppButtonStyle
 import pl.shotclock.budzik.ui.components.AppCard
 import pl.shotclock.budzik.ui.components.AppIconButton
+import pl.shotclock.budzik.ui.components.AppSnackbar
 import pl.shotclock.budzik.ui.components.AppToggle
 import pl.shotclock.budzik.ui.components.ScreenContainer
 import pl.shotclock.budzik.ui.components.TimeDisplay
@@ -52,10 +66,12 @@ import pl.shotclock.budzik.ui.objects.ObjectImage
 import pl.shotclock.budzik.ui.objects.ObjectVisual
 import pl.shotclock.budzik.ui.theme.Accent
 import pl.shotclock.budzik.ui.theme.AppShapes
+import pl.shotclock.budzik.ui.theme.ControlOffColor
 import pl.shotclock.budzik.ui.theme.MintTint
 import pl.shotclock.budzik.ui.theme.ShotClockTheme
 import pl.shotclock.budzik.ui.theme.Sizes
 import pl.shotclock.budzik.ui.theme.Spacing
+import pl.shotclock.budzik.ui.theme.TextPrimary
 import pl.shotclock.budzik.ui.theme.TextSecondary
 import pl.shotclock.budzik.ui.theme.entranceFrom
 import pl.shotclock.budzik.ui.theme.rememberEntrance
@@ -66,6 +82,16 @@ import pl.shotclock.budzik.viewmodel.AppViewModelProvider
 private const val DisabledCardAlpha = 0.6f
 // Przy długiej liście dalsze karty wjeżdżają razem, żeby nie czekać na nie zbyt długo.
 private const val MaxEntranceOrder = 6
+
+/** Akcje, które lista alarmów przekazuje dalej. Zebrane w jednym miejscu, żeby nie podawać ich osobno. */
+data class AlarmsActions(
+    val onAddAlarm: () -> Unit = {},
+    val onOpenAlarm: (alarmId: Long) -> Unit = {},
+    val onEnabledChange: (Alarm, Boolean) -> Unit = { _, _ -> },
+    val onDelete: (alarmId: Long) -> Unit = {},
+    val onUndoDelete: () -> Unit = {},
+    val onUndoDismissed: () -> Unit = {},
+)
 
 /** Ekran listy z ViewModelem: czyta stan i przekazuje akcje. Sam wygląd jest w [AlarmsScreen]. */
 @Composable
@@ -78,9 +104,14 @@ fun AlarmsRoute(
 
     AlarmsScreen(
         uiState = uiState,
-        onAddAlarm = onAddAlarm,
-        onOpenAlarm = onOpenAlarm,
-        onEnabledChange = viewModel::setEnabled,
+        actions = AlarmsActions(
+            onAddAlarm = onAddAlarm,
+            onOpenAlarm = onOpenAlarm,
+            onEnabledChange = viewModel::setEnabled,
+            onDelete = viewModel::delete,
+            onUndoDelete = viewModel::undoDelete,
+            onUndoDismissed = viewModel::forgetDeleted,
+        ),
     )
 }
 
@@ -88,41 +119,64 @@ fun AlarmsRoute(
 @Composable
 fun AlarmsScreen(
     uiState: AlarmsUiState,
-    onAddAlarm: () -> Unit,
-    onOpenAlarm: (Long) -> Unit,
-    onEnabledChange: (Alarm, Boolean) -> Unit,
+    actions: AlarmsActions,
     modifier: Modifier = Modifier,
 ) {
     val hasAlarms = !uiState.isLoading && !uiState.isEmpty
+    val snackbarHostState = remember { SnackbarHostState() }
+    val deleted = uiState.recentlyDeleted
+    val deletedMessage = deleted?.let { stringResource(R.string.alarms_deleted, formatTime(it.hour, it.minute)) }
+    val undoLabel = stringResource(R.string.alarms_undo)
+
+    // Po usunięciu alarmu pokazujemy pasek z „Cofnij”. Jeśli zniknie bez kliknięcia, usunięcie zostaje.
+    LaunchedEffect(deleted) {
+        if (deletedMessage == null) return@LaunchedEffect
+        val result = snackbarHostState.showSnackbar(
+            message = deletedMessage,
+            actionLabel = undoLabel,
+            duration = SnackbarDuration.Long,
+        )
+        if (result == SnackbarResult.ActionPerformed) actions.onUndoDelete() else actions.onUndoDismissed()
+    }
 
     Box(modifier.fillMaxSize()) {
         ScreenContainer(title = stringResource(R.string.tab_alarms), hasBottomBar = true) {
             if (uiState.isEmpty) {
-                EmptyAlarms(onAddAlarm, Modifier.entranceFrom(rememberEntrance(order = 0)))
+                EmptyAlarms(actions.onAddAlarm, Modifier.entranceFrom(rememberEntrance(order = 0)))
             }
             if (hasAlarms) {
                 NextAlarmPill(uiState.timeUntilNext, Modifier.entranceFrom(rememberEntrance(order = 0)))
                 uiState.nextAlarm?.let { alarm ->
                     // key sprawia, że stan karty (np. animacja) należy do konkretnego alarmu, a nie do miejsca na liście.
                     key(alarm.id) {
-                        HeroAlarmCard(
-                            alarm = alarm,
-                            onClick = { onOpenAlarm(alarm.id) },
-                            onEnabledChange = { onEnabledChange(alarm, it) },
+                        SwipeToDelete(
+                            shape = AppShapes.heroCard,
+                            onDelete = { actions.onDelete(alarm.id) },
                             modifier = Modifier.entranceFrom(rememberEntrance(order = 1)),
-                        )
+                        ) {
+                            HeroAlarmCard(
+                                alarm = alarm,
+                                onClick = { actions.onOpenAlarm(alarm.id) },
+                                onEnabledChange = { actions.onEnabledChange(alarm, it) },
+                            )
+                        }
                     }
                 }
                 uiState.otherAlarms.forEachIndexed { index, alarm ->
                     key(alarm.id) {
-                        AlarmCard(
-                            alarm = alarm,
-                            onClick = { onOpenAlarm(alarm.id) },
-                            onEnabledChange = { onEnabledChange(alarm, it) },
+                        SwipeToDelete(
+                            shape = AppShapes.card,
+                            onDelete = { actions.onDelete(alarm.id) },
                             modifier = Modifier.entranceFrom(
                                 rememberEntrance(order = minOf(index + 2, MaxEntranceOrder)),
                             ),
-                        )
+                        ) {
+                            AlarmCard(
+                                alarm = alarm,
+                                onClick = { actions.onOpenAlarm(alarm.id) },
+                                onEnabledChange = { actions.onEnabledChange(alarm, it) },
+                            )
+                        }
                     }
                 }
                 // Dzięki temu ostatnią kartę da się przewinąć ponad pływający przycisk dodawania.
@@ -133,7 +187,7 @@ fun AlarmsScreen(
             AppIconButton(
                 icon = R.drawable.ic_add,
                 contentDescription = stringResource(R.string.action_add_alarm),
-                onClick = onAddAlarm,
+                onClick = actions.onAddAlarm,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .navigationBarsPadding()
@@ -143,6 +197,60 @@ fun AlarmsScreen(
                 size = Sizes.floatingButton,
             )
         }
+        SnackbarHost(
+            hostState = snackbarHostState,
+            // Pasek pojawia się nad przyciskiem dodawania, żeby go nie zasłaniać.
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(horizontal = Spacing.screenEdge)
+                .padding(bottom = Sizes.bottomBarClearance + Sizes.floatingButton + Spacing.small),
+        ) { data ->
+            AppSnackbar(
+                message = data.visuals.message,
+                actionLabel = data.visuals.actionLabel,
+                onAction = { data.performAction() },
+            )
+        }
+    }
+}
+
+/**
+ * Karta, którą można przesunąć w lewo, żeby usunąć alarm. Pod spodem widać kosz.
+ * Czytnik ekranu nie obsłuży przesunięcia, więc ta sama akcja jest też w menu czynności karty.
+ */
+@Composable
+private fun SwipeToDelete(
+    shape: Shape,
+    onDelete: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    val state = rememberSwipeToDismissBoxState()
+    val deleteLabel = stringResource(R.string.action_delete_alarm)
+
+    SwipeToDismissBox(
+        state = state,
+        modifier = modifier.semantics {
+            customActions = listOf(CustomAccessibilityAction(deleteLabel) { onDelete(); true })
+        },
+        enableDismissFromStartToEnd = false,
+        onDismiss = { value -> if (value == SwipeToDismissBoxValue.EndToStart) onDelete() },
+        backgroundContent = {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(shape)
+                    .background(ControlOffColor)
+                    .padding(end = Spacing.large),
+                contentAlignment = Alignment.CenterEnd,
+            ) {
+                // Opis jest w akcji karty, więc sama ikona go nie potrzebuje.
+                Icon(painterResource(R.drawable.ic_delete), contentDescription = null, tint = TextPrimary)
+            }
+        },
+    ) {
+        content()
     }
 }
 
@@ -360,9 +468,7 @@ private fun AlarmsScreenPreview() {
                     timeUntilNext = TimeUntil(days = 0, hours = 7, minutes = 20),
                     otherAlarms = previewAlarms.drop(1),
                 ),
-                onAddAlarm = {},
-                onOpenAlarm = {},
-                onEnabledChange = { _, _ -> },
+                actions = AlarmsActions(),
             )
         }
     }
@@ -375,9 +481,7 @@ private fun AlarmsScreenEmptyPreview() {
         AppBackground {
             AlarmsScreen(
                 uiState = AlarmsUiState(isLoading = false),
-                onAddAlarm = {},
-                onOpenAlarm = {},
-                onEnabledChange = { _, _ -> },
+                actions = AlarmsActions(),
             )
         }
     }

@@ -39,6 +39,9 @@
     <string name="alarms_empty_title">Nie masz jeszcze alarmów</string>
     <string name="alarms_empty_description">Ustaw pierwszy alarm. Wyłączysz go dopiero zdjęciem wskazanego przedmiotu.</string>
     <string name="alarms_empty_action">Dodaj pierwszy alarm</string>
+    <!-- Pasek po usunięciu alarmu, np. „Usunięto alarm 07:30” -->
+    <string name="alarms_deleted">Usunięto alarm %1$s</string>
+    <string name="alarms_undo">Cofnij</string>
 
     <!-- Edycja alarmu -->
     <string name="edit_title">Edycja alarmu</string>

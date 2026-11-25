@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import java.time.LocalDateTime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -30,6 +31,8 @@ data class AlarmsUiState(
     val timeUntilNext: TimeUntil? = null,
     // Pozostałe alarmy w kolejności godzin.
     val otherAlarms: List<Alarm> = emptyList(),
+    // Ostatnio usunięty alarm. Dopóki nie jest null, ekran pokazuje pasek z przyciskiem „Cofnij”.
+    val recentlyDeleted: Alarm? = null,
 ) {
     val isEmpty: Boolean
         get() = !isLoading && nextAlarm == null && otherAlarms.isEmpty()
@@ -37,15 +40,19 @@ data class AlarmsUiState(
 
 class AlarmsViewModel(private val repository: AlarmRepository) : ViewModel() {
 
-    // Łączy listę alarmów z bazy z aktualnym czasem. Nowy stan powstaje po każdej zmianie w bazie i co minutę.
+    private val recentlyDeleted = MutableStateFlow<Alarm?>(null)
+
+    // Łączy listę alarmów z bazy, aktualny czas i ostatnio usunięty alarm.
+    // Nowy stan powstaje po każdej zmianie w bazie, co minutę i po usunięciu alarmu.
     val uiState: StateFlow<AlarmsUiState> =
-        combine(repository.alarms, currentMinute()) { alarms, now ->
+        combine(repository.alarms, currentMinute(), recentlyDeleted) { alarms, now, deleted ->
             val next = findNextAlarm(alarms, now)
             AlarmsUiState(
                 isLoading = false,
                 nextAlarm = next?.alarm,
                 timeUntilNext = next?.let { timeUntil(now, it.ringTime) },
                 otherAlarms = alarms.filter { it.id != next?.alarm?.id },
+                recentlyDeleted = deleted,
             )
         }.stateIn(
             scope = viewModelScope,
@@ -57,12 +64,28 @@ class AlarmsViewModel(private val repository: AlarmRepository) : ViewModel() {
         viewModelScope.launch { repository.setEnabled(alarm.id, enabled) }
     }
 
-    /** Usuwa alarm o podanym id. Z tego samego miejsca korzysta lista i ekran edycji. */
+    /**
+     * Usuwa alarm o podanym id i zapamiętuje go, żeby dało się go przywrócić.
+     * Z tej samej funkcji korzysta przesunięcie karty na liście i przycisk kosza w edycji.
+     */
     fun delete(alarmId: Long) {
         viewModelScope.launch {
             val alarm = repository.getAlarm(alarmId) ?: return@launch
             repository.delete(alarm)
+            recentlyDeleted.value = alarm
         }
+    }
+
+    /** Przycisk „Cofnij”: przywraca ostatnio usunięty alarm. */
+    fun undoDelete() {
+        val alarm = recentlyDeleted.value ?: return
+        recentlyDeleted.value = null
+        viewModelScope.launch { repository.restore(alarm) }
+    }
+
+    /** Pasek z „Cofnij” zniknął, więc usunięcia nie da się już cofnąć. */
+    fun forgetDeleted() {
+        recentlyDeleted.value = null
     }
 }
 

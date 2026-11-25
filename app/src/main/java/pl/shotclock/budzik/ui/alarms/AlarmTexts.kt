@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import java.time.DayOfWeek
+import java.util.Locale
 import pl.shotclock.budzik.R
 import pl.shotclock.budzik.alarm.TimeUntil
 import pl.shotclock.budzik.data.Alarm
@@ -40,3 +41,6 @@ fun nextAlarmText(timeUntil: TimeUntil?): String = when {
     timeUntil.hours > 0 -> stringResource(R.string.alarms_next_hours, timeUntil.hours, timeUntil.minutes)
     else -> stringResource(R.string.alarms_next_minutes, timeUntil.minutes)
 }
+
+/** Godzina w formacie „07:30”. */
+fun formatTime(hour: Int, minute: Int): String = String.format(Locale.ROOT, "%02d:%02d", hour, minute)
