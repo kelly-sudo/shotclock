@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import pl.shotclock.budzik.R
+import pl.shotclock.budzik.data.RequiredObject
 import pl.shotclock.budzik.ui.components.AppBackground
 import pl.shotclock.budzik.ui.theme.CardTint
 import pl.shotclock.budzik.ui.theme.LilacTint
@@ -20,8 +21,10 @@ import pl.shotclock.budzik.ui.theme.ShotClockTheme
 /**
  * Wygląd przedmiotu w jednym miejscu: nazwa, ilustracja i kolor karty.
  * Gdy zespół AI wybierze drugi przedmiot, wystarczy zmienić tutaj [Mug].
+ * [requiredObject] łączy wygląd z przedmiotem zapisanym w alarmie w bazie.
  */
 enum class ObjectVisual(
+    val requiredObject: RequiredObject,
     @param:StringRes val nameRes: Int,
     @param:StringRes val shortNameRes: Int,
     @param:DrawableRes val imageRes: Int,
@@ -30,24 +33,34 @@ enum class ObjectVisual(
     val imageColor: Color? = null,
 ) {
     Toothbrush(
+        requiredObject = RequiredObject.FIRST,
         nameRes = R.string.object_toothbrush,
         shortNameRes = R.string.object_toothbrush_short,
         imageRes = R.drawable.ill_toothbrush,
         tint = MintTint,
     ),
     Mug(
+        requiredObject = RequiredObject.SECOND,
         nameRes = R.string.object_mug,
         shortNameRes = R.string.object_mug,
         imageRes = R.drawable.ill_mug,
         tint = PeachTint,
     ),
     Random(
+        requiredObject = RequiredObject.RANDOM,
         nameRes = R.string.object_random_description,
         shortNameRes = R.string.object_random,
         imageRes = R.drawable.ic_dice,
         tint = LilacTint,
         imageColor = LilacTint.secondaryText,
     ),
+    ;
+
+    companion object {
+        /** Wygląd przedmiotu zapisanego w alarmie. */
+        fun of(requiredObject: RequiredObject): ObjectVisual =
+            entries.first { it.requiredObject == requiredObject }
+    }
 }
 
 @Composable

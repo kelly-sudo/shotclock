@@ -1,5 +1,6 @@
 package pl.shotclock.budzik.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -11,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.tooling.preview.Preview
 import pl.shotclock.budzik.R
@@ -30,11 +32,23 @@ fun AppCard(
     contentPadding: PaddingValues = PaddingValues(Spacing.screenEdge),
     // Lista z rzędami i liniami podziału (np. historia) potrzebuje 0, bo rzędy mają własną wysokość.
     verticalSpacing: Dp = Spacing.smallMedium,
+    // Karta z onClick reaguje na dotyk, np. karta alarmu otwiera jego edycję.
+    onClick: (() -> Unit)? = null,
+    // Co zrobi kliknięcie, np. „Edytuj alarm”. Czytnik ekranu przeczyta to razem z treścią karty.
+    onClickLabel: String? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    // Efekt dotyku jest dodany po cardSurface, więc jest przycięty do zaokrąglonego kształtu karty.
+    val clickModifier = if (onClick != null) {
+        Modifier.clickable(onClickLabel = onClickLabel, role = Role.Button, onClick = onClick)
+    } else {
+        Modifier
+    }
+
     Column(
         modifier = modifier
             .cardSurface(tint, shape)
+            .then(clickModifier)
             .padding(contentPadding),
         verticalArrangement = Arrangement.spacedBy(verticalSpacing),
         content = content,
