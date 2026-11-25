@@ -20,6 +20,11 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.dp
@@ -35,6 +40,16 @@ private const val EntranceMillis = 600
 private const val EntranceStepMillis = 90L
 private const val ShakeLoopMillis = 2600
 private val EntranceOffset = 20.dp
+
+// Poświata przycisku: jak daleko sięga, jak mocno świeci i z ilu warstw się składa.
+// Zasięg jest mniejszy niż odstęp do karty nad przyciskiem, żeby poświata na nią nie wchodziła.
+private val GlowSpread = 14.dp
+private const val GlowMinSpread = 0.6f
+private const val GlowMinAlpha = 0.12f
+private const val GlowMaxAlpha = 0.34f
+private const val GlowLayers = 10
+// Poświata jest lekko przesunięta w dół, jak cień pod przyciskiem w makiecie.
+private val GlowDrop = 4.dp
 
 /** Skala przycisku: lekko maleje przy naciśnięciu i sprężyście wraca. */
 @Composable
@@ -116,3 +131,26 @@ fun rememberShakeAngle(): State<Float> =
         ),
         label = "shake angle",
     )
+
+/**
+ * Miękka, pulsująca poświata wokół przycisku w kształcie pigułki (główny przycisk na ekranie dzwonienia).
+ * Zamiast rozmycia rysujemy kilka coraz większych, prawie przezroczystych pigułek jedna na drugiej:
+ * przy krawędzi przycisku nakładają się wszystkie, dalej coraz mniej, więc światło łagodnie zanika.
+ * Działa tak samo na każdej wersji Androida. [pulse] (0–1) czytamy dopiero przy rysowaniu,
+ * więc w każdej klatce nic się nie przebudowuje.
+ */
+fun Modifier.glowBehind(pulse: State<Float>, color: Color = Accent): Modifier = drawBehind {
+    val spread = GlowSpread.toPx() * (GlowMinSpread + (1f - GlowMinSpread) * pulse.value)
+    val drop = GlowDrop.toPx()
+    val layerAlpha = (GlowMinAlpha + (GlowMaxAlpha - GlowMinAlpha) * pulse.value) / GlowLayers
+    repeat(GlowLayers) { index ->
+        val grow = spread * (index + 1) / GlowLayers
+        drawRoundRect(
+            color = color,
+            topLeft = Offset(-grow, -grow + drop),
+            size = Size(size.width + grow * 2, size.height + grow * 2),
+            cornerRadius = CornerRadius(size.height / 2 + grow),
+            alpha = layerAlpha,
+        )
+    }
+}

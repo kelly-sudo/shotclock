@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import pl.shotclock.budzik.R
 import pl.shotclock.budzik.ui.components.AppBackground
@@ -40,11 +41,13 @@ import pl.shotclock.budzik.ui.theme.Sizes
 import pl.shotclock.budzik.ui.theme.Spacing
 import pl.shotclock.budzik.ui.theme.TextSecondary
 import pl.shotclock.budzik.ui.theme.entranceFrom
+import pl.shotclock.budzik.ui.theme.glowBehind
 import pl.shotclock.budzik.ui.theme.rememberEntrance
 import pl.shotclock.budzik.ui.theme.rememberPulse
 import pl.shotclock.budzik.ui.theme.rememberShakeAngle
 
 private const val BlinkMillis = 550
+private const val CameraGlowMillis = 2200
 
 /**
  * Ekran dzwonienia na przykładowych danych. Prawdziwy alarm dojdzie w Etapie 3.
@@ -101,16 +104,21 @@ fun RingScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(Spacing.smallMedium),
         ) {
+            // Pulsująca poświata przyciąga wzrok do jedynej akcji na tym ekranie.
+            val cameraGlow = rememberPulse(CameraGlowMillis, label = "camera glow")
             AppButton(
                 text = stringResource(R.string.ring_open_camera),
                 onClick = onOpenCamera,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .glowBehind(cameraGlow),
                 icon = R.drawable.ic_camera,
             )
             Text(
                 text = stringResource(R.string.ring_note),
                 style = MaterialTheme.typography.bodyMedium,
                 color = TextSecondary,
+                textAlign = TextAlign.Center,
             )
         }
     }
@@ -128,7 +136,8 @@ private fun RingStatus(modifier: Modifier = Modifier) {
         Box(
             modifier = Modifier
                 .size(Sizes.statusDot)
-                .graphicsLayer { alpha = 1f - 0.75f * blink.value }
+                // Przy wyłączonych animacjach w telefonie wartość zatrzymuje się na 1, więc kropka zostaje w pełni widoczna.
+                .graphicsLayer { alpha = 0.25f + 0.75f * blink.value }
                 .clip(AppShapes.pill)
                 .background(Accent),
         )
