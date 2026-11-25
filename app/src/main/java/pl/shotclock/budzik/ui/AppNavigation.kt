@@ -5,8 +5,10 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -21,16 +23,17 @@ import pl.shotclock.budzik.ui.camera.CameraScreen
 import pl.shotclock.budzik.ui.components.AppBackground
 import pl.shotclock.budzik.ui.components.AppBottomBar
 import pl.shotclock.budzik.ui.components.BottomBarItem
-import pl.shotclock.budzik.ui.edit.EditAlarmScreen
+import pl.shotclock.budzik.ui.edit.EditAlarmRoute
 import pl.shotclock.budzik.ui.history.HistoryScreen
 import pl.shotclock.budzik.ui.objects.ObjectsScreen
 import pl.shotclock.budzik.ui.onboarding.OnboardingScreen
 import pl.shotclock.budzik.ui.ring.RingScreen
 import pl.shotclock.budzik.ui.settings.SettingsScreen
 import pl.shotclock.budzik.ui.theme.ScreenTransitionMillis
-
-/** Nazwa argumentu z numerem alarmu w adresie ekranu edycji. 0 oznacza nowy alarm. */
-private const val ALARM_ID_ARG = "alarmId"
+import pl.shotclock.budzik.viewmodel.AlarmsViewModel
+import pl.shotclock.budzik.viewmodel.AppViewModelProvider
+import pl.shotclock.budzik.viewmodel.EditAlarmViewModel.Companion.ALARM_ID_ARG
+import pl.shotclock.budzik.viewmodel.EditAlarmViewModel.Companion.NEW_ALARM_ID
 
 /** Nazwy wszystkich ekranów w jednym miejscu. */
 private object Routes {
@@ -92,13 +95,21 @@ fun AppNavigation() {
                 arguments = listOf(
                     navArgument(ALARM_ID_ARG) {
                         type = NavType.LongType
-                        defaultValue = 0L
+                        defaultValue = NEW_ALARM_ID
                     },
                 ),
-            ) {
-                EditAlarmScreen(
+            ) { backStackEntry ->
+                // ViewModel listy alarmów (ten sam obiekt, którego używa lista). Usuwa alarm, żeby lista mogła go przywrócić.
+                val alarmsEntry = remember(backStackEntry) { navController.getBackStackEntry(Routes.ALARMS) }
+                val alarmsViewModel: AlarmsViewModel = viewModel(alarmsEntry, factory = AppViewModelProvider.Factory)
+
+                EditAlarmRoute(
                     onBack = { navController.popBackStack() },
-                    onSave = { navController.popBackStack() },
+                    onSaved = { navController.popBackStack() },
+                    onDelete = { alarmId ->
+                        alarmsViewModel.delete(alarmId)
+                        navController.popBackStack()
+                    },
                 )
             }
             composable(Routes.RING) {

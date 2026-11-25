@@ -31,6 +31,7 @@ object Sizes {
     val presetChipHeight = 40.dp
     val objectTileHeight = 96.dp
     val settingRowHeight = 48.dp
+    val textFieldHeight = 56.dp
     val listRowHeight = 56.dp
     val statusDot = 8.dp
     val modelDot = 10.dp

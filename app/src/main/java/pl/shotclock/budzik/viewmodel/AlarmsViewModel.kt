@@ -56,6 +56,14 @@ class AlarmsViewModel(private val repository: AlarmRepository) : ViewModel() {
     fun setEnabled(alarm: Alarm, enabled: Boolean) {
         viewModelScope.launch { repository.setEnabled(alarm.id, enabled) }
     }
+
+    /** Usuwa alarm o podanym id. Z tego samego miejsca korzysta lista i ekran edycji. */
+    fun delete(alarmId: Long) {
+        viewModelScope.launch {
+            val alarm = repository.getAlarm(alarmId) ?: return@launch
+            repository.delete(alarm)
+        }
+    }
 }
 
 /** Aktualny czas, wysyłany od razu i potem na początku każdej minuty, żeby „Następny za…” się zmieniał. */

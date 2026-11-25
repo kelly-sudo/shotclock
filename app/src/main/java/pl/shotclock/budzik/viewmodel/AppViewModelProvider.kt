@@ -1,6 +1,7 @@
 package pl.shotclock.budzik.viewmodel
 
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -14,6 +15,10 @@ object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
             AlarmsViewModel(shotClockApplication().container.alarmRepository)
+        }
+        initializer {
+            // SavedStateHandle zawiera argumenty z nawigacji, m.in. id edytowanego alarmu.
+            EditAlarmViewModel(createSavedStateHandle(), shotClockApplication().container.alarmRepository)
         }
     }
 }

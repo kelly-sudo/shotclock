@@ -42,13 +42,19 @@
 
     <!-- Edycja alarmu -->
     <string name="edit_title">Edycja alarmu</string>
+    <string name="edit_title_new">Nowy alarm</string>
+    <string name="time_wheel_hours">Godziny</string>
+    <string name="time_wheel_minutes">Minuty</string>
     <string name="edit_repeat">POWTARZAJ</string>
     <string name="edit_preset_workdays">Dni robocze</string>
     <string name="edit_preset_weekend">Weekend</string>
     <string name="edit_preset_everyday">Codziennie</string>
+    <string name="edit_days_once_hint">Bez zaznaczonych dni alarm zadzwoni tylko raz.</string>
+    <string name="edit_label">ETYKIETA</string>
+    <string name="edit_label_placeholder">Np. Zajęcia</string>
     <string name="edit_object">CO SFOTOGRAFOWAĆ</string>
     <string name="edit_sound">Dźwięk</string>
-    <string name="edit_sound_sample">Poranek</string>
+    <string name="edit_sound_default">Domyślny</string>
     <string name="edit_vibration">Wibracje</string>
     <string name="edit_rising_volume">Narastająca głośność</string>
     <string name="edit_save">Zapisz alarm</string>
