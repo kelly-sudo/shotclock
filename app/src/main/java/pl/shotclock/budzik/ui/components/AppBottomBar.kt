@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,11 +13,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,8 +38,11 @@ import pl.shotclock.budzik.ui.theme.OnHighlight
 import pl.shotclock.budzik.ui.theme.ShotClockTheme
 import pl.shotclock.budzik.ui.theme.Sizes
 import pl.shotclock.budzik.ui.theme.Spacing
+import pl.shotclock.budzik.ui.theme.TabLabelMinSize
 import pl.shotclock.budzik.ui.theme.TextSecondary
 import pl.shotclock.budzik.ui.theme.cardSurface
+import pl.shotclock.budzik.ui.theme.rememberPressScale
+import pl.shotclock.budzik.ui.theme.scaledBy
 
 data class BottomBarItem(
     val route: String,
@@ -67,35 +74,61 @@ fun AppBottomBar(
         horizontalArrangement = Arrangement.spacedBy(Spacing.extraSmall),
     ) {
         items.forEach { item ->
-            val selected = item.route == selectedRoute
-            val background by animateColorAsState(
-                targetValue = if (selected) HighlightColor else Color.Transparent,
-                label = "tab background",
+            BottomBarTab(
+                item = item,
+                selected = item.route == selectedRoute,
+                onClick = { onItemClick(item) },
+                modifier = Modifier.weight(1f),
             )
-            val color by animateColorAsState(
-                targetValue = if (selected) OnHighlight else TextSecondary,
-                label = "tab content",
-            )
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(AppShapes.card)
-                    .background(background)
-                    .selectable(selected = selected, role = Role.Tab, onClick = { onItemClick(item) })
-                    .padding(vertical = Spacing.small),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(Spacing.extraSmall),
-            ) {
-                // Opis nie jest potrzebny, bo zakładka ma pod ikoną tekst.
-                Icon(painterResource(item.icon), contentDescription = null, tint = color)
-                Text(
-                    text = stringResource(item.label),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = color,
-                    maxLines = 1,
-                )
-            }
         }
+    }
+}
+
+@Composable
+private fun BottomBarTab(
+    item: BottomBarItem,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val scale = rememberPressScale(interactionSource)
+    val background by animateColorAsState(
+        targetValue = if (selected) HighlightColor else Color.Transparent,
+        label = "tab background",
+    )
+    val color by animateColorAsState(
+        targetValue = if (selected) OnHighlight else TextSecondary,
+        label = "tab content",
+    )
+    val labelStyle = MaterialTheme.typography.labelSmall
+
+    Column(
+        modifier = modifier
+            .scaledBy(scale)
+            .clip(AppShapes.card)
+            .background(background)
+            .selectable(
+                selected = selected,
+                interactionSource = interactionSource,
+                indication = ripple(),
+                role = Role.Tab,
+                onClick = onClick,
+            )
+            .padding(vertical = Spacing.small, horizontal = Spacing.extraSmall),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(Spacing.extraSmall),
+    ) {
+        // Opis nie jest potrzebny, bo zakładka ma pod ikoną tekst.
+        Icon(painterResource(item.icon), contentDescription = null, tint = color)
+        // Gdy napis się nie mieści (wąski ekran, duża czcionka w telefonie), zmniejsza się zamiast uciąć.
+        Text(
+            text = stringResource(item.label),
+            style = labelStyle,
+            color = color,
+            maxLines = 1,
+            autoSize = TextAutoSize.StepBased(minFontSize = TabLabelMinSize, maxFontSize = labelStyle.fontSize),
+        )
     }
 }
 
@@ -118,4 +151,11 @@ private fun AppBottomBarPreview() {
             }
         }
     }
+}
+
+// Najtrudniejszy przypadek: wąski ekran starszego Samsunga i czcionka powiększona w ustawieniach telefonu.
+@Preview(widthDp = 360, heightDp = 120, fontScale = 1.3f)
+@Composable
+private fun AppBottomBarLargeFontPreview() {
+    AppBottomBarPreview()
 }

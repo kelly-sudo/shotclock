@@ -105,5 +105,9 @@ val TimeTextLarge = TimeTextBase.copy(fontSize = 78.sp, lineHeight = 84.sp)
 val TimeTextHuge = TimeTextBase.copy(fontSize = 104.sp, lineHeight = 114.sp)
 val TimeTextMinSize = 24.sp
 
+// Najmniejszy rozmiar podpisu zakładki. Przy dużej czcionce systemowej na wąskim ekranie
+// napis zmniejsza się najwyżej do tego rozmiaru, zamiast się uciąć.
+val TabLabelMinSize = 9.sp
+
 // Liczba serii dni na ekranie historii.
 val StatNumberText = TimeTextBase.copy(fontSize = 60.sp, lineHeight = 64.sp)
