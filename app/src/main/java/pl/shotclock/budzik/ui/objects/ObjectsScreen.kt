@@ -25,8 +25,6 @@ import pl.shotclock.budzik.ui.components.AppCard
 import pl.shotclock.budzik.ui.components.ScreenContainer
 import pl.shotclock.budzik.ui.theme.Accent
 import pl.shotclock.budzik.ui.theme.AppShapes
-import pl.shotclock.budzik.ui.theme.HighlightColor
-import pl.shotclock.budzik.ui.theme.OnHighlight
 import pl.shotclock.budzik.ui.theme.ShotClockTheme
 import pl.shotclock.budzik.ui.theme.Sizes
 import pl.shotclock.budzik.ui.theme.Spacing
@@ -105,12 +103,8 @@ private fun ObjectCard(
                 )
                 Text(
                     text = stringResource(R.string.objects_used_sample),
-                    modifier = Modifier
-                        .clip(AppShapes.pill)
-                        .background(HighlightColor)
-                        .padding(horizontal = Spacing.smallMedium, vertical = Spacing.extraSmall),
                     style = MaterialTheme.typography.labelMedium,
-                    color = OnHighlight,
+                    color = visual.tint.secondaryText,
                 )
             }
             ObjectImage(

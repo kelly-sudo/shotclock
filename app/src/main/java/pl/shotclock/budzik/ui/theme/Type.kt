@@ -84,13 +84,13 @@ val Typography = Typography(
     ),
 )
 
-// Małe nagłówki pisane wielkimi literami, np. „POWTARZAJ”.
-val OverlineText = TextStyle(
+// Małe nagłówki sekcji, np. „Powtarzaj”. Zwykły zapis zdaniowy, bez wersalików i rozstrzelenia liter.
+val SectionLabelText = TextStyle(
     fontFamily = AppFont,
     fontWeight = FontWeight.Bold,
     fontSize = 12.sp,
     lineHeight = 16.sp,
-    letterSpacing = 0.12.em,
+    letterSpacing = 0.sp,
 )
 
 // "tnum" nadaje wszystkim cyfrom tę samą szerokość, więc godzina nie „skacze” przy zmianie minut.

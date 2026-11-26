@@ -35,19 +35,17 @@ import pl.shotclock.budzik.ui.objects.ObjectVisual
 import pl.shotclock.budzik.ui.theme.Accent
 import pl.shotclock.budzik.ui.theme.AppShapes
 import pl.shotclock.budzik.ui.theme.MintTint
-import pl.shotclock.budzik.ui.theme.OverlineText
+import pl.shotclock.budzik.ui.theme.SectionLabelText
 import pl.shotclock.budzik.ui.theme.ShotClockTheme
 import pl.shotclock.budzik.ui.theme.Sizes
 import pl.shotclock.budzik.ui.theme.Spacing
 import pl.shotclock.budzik.ui.theme.TextSecondary
 import pl.shotclock.budzik.ui.theme.entranceFrom
-import pl.shotclock.budzik.ui.theme.glowBehind
 import pl.shotclock.budzik.ui.theme.rememberEntrance
 import pl.shotclock.budzik.ui.theme.rememberPulse
 import pl.shotclock.budzik.ui.theme.rememberShakeAngle
 
 private const val BlinkMillis = 550
-private const val CameraGlowMillis = 2200
 
 /**
  * Ekran dzwonienia na przykładowych danych. Prawdziwy alarm dojdzie w Etapie 3.
@@ -91,7 +89,7 @@ fun RingScreen(
         ) {
             Text(
                 text = stringResource(R.string.ring_task),
-                style = OverlineText,
+                style = SectionLabelText,
                 color = TextSecondary,
             )
             Text(
@@ -104,14 +102,10 @@ fun RingScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(Spacing.smallMedium),
         ) {
-            // Pulsująca poświata przyciąga wzrok do jedynej akcji na tym ekranie.
-            val cameraGlow = rememberPulse(CameraGlowMillis, label = "camera glow")
             AppButton(
                 text = stringResource(R.string.ring_open_camera),
                 onClick = onOpenCamera,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .glowBehind(cameraGlow),
+                modifier = Modifier.fillMaxWidth(),
                 icon = R.drawable.ic_camera,
             )
             Text(
@@ -141,7 +135,7 @@ private fun RingStatus(modifier: Modifier = Modifier) {
                 .clip(AppShapes.pill)
                 .background(Accent),
         )
-        Text(text = stringResource(R.string.ring_status), style = OverlineText, color = Accent)
+        Text(text = stringResource(R.string.ring_status), style = SectionLabelText, color = Accent)
     }
 }
 

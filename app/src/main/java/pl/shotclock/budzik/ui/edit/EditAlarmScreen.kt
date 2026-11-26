@@ -41,7 +41,7 @@ import pl.shotclock.budzik.ui.components.ScreenContainer
 import pl.shotclock.budzik.ui.components.TimeWheel
 import pl.shotclock.budzik.ui.objects.ObjectVisual
 import pl.shotclock.budzik.ui.theme.AppShapes
-import pl.shotclock.budzik.ui.theme.OverlineText
+import pl.shotclock.budzik.ui.theme.SectionLabelText
 import pl.shotclock.budzik.ui.theme.ShotClockTheme
 import pl.shotclock.budzik.ui.theme.Sizes
 import pl.shotclock.budzik.ui.theme.Spacing
@@ -168,7 +168,7 @@ private fun ColumnScope.EditAlarmForm(alarm: Alarm, actions: EditAlarmActions) {
 
 @Composable
 private fun SectionTitle(@StringRes textRes: Int) {
-    Text(text = stringResource(textRes), style = OverlineText, color = TextSecondary)
+    Text(text = stringResource(textRes), style = SectionLabelText, color = TextSecondary)
 }
 
 /** Karta z wyborem godziny w kolorze wybranego przedmiotu. */
@@ -243,6 +243,8 @@ private fun AlarmOptionsCard(alarm: Alarm, actions: EditAlarmActions) {
             top = Spacing.extraSmall,
             bottom = Spacing.extraSmall,
         ),
+        // Wiersze stoją jeden pod drugim bez odstępu: o rytmie decyduje stała wysokość wiersza.
+        verticalSpacing = Spacing.none,
     ) {
         // Wybór dźwięku dojdzie w Etapie 3, razem z odtwarzaniem. Na razie zawsze jest domyślny.
         OptionRow(R.drawable.ic_music, R.string.edit_sound) {
@@ -277,7 +279,7 @@ private fun OptionRow(
 ) {
     // Wiersz rośnie, gdy przy dużej czcionce opis łamie się na dwie linie.
     Row(
-        modifier = Modifier.heightIn(min = Sizes.settingRowHeight),
+        modifier = Modifier.heightIn(min = Sizes.optionRowHeight),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.smallMedium),
     ) {

@@ -15,9 +15,9 @@
     <!-- Przedmioty. Kubek to przykład, dopóki zespół AI nie wybierze drugiego przedmiotu. -->
     <string name="object_toothbrush">Szczoteczka do zębów</string>
     <string name="object_toothbrush_short">Szczoteczka</string>
-    <string name="object_toothbrush_tip">Pokaż ją całą, w dobrym świetle.</string>
+    <string name="object_toothbrush_tip">Pokaż ją całą, w dobrym świetle</string>
     <string name="object_mug">Kubek</string>
-    <string name="object_mug_tip">Najlepiej ujęty lekko z boku, z widocznym uchem.</string>
+    <string name="object_mug_tip">Najlepiej ujęty lekko z boku, z widocznym uchem</string>
     <string name="object_random">Losowy</string>
     <string name="object_random_description">Losowy przedmiot</string>
 
@@ -48,14 +48,14 @@
     <string name="edit_title_new">Nowy alarm</string>
     <string name="time_wheel_hours">Godziny</string>
     <string name="time_wheel_minutes">Minuty</string>
-    <string name="edit_repeat">POWTARZAJ</string>
+    <string name="edit_repeat">Powtarzaj</string>
     <string name="edit_preset_workdays">Dni robocze</string>
     <string name="edit_preset_weekend">Weekend</string>
     <string name="edit_preset_everyday">Codziennie</string>
-    <string name="edit_days_once_hint">Bez zaznaczonych dni alarm zadzwoni tylko raz.</string>
-    <string name="edit_label">ETYKIETA</string>
+    <string name="edit_days_once_hint">Bez zaznaczonych dni alarm zadzwoni tylko raz</string>
+    <string name="edit_label">Etykieta</string>
     <string name="edit_label_placeholder">Np. Zajęcia</string>
-    <string name="edit_object">CO SFOTOGRAFOWAĆ</string>
+    <string name="edit_object">Co sfotografować</string>
     <string name="edit_sound">Dźwięk</string>
     <string name="edit_sound_default">Domyślny</string>
     <string name="edit_vibration">Wibracje</string>
@@ -81,11 +81,11 @@
     </string-array>
 
     <!-- Ekran dzwonienia -->
-    <string name="ring_status">ALARM DZWONI</string>
+    <string name="ring_status">Alarm dzwoni</string>
     <string name="ring_label_sample">Pobudka na zajęcia</string>
-    <string name="ring_task">ZRÓB ZDJĘCIE</string>
+    <string name="ring_task">Zrób zdjęcie</string>
     <string name="ring_open_camera">Otwórz kamerę</string>
-    <string name="ring_note">Ucichnie dopiero po rozpoznaniu przedmiotu.</string>
+    <string name="ring_note">Ucichnie dopiero po rozpoznaniu przedmiotu</string>
 
     <!-- Ekran kamery -->
     <string name="camera_title">Kamera</string>
