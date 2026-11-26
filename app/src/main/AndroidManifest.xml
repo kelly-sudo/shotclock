@@ -2,6 +2,24 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Powiadomienie o dzwoniącym alarmie. Od Androida 13 użytkownik musi się na nie zgodzić. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Dokładne alarmy: na Androidzie 12 (API 31–32) zgoda w ustawieniach, od Androida 13 przyznawana od razu budzikom. -->
+    <uses-permission
+        android:name="android.permission.SCHEDULE_EXACT_ALARM"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <!-- Ekran dzwonienia otwierany przez powiadomienie, także na zablokowanym telefonie (od Androida 14 osobna zgoda). -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <!-- Ponowne ustawienie alarmów po restarcie telefonu. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Serwis, który dzwoni w tle. Od Androida 14 trzeba podać jego rodzaj: odtwarzanie dźwięku. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Procesor nie zasypia w trakcie dzwonienia przy zgaszonym ekranie. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <application
         android:name=".ShotClockApplication"
         android:allowBackup="true"
@@ -23,6 +41,37 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Ekran dzwonienia: osobne zadanie, bez miejsca na liście ostatnich aplikacji. -->
+        <activity
+            android:name=".RingActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:taskAffinity=""
+            android:theme="@style/Theme.ShotClock" />
+
+        <service
+            android:name=".alarm.RingService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
+        <receiver
+            android:name=".alarm.AlarmReceiver"
+            android:exported="false" />
+
+        <!-- Akcje systemowe, po których ustawiamy alarmy od nowa. -->
+        <receiver
+            android:name=".alarm.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

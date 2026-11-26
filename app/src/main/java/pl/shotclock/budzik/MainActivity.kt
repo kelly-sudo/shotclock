@@ -1,5 +1,6 @@
 package pl.shotclock.budzik
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -21,6 +22,16 @@ class MainActivity : ComponentActivity() {
             ShotClockTheme {
                 AppNavigation()
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Gdy alarm dzwoni, a ktoś otworzy aplikację z ikony (np. bez zgody na powiadomienia),
+        // od razu pokazujemy ekran dzwonienia. Inaczej nie byłoby jak go wyłączyć.
+        val container = (application as ShotClockApplication).container
+        if (container.ringController.ringing.value != null) {
+            startActivity(Intent(this, RingActivity::class.java))
         }
     }
 }

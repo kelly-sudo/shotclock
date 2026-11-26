@@ -58,6 +58,8 @@
     <string name="edit_object">Co sfotografować</string>
     <string name="edit_sound">Dźwięk</string>
     <string name="edit_sound_default">Domyślny</string>
+    <string name="edit_sound_custom">Własny</string>
+    <string name="edit_sound_change">Zmień dźwięk</string>
     <string name="edit_vibration">Wibracje</string>
     <string name="edit_rising_volume">Narastająca głośność</string>
     <string name="edit_save">Zapisz alarm</string>
@@ -86,10 +88,26 @@
     <string name="ring_task">Zrób zdjęcie</string>
     <string name="ring_open_camera">Otwórz kamerę</string>
     <string name="ring_note">Ucichnie dopiero po rozpoznaniu przedmiotu</string>
+    <string name="ring_channel_name">Dzwoniące alarmy</string>
+    <string name="ring_channel_description">Pokazuje ekran dzwonienia, gdy alarm się włącza</string>
+    <string name="ring_notification_text">Zrób zdjęcie przedmiotu, żeby wyłączyć alarm</string>
+    <string name="ring_notification_open">Otwórz</string>
 
     <!-- Ekran kamery -->
     <string name="camera_title">Kamera</string>
     <string name="camera_placeholder">Tutaj pojawi się podgląd z kamery i rozpoznawanie przedmiotu (Etap 4).</string>
+    <!-- Tymczasowy przycisk do Etapu 4: bez rozpoznawania nie byłoby jak zatrzymać alarmu. -->
+    <string name="camera_dismiss_temporary">Wyłącz alarm (tymczasowo)</string>
+
+    <!-- Uprawnienia potrzebne do dzwonienia -->
+    <string name="permission_notifications_title">Włącz powiadomienia</string>
+    <string name="permission_notifications_description">Bez nich alarm nie pokaże ekranu dzwonienia.</string>
+    <string name="permission_exact_alarms_title">Zezwól na alarmy i przypomnienia</string>
+    <string name="permission_exact_alarms_description">Android wymaga tej zgody, żeby alarm zadzwonił dokładnie o czasie.</string>
+    <string name="permission_full_screen_title">Zezwól na powiadomienia na pełnym ekranie</string>
+    <string name="permission_full_screen_description">Dzięki temu ekran dzwonienia otworzy się sam, także na zablokowanym telefonie.</string>
+    <string name="permission_action_allow">Zezwól</string>
+    <string name="permission_action_settings">Otwórz ustawienia</string>
 
     <!-- Onboarding -->
     <string name="onboarding_title">Witaj w ShotClock</string>

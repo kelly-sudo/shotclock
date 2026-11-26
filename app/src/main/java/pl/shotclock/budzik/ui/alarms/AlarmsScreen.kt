@@ -48,6 +48,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.time.DayOfWeek
 import pl.shotclock.budzik.R
+import pl.shotclock.budzik.alarm.MissingPermission
 import pl.shotclock.budzik.alarm.TimeUntil
 import pl.shotclock.budzik.data.Alarm
 import pl.shotclock.budzik.data.RequiredObject
@@ -91,6 +92,7 @@ data class AlarmsActions(
     val onDelete: (alarmId: Long) -> Unit = {},
     val onUndoDelete: () -> Unit = {},
     val onUndoDismissed: () -> Unit = {},
+    val onFixPermission: (MissingPermission) -> Unit = {},
 )
 
 /** Ekran listy z ViewModelem: czyta stan i przekazuje akcje. Sam wygląd jest w [AlarmsScreen]. */
@@ -101,9 +103,11 @@ fun AlarmsRoute(
     viewModel: AlarmsViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val permissionWarning = rememberPermissionWarning()
 
     AlarmsScreen(
         uiState = uiState,
+        missingPermission = permissionWarning.missing,
         actions = AlarmsActions(
             onAddAlarm = onAddAlarm,
             onOpenAlarm = onOpenAlarm,
@@ -111,6 +115,7 @@ fun AlarmsRoute(
             onDelete = viewModel::delete,
             onUndoDelete = viewModel::undoDelete,
             onUndoDismissed = viewModel::forgetDeleted,
+            onFixPermission = permissionWarning.onFix,
         ),
     )
 }
@@ -121,6 +126,8 @@ fun AlarmsScreen(
     uiState: AlarmsUiState,
     actions: AlarmsActions,
     modifier: Modifier = Modifier,
+    // Brakujące uprawnienie do dzwonienia. Gdy nie jest null, nad listą pojawia się karta z prośbą o nie.
+    missingPermission: MissingPermission? = null,
 ) {
     val hasAlarms = !uiState.isLoading && !uiState.isEmpty
     val snackbarHostState = remember { SnackbarHostState() }
@@ -141,6 +148,13 @@ fun AlarmsScreen(
 
     Box(modifier.fillMaxSize()) {
         ScreenContainer(title = stringResource(R.string.tab_alarms), hasBottomBar = true) {
+            missingPermission?.let { permission ->
+                PermissionWarningCard(
+                    permission = permission,
+                    onFix = { actions.onFixPermission(permission) },
+                    modifier = Modifier.entranceFrom(rememberEntrance(order = 0)),
+                )
+            }
             if (uiState.isEmpty) {
                 EmptyAlarms(actions.onAddAlarm, Modifier.entranceFrom(rememberEntrance(order = 0)))
             }
@@ -490,6 +504,7 @@ private fun AlarmsScreenEmptyPreview() {
             AlarmsScreen(
                 uiState = AlarmsUiState(isLoading = false),
                 actions = AlarmsActions(),
+                missingPermission = MissingPermission.NOTIFICATIONS,
             )
         }
     }

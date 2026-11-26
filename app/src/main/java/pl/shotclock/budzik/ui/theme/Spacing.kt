@@ -32,6 +32,8 @@ object Sizes {
     val objectTileHeight = 96.dp
     // Wiersz opcji (np. Dźwięk, Wibracje): wyższy niż minimalny element dotykowy, żeby był wygodny.
     val optionRowHeight = 56.dp
+    // Nazwa dzwonka w wierszu „Dźwięk” ucina się po tej szerokości.
+    val soundTitleMaxWidth = 140.dp
     val textFieldHeight = 56.dp
     val snackbarHeight = 56.dp
     val listRowHeight = 56.dp

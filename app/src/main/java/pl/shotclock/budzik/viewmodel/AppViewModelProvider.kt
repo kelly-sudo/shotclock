@@ -20,6 +20,9 @@ object AppViewModelProvider {
             // SavedStateHandle zawiera argumenty z nawigacji, m.in. id edytowanego alarmu.
             EditAlarmViewModel(createSavedStateHandle(), shotClockApplication().container.alarmRepository)
         }
+        initializer {
+            RingViewModel(shotClockApplication().container.ringController)
+        }
     }
 }
 
