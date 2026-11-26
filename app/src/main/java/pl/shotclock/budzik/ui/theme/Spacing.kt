@@ -30,7 +30,8 @@ object Sizes {
 
     val presetChipHeight = 40.dp
     val objectTileHeight = 96.dp
-    val settingRowHeight = 48.dp
+    // Wiersz opcji (np. Dźwięk, Wibracje): wyższy niż minimalny element dotykowy, żeby był wygodny.
+    val optionRowHeight = 56.dp
     val textFieldHeight = 56.dp
     val snackbarHeight = 56.dp
     val listRowHeight = 56.dp

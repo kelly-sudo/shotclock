@@ -9,6 +9,7 @@ import pl.shotclock.budzik.R
 import pl.shotclock.budzik.alarm.TimeUntil
 import pl.shotclock.budzik.data.Alarm
 import pl.shotclock.budzik.data.Weekdays
+import pl.shotclock.budzik.ui.objects.ObjectVisual
 
 // Teksty opisujące alarm, wspólne dla listy alarmów i innych ekranów.
 
@@ -31,6 +32,14 @@ fun daysText(days: Set<DayOfWeek>): String {
 fun alarmSubtitle(alarm: Alarm): String {
     val days = daysText(alarm.days)
     return if (alarm.label.isBlank()) days else stringResource(R.string.alarms_subtitle, days, alarm.label)
+}
+
+/** Wymagany przedmiot, np. „Zdjęcie: szczoteczka do zębów” albo „Zdjęcie: losowy przedmiot”. */
+@Composable
+fun alarmTaskText(alarm: Alarm): String {
+    val objectName = stringResource(ObjectVisual.of(alarm.requiredObject).nameRes)
+    // Nazwa przedmiotu w środku zdania zaczyna się małą literą.
+    return stringResource(R.string.alarms_task, objectName.replaceFirstChar { it.lowercase() })
 }
 
 /** „Następny za 7 h 20 min” albo informacja, że żaden alarm nie jest włączony. */

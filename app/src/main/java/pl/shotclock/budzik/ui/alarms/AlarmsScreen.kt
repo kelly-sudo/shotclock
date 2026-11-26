@@ -325,8 +325,7 @@ private fun HeroAlarmCard(
         HorizontalDivider(color = visual.tint.border)
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                // Nazwa przedmiotu w środku zdania zaczyna się małą literą: „Zdjęcie: szczoteczka do zębów”.
-                text = stringResource(R.string.alarms_task, objectName.replaceFirstChar { it.lowercase() }),
+                text = alarmTaskText(alarm),
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.bodyLarge,
             )
@@ -376,6 +375,15 @@ private fun AlarmCard(
                     style = MaterialTheme.typography.bodyMedium,
                     color = TextSecondary,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                // Ta sama informacja co na dużej karcie, tylko ciszej, żeby karta najbliższego alarmu nadal się wyróżniała.
+                // Na wąskim ekranie „Zdjęcie: losowy przedmiot” łamie się na dwie linie, zamiast się uciąć.
+                Text(
+                    text = alarmTaskText(alarm),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextSecondary,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
             }
