@@ -1,5 +1,8 @@
 package pl.shotclock.budzik.ui.ring
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +19,11 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,7 +31,11 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import pl.shotclock.budzik.R
+import pl.shotclock.budzik.data.RequiredObject
+import pl.shotclock.budzik.ui.camera.CameraScreen
 import pl.shotclock.budzik.ui.components.AppBackground
 import pl.shotclock.budzik.ui.components.AppButton
 import pl.shotclock.budzik.ui.components.AppCard
@@ -34,7 +46,6 @@ import pl.shotclock.budzik.ui.objects.ObjectImage
 import pl.shotclock.budzik.ui.objects.ObjectVisual
 import pl.shotclock.budzik.ui.theme.Accent
 import pl.shotclock.budzik.ui.theme.AppShapes
-import pl.shotclock.budzik.ui.theme.MintTint
 import pl.shotclock.budzik.ui.theme.SectionLabelText
 import pl.shotclock.budzik.ui.theme.ShotClockTheme
 import pl.shotclock.budzik.ui.theme.Sizes
@@ -44,18 +55,55 @@ import pl.shotclock.budzik.ui.theme.entranceFrom
 import pl.shotclock.budzik.ui.theme.rememberEntrance
 import pl.shotclock.budzik.ui.theme.rememberPulse
 import pl.shotclock.budzik.ui.theme.rememberShakeAngle
+import pl.shotclock.budzik.ui.theme.ScreenTransitionMillis
+import pl.shotclock.budzik.viewmodel.AppViewModelProvider
+import pl.shotclock.budzik.viewmodel.RingUiState
+import pl.shotclock.budzik.viewmodel.RingViewModel
 
 private const val BlinkMillis = 550
 
 /**
- * Ekran dzwonienia na przykładowych danych. Prawdziwy alarm dojdzie w Etapie 3.
- * Celowo nie ma tu przycisku drzemki.
+ * Ekran dzwonienia z ViewModelem. Najpierw pokazuje dzwoniący alarm, a po „Otwórz kamerę” ekran kamery.
+ * Gdy alarm zostanie wyłączony, wywołuje [onFinished], żeby zamknąć okno.
  */
 @Composable
+fun RingRoute(
+    onFinished: () -> Unit,
+    viewModel: RingViewModel = viewModel(factory = AppViewModelProvider.Factory),
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var showCamera by rememberSaveable { mutableStateOf(false) }
+
+    // Nie ma drzemki ani ucieczki: Wstecz na ekranie dzwonienia nic nie robi, a z kamery wraca do dzwonienia.
+    BackHandler { showCamera = false }
+
+    val state = uiState
+    if (state == null) {
+        LaunchedEffect(Unit) { onFinished() }
+        return
+    }
+    Crossfade(
+        targetState = showCamera,
+        animationSpec = tween(ScreenTransitionMillis),
+        label = "ring or camera",
+    ) { camera ->
+        if (camera) {
+            CameraScreen(onBack = { showCamera = false }, onDismissAlarm = viewModel::dismiss)
+        } else {
+            RingScreen(uiState = state, onOpenCamera = { showCamera = true })
+        }
+    }
+}
+
+/** Wygląd ekranu dzwonienia. Celowo nie ma tu przycisku drzemki. */
+@Composable
 fun RingScreen(
+    uiState: RingUiState,
     onOpenCamera: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val visual = ObjectVisual.of(uiState.objectToFind)
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -69,16 +117,20 @@ fun RingScreen(
             modifier = Modifier.entranceFrom(rememberEntrance(order = 1)),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            TimeDisplay(hour = 7, minute = 30, size = TimeDisplaySize.Huge)
-            Text(
-                text = stringResource(R.string.ring_label_sample),
-                style = MaterialTheme.typography.bodyLarge,
-                color = TextSecondary,
-            )
+            TimeDisplay(hour = uiState.hour, minute = uiState.minute, size = TimeDisplaySize.Huge)
+            if (uiState.label.isNotBlank()) {
+                Text(
+                    text = uiState.label,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = TextSecondary,
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
         // Na niskim ekranie pole z falami się zmniejsza, żeby przycisk kamery zawsze był widoczny.
         RingingObject(
-            Modifier
+            visual = visual,
+            modifier = Modifier
                 .weight(1f, fill = false)
                 .entranceFrom(rememberEntrance(order = 2)),
         )
@@ -93,7 +145,7 @@ fun RingScreen(
                 color = TextSecondary,
             )
             Text(
-                text = stringResource(ObjectVisual.Toothbrush.nameRes),
+                text = stringResource(visual.nameRes),
                 style = MaterialTheme.typography.titleLarge,
             )
         }
@@ -140,7 +192,7 @@ private fun RingStatus(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun RingingObject(modifier: Modifier = Modifier) {
+private fun RingingObject(visual: ObjectVisual, modifier: Modifier = Modifier) {
     val shake = rememberShakeAngle()
 
     PulsingHalo(
@@ -152,13 +204,13 @@ private fun RingingObject(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .size(Sizes.ringCircle)
                 .clip(AppShapes.pill)
-                .background(MintTint.surface)
-                .border(Sizes.cardBorder, MintTint.border, AppShapes.pill),
+                .background(visual.tint.surface)
+                .border(Sizes.cardBorder, visual.tint.border, AppShapes.pill),
             contentAlignment = Alignment.Center,
         ) {
             ObjectImage(
-                visual = ObjectVisual.Toothbrush,
-                contentDescription = stringResource(ObjectVisual.Toothbrush.nameRes),
+                visual = visual,
+                contentDescription = stringResource(visual.nameRes),
                 modifier = Modifier
                     .size(Sizes.ringObject)
                     .graphicsLayer { rotationZ = shake.value },
@@ -172,7 +224,29 @@ private fun RingingObject(modifier: Modifier = Modifier) {
 private fun RingScreenPreview() {
     ShotClockTheme {
         AppBackground {
-            RingScreen(onOpenCamera = {})
+            RingScreen(uiState = sampleRingUiState(), onOpenCamera = {})
         }
     }
 }
+
+@Preview(widthDp = 360, heightDp = 640)
+@Composable
+private fun RingScreenMugPreview() {
+    ShotClockTheme {
+        AppBackground {
+            RingScreen(
+                uiState = RingUiState(hour = 6, minute = 5, label = "", objectToFind = RequiredObject.SECOND),
+                onOpenCamera = {},
+            )
+        }
+    }
+}
+
+/** Przykładowy alarm do podglądów i do tymczasowego przycisku „Dzwonienie” w ustawieniach. */
+@Composable
+fun sampleRingUiState() = RingUiState(
+    hour = 7,
+    minute = 30,
+    label = stringResource(R.string.ring_label_sample),
+    objectToFind = RequiredObject.FIRST,
+)

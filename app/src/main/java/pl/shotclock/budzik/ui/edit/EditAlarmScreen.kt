@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,6 +20,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -61,6 +65,7 @@ data class EditAlarmActions(
     val onRequiredObjectChange: (RequiredObject) -> Unit = {},
     val onVibrationChange: (Boolean) -> Unit = {},
     val onRisingVolumeChange: (Boolean) -> Unit = {},
+    val onSoundChange: (String?) -> Unit = {},
 )
 
 /**
@@ -88,6 +93,7 @@ fun EditAlarmRoute(
             onRequiredObjectChange = viewModel::setRequiredObject,
             onVibrationChange = viewModel::setVibration,
             onRisingVolumeChange = viewModel::setRisingVolume,
+            onSoundChange = viewModel::setSound,
         ),
     )
 }
@@ -246,13 +252,23 @@ private fun AlarmOptionsCard(alarm: Alarm, actions: EditAlarmActions) {
         // Wiersze stoją jeden pod drugim bez odstępu: o rytmie decyduje stała wysokość wiersza.
         verticalSpacing = Spacing.none,
     ) {
-        // Wybór dźwięku dojdzie w Etapie 3, razem z odtwarzaniem. Na razie zawsze jest domyślny.
-        OptionRow(R.drawable.ic_music, R.string.edit_sound) {
+        val pickSound = rememberSoundPicker(alarm.soundUri, actions.onSoundChange)
+        OptionRow(
+            icon = R.drawable.ic_music,
+            label = R.string.edit_sound,
+            onClick = pickSound,
+            onClickLabel = stringResource(R.string.edit_sound_change),
+        ) {
             Text(
-                text = stringResource(R.string.edit_sound_default),
+                text = soundTitle(alarm.soundUri),
                 style = MaterialTheme.typography.bodyMedium,
                 color = TextSecondary,
+                // Długa nazwa dzwonka nie może zepchnąć napisu „Dźwięk”.
+                modifier = Modifier.widthIn(max = Sizes.soundTitleMaxWidth),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
+            Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null, tint = TextSecondary)
         }
         OptionRow(R.drawable.ic_vibration, R.string.edit_vibration) {
             AppToggle(
@@ -275,11 +291,21 @@ private fun AlarmOptionsCard(alarm: Alarm, actions: EditAlarmActions) {
 private fun OptionRow(
     @DrawableRes icon: Int,
     @StringRes label: Int,
+    onClick: (() -> Unit)? = null,
+    onClickLabel: String? = null,
     trailing: @Composable RowScope.() -> Unit,
 ) {
     // Wiersz rośnie, gdy przy dużej czcionce opis łamie się na dwie linie.
     Row(
-        modifier = Modifier.heightIn(min = Sizes.optionRowHeight),
+        modifier = Modifier
+            .heightIn(min = Sizes.optionRowHeight)
+            .then(
+                if (onClick != null) {
+                    Modifier.clickable(onClickLabel = onClickLabel, role = Role.Button, onClick = onClick)
+                } else {
+                    Modifier
+                },
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.smallMedium),
     ) {

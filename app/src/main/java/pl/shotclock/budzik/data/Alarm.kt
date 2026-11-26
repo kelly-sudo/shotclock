@@ -16,7 +16,7 @@ data class Alarm(
     val enabled: Boolean = true,
     val label: String = "",
     val requiredObject: RequiredObject = RequiredObject.FIRST,
-    // null oznacza domyślny dźwięk alarmu w telefonie. Wybór dźwięku dojdzie w Etapie 3.
+    // Adres dźwięku z systemowego wyboru dzwonków. null oznacza domyślny dźwięk alarmu w telefonie.
     val soundUri: String? = null,
     val vibration: Boolean = true,
     val risingVolume: Boolean = true,

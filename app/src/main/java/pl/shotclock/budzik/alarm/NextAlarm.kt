@@ -2,6 +2,7 @@ package pl.shotclock.budzik.alarm
 
 import java.time.Duration
 import java.time.LocalDateTime
+import java.time.ZoneId
 import pl.shotclock.budzik.data.Alarm
 
 // Czyste funkcje bez Androida: dostają aktualny czas jako parametr, więc w testach możemy podać dowolną datę.
@@ -48,3 +49,10 @@ fun timeUntil(now: LocalDateTime, ringTime: LocalDateTime): TimeUntil {
         minutes = totalMinutes % MINUTES_IN_HOUR,
     )
 }
+
+/**
+ * Chwila dzwonienia jako liczba milisekund, której potrzebuje AlarmManager.
+ * Jeśli godzina wypada w „dziurze” przy zmianie czasu na letni (np. 2:30 w nocy), alarm zadzwoni godzinę później.
+ */
+fun ringTimeMillis(ringTime: LocalDateTime, zone: ZoneId): Long =
+    ringTime.atZone(zone).toInstant().toEpochMilli()

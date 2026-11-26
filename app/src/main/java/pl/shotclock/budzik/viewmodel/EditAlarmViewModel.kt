@@ -59,6 +59,9 @@ class EditAlarmViewModel(
 
     fun setRisingVolume(risingVolume: Boolean) = updateAlarm { it.copy(risingVolume = risingVolume) }
 
+    /** null oznacza domyślny dźwięk alarmu w telefonie. */
+    fun setSound(soundUri: String?) = updateAlarm { it.copy(soundUri = soundUri) }
+
     /** Zapisuje alarm w bazie i włącza go. [onSaved] wywołujemy dopiero po zapisie, żeby lista od razu go pokazała. */
     fun save(onSaved: () -> Unit) {
         val alarm = _uiState.value.alarm.copy(label = _uiState.value.alarm.label.trim(), enabled = true)

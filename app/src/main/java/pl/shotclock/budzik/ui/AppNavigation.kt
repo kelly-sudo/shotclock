@@ -28,6 +28,7 @@ import pl.shotclock.budzik.ui.history.HistoryScreen
 import pl.shotclock.budzik.ui.objects.ObjectsScreen
 import pl.shotclock.budzik.ui.onboarding.OnboardingScreen
 import pl.shotclock.budzik.ui.ring.RingScreen
+import pl.shotclock.budzik.ui.ring.sampleRingUiState
 import pl.shotclock.budzik.ui.settings.SettingsScreen
 import pl.shotclock.budzik.ui.theme.ScreenTransitionMillis
 import pl.shotclock.budzik.viewmodel.AlarmsViewModel
@@ -113,7 +114,8 @@ fun AppNavigation() {
                 )
             }
             composable(Routes.RING) {
-                RingScreen(onOpenCamera = { navController.navigate(Routes.CAMERA) })
+                // Podgląd na przykładowych danych. Prawdziwy alarm otwiera osobne okno RingActivity.
+                RingScreen(uiState = sampleRingUiState(), onOpenCamera = { navController.navigate(Routes.CAMERA) })
             }
             composable(Routes.CAMERA) {
                 CameraScreen(onBack = { navController.popBackStack() })
