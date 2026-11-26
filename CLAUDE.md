@@ -117,6 +117,7 @@ Nawigacja: pływający dolny pasek z zakładkami Alarmy / Historia / Przedmioty 
 - **Decyzja o wyłączeniu alarmu** w osobnej, czystej funkcji (bez zależności od Androida), łatwej do przetestowania: wymagany przedmiot + próg + czas utrzymania wyniku.
 - **Alarm:** `setAlarmClock` (najbardziej niezawodny), foreground service odtwarzający dźwięk i wibracje, full-screen intent otwierający ekran dzwonienia, ponowne ustawienie alarmów po restarcie (`BOOT_COMPLETED`) i zmianie strefy czasowej.
 - **Uprawnienia:** CAMERA, POST_NOTIFICATIONS (13+), SCHEDULE_EXACT_ALARM / USE_EXACT_ALARM, USE_FULL_SCREEN_INTENT (14+), RECEIVE_BOOT_COMPLETED, FOREGROUND_SERVICE (+ odpowiedni typ usługi), VIBRATE. Zawsze sprawdzaj wersję API i obsłuż odmowę.
+- **Easter egg:** alarm na 21:37 gra `res/raw/easter_2137.mp3` zamiast wybranego dźwięku (reguła w `alarm/RingSound.kt`, test w `RingSoundTest`). Bez pliku gra zwykły dźwięk.
 - **Samsung:** dodaj w onboardingu podpowiedź o wyłączeniu optymalizacji baterii dla aplikacji, jeśli alarmy nie działają.
 - Zdjęcia z kamery analizowane w pamięci, **nie zapisujemy ich na dysku** (prywatność).
 
@@ -153,7 +154,7 @@ Realizuj etapami, w tej kolejności. Po każdym etapie zatrzymaj się i poczekaj
 
 - [x] **Etap 1 – Fundament:** zależności, struktura pakietów, AppContainer, ciemny motyw i komponenty z podglądami, nawigacja z dolnym paskiem, ekrany na przykładowych danych
 - [x] **Etap 2 – Alarmy w bazie:** Room, lista alarmów, edycja alarmu, testy DAO
-- [ ] **Etap 3 – Dzwonienie:** AlarmManager, foreground service, dźwięk z narastającą głośnością, wibracje, full-screen intent, ekran dzwonienia, boot receiver
+- [x] **Etap 3 – Dzwonienie:** AlarmManager, foreground service, dźwięk z narastającą głośnością, wibracje, full-screen intent, ekran dzwonienia, boot receiver
 - [ ] **Etap 4 – Kamera:** uprawnienia, CameraX, celownik, analiza klatek z FakeObjectClassifier, decyzja o wyłączeniu + testy
 - [ ] **Etap 5 – Pełny scenariusz:** dzwonienie → kamera → sukces, zapis WakeEvent, wyjście awaryjne
 - [ ] **Etap 6 – Historia, przedmioty, ustawienia:** statystyki, wykres, DataStore, tryb testowy
