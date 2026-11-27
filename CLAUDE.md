@@ -110,7 +110,7 @@ Nawigacja: pływający dolny pasek z zakładkami Alarmy / Historia / Przedmioty 
 - `TfliteObjectClassifier` **odczytuje rozmiar wejścia i typ danych (float32 / uint8) z modelu w czasie działania**, zamiast mieć je wpisane na sztywno. Dzięki temu działa z modelem z Teachable Machine, MediaPipe Model Maker lub własnym.
 - Mapowanie etykiet na nazwy i ikony przedmiotów w jednym miejscu w kodzie.
 - Wynik klasyfikacji: `ClassificationResult(label: String, confidence: Float)` + pełna lista wyników.
-- Próg pewności: stała domyślna 0.85, nadpisywana w ustawieniach deweloperskich.
+- Próg pewności: stała domyślna 0.55 (prowadzący ustalił 50–60%), nadpisywana w ustawieniach deweloperskich.
 
 ## Kluczowe decyzje techniczne
 

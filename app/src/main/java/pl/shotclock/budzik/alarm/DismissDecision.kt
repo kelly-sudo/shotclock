@@ -1,13 +1,16 @@
 package pl.shotclock.budzik.alarm
 
-/** Domyślny próg pewności z kontraktu z zespołem AI. W Etapie 6 da się go zmienić w ustawieniach deweloperskich. */
-const val DefaultConfidenceThreshold = 0.85f
+/**
+ * Domyślny próg pewności: 55%, czyli środek przedziału 50–60% ustalonego z prowadzącym.
+ * W Etapie 6 da się go zmienić w ustawieniach deweloperskich.
+ */
+const val DefaultConfidenceThreshold = 0.55f
 
 /** Tak długo pewność musi zostać nad progiem, żeby alarm się wyłączył. Chroni przed przypadkowym „mignięciem”. */
 const val DefaultHoldMillis = 1_000L
 
 // Poniżej tej pewności mówimy, że przedmiotu w ogóle nie widać.
-private const val SeenThreshold = 0.4f
+private const val SeenThreshold = 0.3f
 
 /** Podpowiedź pokazywana na ekranie kamery. */
 enum class RecognitionHint {

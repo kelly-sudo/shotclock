@@ -23,7 +23,7 @@ Zrzuty z emulatora Android Studio (kamera pokazuje wirtualny pokój emulatora). 
 1. Ustawiasz alarm: godzinę, dni tygodnia, etykietę i przedmiot, który trzeba będzie sfotografować (szczoteczka, kubek albo losowy).
 2. Alarm dzwoni na pełnym ekranie, także przy zablokowanym telefonie. Na ekranie widać, jaki przedmiot trzeba znaleźć.
 3. Otwierasz kamerę i celujesz w przedmiot. Model rozpoznaje go na żywo.
-4. Gdy pewność rozpoznania przez około sekundę przekracza próg (domyślnie 85%), alarm się wyłącza, a aplikacja pokazuje czas wstania i serię dni z rzędu.
+4. Gdy pewność rozpoznania przez około sekundę przekracza próg (domyślnie 55%, ustalony z prowadzącym na 50–60%), alarm się wyłącza, a aplikacja pokazuje czas wstania i serię dni z rzędu.
 5. Jeśli przedmiotu nie da się znaleźć (po 10 nieudanych próbach albo 10 minutach), pojawia się wyjście awaryjne: zadanie matematyczne. Takie wyłączenie zapisuje się w historii.
 
 ## Funkcje
@@ -40,7 +40,7 @@ Stan na dziś: ✅ działa, 🧩 ekran gotowy na przykładowych danych, ⏳ w pl
 | Prawdziwe dzwonienie: AlarmManager, dźwięk z narastającą głośnością, wibracje, wybór dzwonka, powiadomienie pełnoekranowe (także na zablokowanym telefonie), przywracanie alarmów po restarcie i zmianie strefy czasowej | ✅ |
 | Ekran dzwonienia z pulsującą poświatą wokół przedmiotu, bez drzemki | ✅ |
 | Kamera (CameraX) z celownikiem, linią skanowania i półprzezroczystym panelem z podpowiedzią | ✅ |
-| Rozpoznawanie na żywo co 400 ms z paskiem pewności. Alarm cichnie, gdy pewność przez 1 s jest powyżej progu 85% | ✅ (na `FakeObjectClassifier`) |
+| Rozpoznawanie na żywo co 400 ms z paskiem pewności. Alarm cichnie, gdy pewność przez 1 s jest powyżej progu 55% | ✅ (na `FakeObjectClassifier`) |
 | Ręczne zdjęcie jako alternatywa (tylko w pamięci, bez zapisu na dysku) | ✅ |
 | Prośba o dostęp do kamery z wyjaśnieniem, obsługą odmowy i przejściem do ustawień telefonu | ✅ |
 | Ekran przedmiotów, historia ze statystykami i wykresem z 7 dni, ustawienia, onboarding | 🧩 |
@@ -121,7 +121,7 @@ CameraX ──klatka co 400 ms──▶ FrameAnalyzer ──Bitmap──▶ Came
 - **`camera/FrameAnalyzer`** przepuszcza jedną klatkę na 400 ms i obraca ją „do pionu”. Częstsza analiza nie daje nic, a grzałaby starszy telefon.
 - **`ml/ObjectClassifier`** to interfejs. Ekrany i ViewModele nie wiedzą, czy pod spodem jest udawany, czy prawdziwy model.
 - **`ml/FakeObjectClassifier`** udaje model: ciemny albo jednolity obraz (zasłonięta kamera, pusta ściana) to `inne`, a im więcej szczegółów na obrazie, tym większa pewność, że widzi szukany przedmiot. Dzięki temu na emulatorze i telefonie da się sprawdzić wszystkie podpowiedzi.
-- **`alarm/DismissDecision.kt`** to czysta funkcja `decideDismiss` (bez Androida): szukany przedmiot + próg 0.85 + utrzymanie wyniku przez 1 s. Spadek pod próg zeruje licznik. Zwraca też podpowiedź: „Nie widzę przedmiotu”, „To inny przedmiot”, „Przybliż”, „Jeszcze chwilę…”, „Rozpoznano!”. Ręczne zdjęcie wystarczy, że raz przekroczy próg.
+- **`alarm/DismissDecision.kt`** to czysta funkcja `decideDismiss` (bez Androida): szukany przedmiot + próg 0.55 + utrzymanie wyniku przez 1 s. Spadek pod próg zeruje licznik. Zwraca też podpowiedź: „Nie widzę przedmiotu”, „To inny przedmiot”, „Przybliż”, „Jeszcze chwilę…”, „Rozpoznano!”. Ręczne zdjęcie wystarczy, że raz przekroczy próg.
 - Zdjęcia i klatki żyją tylko w pamięci jako `Bitmap`. Nic nie trafia na dysk ani do galerii.
 
 ## Jak zbudować i uruchomić
@@ -169,7 +169,7 @@ Gotowy plik APK znajdziesz w `app/build/outputs/apk/debug/`.
 - `alarm/ObjectPickerTest`: losowanie przedmiotu dla alarmu „losowego”.
 - `alarm/RingVolumeTest`: narastanie głośności.
 - `alarm/RingSoundTest`: wybór dźwięku (także easter egg 21:37).
-- `alarm/DismissDecisionTest`: decyzja o wyłączeniu alarmu (próg 0.85, utrzymanie 1 s, zerowanie licznika po spadku, podpowiedzi „Nie widzę”, „Przybliż”, „To inny przedmiot”, ręczne zdjęcie).
+- `alarm/DismissDecisionTest`: decyzja o wyłączeniu alarmu (próg 0.55, utrzymanie 1 s, zerowanie licznika po spadku, podpowiedzi „Nie widzę”, „Przybliż”, „To inny przedmiot”, ręczne zdjęcie).
 - `ml/FakeObjectClassifierTest`: jasność i szczegóły obrazu, wyniki udawanego modelu (ciemno i pusto → `inne`, dużo szczegółów → szukany przedmiot, suma pewności = 1).
 - `data/AlarmRepositoryTest`: repozytorium ustawia i odwołuje alarmy w systemie razem ze zmianami w bazie.
 - `data/ConvertersTest`: zapis dni tygodnia w bazie i ich odczyt.
@@ -207,7 +207,7 @@ Klasa `inne` jest obowiązkowa. Bez niej model „rozpozna” jako przedmiot cok
 **W kodzie:**
 - Etykiety `przedmiot_1` i `przedmiot_2` są przypisane do przedmiotów w `data/RequiredObject.kt`, a ich nazwy, ilustracje i kolory w `ui/objects/ObjectVisual.kt`. Obecnie to szczoteczka do zębów i kubek.
 - Wynik klasyfikacji: `ClassificationResult(label: String, confidence: Float)` oraz pełna lista wyników.
-- Próg pewności: domyślnie 0.85 (`DefaultConfidenceThreshold` w `alarm/DismissDecision.kt`), w Etapie 6 do zmiany w ustawieniach deweloperskich.
+- Próg pewności: domyślnie 0.55, czyli środek przedziału 50–60% ustalonego z prowadzącym (`DefaultConfidenceThreshold` w `alarm/DismissDecision.kt`), w Etapie 6 do zmiany w ustawieniach deweloperskich.
 - Podmiana modelu: `AppContainer.createClassifier()` zwraca dziś `FakeObjectClassifier`. W Etapie 8 zwróci `TfliteObjectClassifier`, a reszta aplikacji się nie zmieni.
 
 ## Plan budowy

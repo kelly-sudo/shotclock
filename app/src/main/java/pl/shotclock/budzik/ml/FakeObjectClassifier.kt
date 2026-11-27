@@ -54,7 +54,7 @@ data class FrameStats(val brightness: Float, val detail: Float) {
 private const val MinBrightness = 35f
 private const val MinDetail = 12f
 private const val FullDetail = 45f
-private const val LowestConfidence = 0.5f
+private const val LowestConfidence = 0.2f
 private const val HighestConfidence = 0.97f
 
 /** Czysta funkcja (bez Androida), żeby dało się ją sprawdzić testem. */
