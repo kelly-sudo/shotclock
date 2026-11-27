@@ -53,9 +53,13 @@ import pl.shotclock.budzik.ui.theme.rememberEntrance
 import pl.shotclock.budzik.viewmodel.AppViewModelProvider
 import pl.shotclock.budzik.viewmodel.CameraUiState
 import pl.shotclock.budzik.viewmodel.CameraViewModel
+import kotlin.math.roundToInt
 
 // Tyle trwa animacja sukcesu, zanim ekran się zamknie.
 private const val SuccessDisplayMillis = 1_600L
+
+// Tylko do testów modelu: pokazuje pod paskiem pewności wyniki dla wszystkich klas. Przed demo ustaw false.
+private const val ShowModelScores = true
 
 /**
  * Ekran kamery z ViewModelem: pyta o zgodę, uruchamia kamerę i rozpoznawanie.
@@ -206,6 +210,14 @@ private fun HintPanel(uiState: CameraUiState, modifier: Modifier = Modifier) {
             Text(text = detail, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
         }
         ConfidenceBar(confidence = uiState.confidence)
+        if (ShowModelScores && uiState.modelScores.isNotEmpty()) {
+            val scores = uiState.modelScores.joinToString("  ·  ") { "${it.label} ${(it.confidence * 100).roundToInt()}%" }
+            Text(
+                text = stringResource(R.string.camera_model_scores, scores),
+                style = SectionLabelText,
+                color = TextSecondary,
+            )
+        }
     }
 }
 

@@ -55,6 +55,8 @@ dependencies {
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
+    // LiteRT: uruchamia model rozpoznawania przedmiotów (model.tflite z assets) lokalnie na telefonie.
+    implementation(libs.litert)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

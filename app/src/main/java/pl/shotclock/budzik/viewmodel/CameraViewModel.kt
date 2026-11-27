@@ -16,6 +16,7 @@ import pl.shotclock.budzik.alarm.RingController
 import pl.shotclock.budzik.alarm.decideDismiss
 import pl.shotclock.budzik.alarm.isPhotoAccepted
 import pl.shotclock.budzik.data.RequiredObject
+import pl.shotclock.budzik.ml.ClassificationResult
 import pl.shotclock.budzik.ml.ModelLabels
 import pl.shotclock.budzik.ml.ObjectClassifier
 import pl.shotclock.budzik.ml.confidenceOf
@@ -35,6 +36,8 @@ data class CameraUiState(
     val photoRejected: Boolean = false,
     // Nieudane ręczne zdjęcia. W Etapie 5 po 10 próbach pojawi się wyjście awaryjne.
     val failedAttempts: Int = 0,
+    // Wyniki modelu dla wszystkich klas z ostatniej klatki (podgląd na gałęzi testowej).
+    val modelScores: List<ClassificationResult> = emptyList(),
 ) {
     val isRecognized: Boolean get() = hint == RecognitionHint.Recognized
 }
@@ -82,7 +85,12 @@ class CameraViewModel(
         )
         matchSinceMillis = decision.matchSinceMillis
         _uiState.update {
-            it.copy(hasFrame = true, confidence = results.confidenceOf(requiredLabel), hint = decision.hint)
+            it.copy(
+                hasFrame = true,
+                confidence = results.confidenceOf(requiredLabel),
+                hint = decision.hint,
+                modelScores = results,
+            )
         }
         if (decision.shouldDismiss) onRecognized()
     }

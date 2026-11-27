@@ -13,6 +13,7 @@ import pl.shotclock.budzik.data.RequiredObject
 import pl.shotclock.budzik.ml.FakeObjectClassifier
 import pl.shotclock.budzik.ml.ModelLabels
 import pl.shotclock.budzik.ml.ObjectClassifier
+import pl.shotclock.budzik.ml.TfliteObjectClassifier
 
 /**
  * Jedno miejsce, w którym tworzymy obiekty potrzebne w całej aplikacji
@@ -28,10 +29,15 @@ class AppContainer(context: Context) {
     val alarmRepository = AlarmRepository(database.alarmDao(), alarmScheduler)
     val ringController = RingController(context)
 
+    // Prawdziwy model wczytujemy raz, przy pierwszym otwarciu kamery (to kilka MB, szkoda czytać je za każdym razem).
+    private val realClassifier: ObjectClassifier? by lazy {
+        TfliteObjectClassifier.createIfAvailable(context.applicationContext)
+    }
+
     /**
-     * Klasyfikator do rozpoznawania przedmiotu. Na razie udawany: „widzi” przedmiot, którego szukamy.
-     * W Etapie 8 zwróci tu TfliteObjectClassifier z prawdziwym modelem (wtedy [objectToFind] nie będzie potrzebny).
+     * Klasyfikator do rozpoznawania przedmiotu: prawdziwy model, jeśli jest w assets,
+     * a jeśli go nie ma, udawany, który „widzi” przedmiot, którego szukamy.
      */
     fun createClassifier(objectToFind: RequiredObject): ObjectClassifier =
-        FakeObjectClassifier(pretendToSee = objectToFind.modelLabel ?: ModelLabels.FIRST)
+        realClassifier ?: FakeObjectClassifier(pretendToSee = objectToFind.modelLabel ?: ModelLabels.FIRST)
 }
