@@ -35,3 +35,9 @@ val NeutralTint = CardTint(SurfaceColor, SurfaceBorder, TextSecondary)
 val MintTint = CardTint(Color(0xFF0F2F2B), Accent.copy(alpha = 0.28f), Color(0xFFBFD6D2))
 val PeachTint = CardTint(Color(0xFF3A2416), Color(0xFFF08A4B).copy(alpha = 0.3f), Color(0xFFE3CDBB))
 val LilacTint = CardTint(Color(0xFF25213F), Color(0xFFC9C2FF).copy(alpha = 0.28f), Color(0xFFC9C2FF))
+
+// Ekran kamery: tło pod podglądem i „szkło”, czyli półprzezroczysty ciemny panel nad obrazem (bez rozmycia).
+val CameraBackground = Color.Black
+val GlassColor = BackgroundColor.copy(alpha = 0.78f)
+val GlassBorder = TextPrimary.copy(alpha = 0.14f)
+val ViewfinderColor = TextPrimary

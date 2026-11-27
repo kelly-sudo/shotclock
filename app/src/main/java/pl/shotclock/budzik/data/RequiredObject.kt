@@ -1,5 +1,7 @@
 package pl.shotclock.budzik.data
 
+import pl.shotclock.budzik.ml.ModelLabels
+
 /**
  * Przedmiot, który trzeba sfotografować, żeby wyłączyć alarm.
  *
@@ -10,7 +12,7 @@ package pl.shotclock.budzik.data
  * Jak przedmiot wygląda w aplikacji (nazwa, ilustracja, kolor), opisuje ui/objects/ObjectVisual.kt.
  */
 enum class RequiredObject(val modelLabel: String?) {
-    FIRST("przedmiot_1"),
-    SECOND("przedmiot_2"),
+    FIRST(ModelLabels.FIRST),
+    SECOND(ModelLabels.SECOND),
     RANDOM(null),
 }

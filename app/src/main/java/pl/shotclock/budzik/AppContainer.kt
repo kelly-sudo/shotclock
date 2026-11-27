@@ -9,6 +9,10 @@ import pl.shotclock.budzik.alarm.AndroidAlarmScheduler
 import pl.shotclock.budzik.alarm.RingController
 import pl.shotclock.budzik.data.AlarmRepository
 import pl.shotclock.budzik.data.AppDatabase
+import pl.shotclock.budzik.data.RequiredObject
+import pl.shotclock.budzik.ml.FakeObjectClassifier
+import pl.shotclock.budzik.ml.ModelLabels
+import pl.shotclock.budzik.ml.ObjectClassifier
 
 /**
  * Jedno miejsce, w którym tworzymy obiekty potrzebne w całej aplikacji
@@ -23,4 +27,11 @@ class AppContainer(context: Context) {
 
     val alarmRepository = AlarmRepository(database.alarmDao(), alarmScheduler)
     val ringController = RingController(context)
+
+    /**
+     * Klasyfikator do rozpoznawania przedmiotu. Na razie udawany: „widzi” przedmiot, którego szukamy.
+     * W Etapie 8 zwróci tu TfliteObjectClassifier z prawdziwym modelem (wtedy [objectToFind] nie będzie potrzebny).
+     */
+    fun createClassifier(objectToFind: RequiredObject): ObjectClassifier =
+        FakeObjectClassifier(pretendToSee = objectToFind.modelLabel ?: ModelLabels.FIRST)
 }

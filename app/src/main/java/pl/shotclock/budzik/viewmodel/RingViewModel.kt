@@ -18,7 +18,7 @@ data class RingUiState(
     val objectToFind: RequiredObject,
 )
 
-class RingViewModel(private val ringController: RingController) : ViewModel() {
+class RingViewModel(ringController: RingController) : ViewModel() {
 
     /** Stan dzwoniącego alarmu albo null, gdy alarm został wyłączony (wtedy ekran się zamyka). */
     val uiState: StateFlow<RingUiState?> =
@@ -30,9 +30,6 @@ class RingViewModel(private val ringController: RingController) : ViewModel() {
                 // Od razu aktualny stan, żeby ekran nie zamknął się, zanim przeczyta dzwoniący alarm.
                 initialValue = ringController.ringing.value?.toUiState(),
             )
-
-    /** Tymczasowo wywołuje go przycisk na ekranie kamery. Od Etapu 4 zrobi to rozpoznanie przedmiotu. */
-    fun dismiss() = ringController.dismiss()
 }
 
 private fun RingingAlarm.toUiState() = RingUiState(

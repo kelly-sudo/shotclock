@@ -37,7 +37,7 @@ class RingController(private val context: Context) {
         _ringing.value = null
     }
 
-    /** Wyłącza alarm: cisza, koniec wibracji, ekran dzwonienia się zamyka. W Etapie 5 wywoła to rozpoznanie przedmiotu. */
+    /** Wyłącza alarm: cisza, koniec wibracji, ekran dzwonienia się zamyka. Wywołuje to CameraViewModel po rozpoznaniu przedmiotu. */
     fun dismiss() {
         _ringing.value = null
         context.stopService(Intent(context, RingService::class.java))

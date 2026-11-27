@@ -15,3 +15,9 @@ fun Modifier.cardSurface(tint: CardTint = NeutralTint, shape: Shape = AppShapes.
 fun Modifier.accentSurface(shape: Shape): Modifier = this
     .clip(shape)
     .background(Accent)
+
+/** Półprzezroczysty ciemny panel nad podglądem kamery. Tylko na ekranie kamery, reszta aplikacji jest bez przezroczystości. */
+fun Modifier.glassSurface(shape: Shape): Modifier = this
+    .clip(shape)
+    .background(GlassColor)
+    .border(Sizes.cardBorder, GlassBorder, shape)

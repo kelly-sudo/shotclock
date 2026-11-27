@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -35,7 +36,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import pl.shotclock.budzik.R
 import pl.shotclock.budzik.data.RequiredObject
-import pl.shotclock.budzik.ui.camera.CameraScreen
+import pl.shotclock.budzik.ui.camera.CameraRoute
 import pl.shotclock.budzik.ui.components.AppBackground
 import pl.shotclock.budzik.ui.components.AppButton
 import pl.shotclock.budzik.ui.components.AppCard
@@ -64,7 +65,7 @@ private const val BlinkMillis = 550
 
 /**
  * Ekran dzwonienia z ViewModelem. Najpierw pokazuje dzwoniący alarm, a po „Otwórz kamerę” ekran kamery.
- * Gdy alarm zostanie wyłączony, wywołuje [onFinished], żeby zamknąć okno.
+ * Gdy alarm zostanie wyłączony (rozpoznanie przedmiotu na ekranie kamery), wywołuje [onFinished], żeby zamknąć okno.
  */
 @Composable
 fun RingRoute(
@@ -73,12 +74,15 @@ fun RingRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showCamera by rememberSaveable { mutableStateOf(false) }
+    // Alarm nie zmienia się w trakcie dzwonienia, więc wystarczy pierwszy stan. Dzięki temu po rozpoznaniu
+    // przedmiotu (alarm już ucichł) ekran kamery może jeszcze chwilę pokazać sukces.
+    val ringingAlarm = remember { uiState }
 
     // Nie ma drzemki ani ucieczki: Wstecz na ekranie dzwonienia nic nie robi, a z kamery wraca do dzwonienia.
     BackHandler { showCamera = false }
 
-    val state = uiState
-    if (state == null) {
+    // Okno zamyka się, gdy nic nie dzwoni. Z kamery zamknie je sama kamera, po animacji sukcesu.
+    if (ringingAlarm == null || (uiState == null && !showCamera)) {
         LaunchedEffect(Unit) { onFinished() }
         return
     }
@@ -88,9 +92,9 @@ fun RingRoute(
         label = "ring or camera",
     ) { camera ->
         if (camera) {
-            CameraScreen(onBack = { showCamera = false }, onDismissAlarm = viewModel::dismiss)
+            CameraRoute(onBack = { showCamera = false }, onFinished = onFinished)
         } else {
-            RingScreen(uiState = state, onOpenCamera = { showCamera = true })
+            RingScreen(uiState = ringingAlarm, onOpenCamera = { showCamera = true })
         }
     }
 }

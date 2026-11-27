@@ -58,6 +58,19 @@ object Sizes {
     val ringCircle = 138.dp
     val ringObject = 100.dp
 
+    // Ekran kamery: celownik, linia skanowania, pasek pewności, spust migawki i znaczek sukcesu
+    val reticle = 248.dp
+    val reticleCorner = 40.dp
+    val reticleStroke = 4.dp
+    val scanLine = 2.dp
+    val confidenceBar = 8.dp
+    val thresholdMark = 2.dp
+    val shutter = 76.dp
+    val shutterInner = 60.dp
+    val shutterRing = 4.dp
+    val successBadge = 88.dp
+    val successIcon = 44.dp
+
     // Tyle miejsca na dole ekranu zostawiamy, żeby treść dało się przewinąć ponad dolny pasek.
     val bottomBarClearance = 104.dp
 }
