@@ -6,7 +6,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** Kiedy alarm można wyłączyć: przedmiot + próg 0.85 + utrzymanie wyniku przez 1 sekundę. */
+/** Kiedy alarm można wyłączyć: przedmiot + próg 0.55 + utrzymanie wyniku przez 1 sekundę. */
 class DismissDecisionTest {
 
     /** Kilka kolejnych klatek: para (czas w ms, pewność szukanego przedmiotu). Zwraca decyzję po ostatniej. */
@@ -30,7 +30,7 @@ class DismissDecisionTest {
 
     @Test
     fun mediumConfidence_asksToMoveCloser() {
-        assertEquals(RecognitionHint.MoveCloser, decideFrames(0L to 0.6f).hint)
+        assertEquals(RecognitionHint.MoveCloser, decideFrames(0L to 0.45f).hint)
     }
 
     @Test
@@ -67,13 +67,13 @@ class DismissDecisionTest {
 
     @Test
     fun exactlyAtThreshold_counts() {
-        assertTrue(decideFrames(0L to 0.85f, 1_000L to 0.85f).shouldDismiss)
+        assertTrue(decideFrames(0L to 0.55f, 1_000L to 0.55f).shouldDismiss)
     }
 
     @Test
     fun dropBelowThreshold_restartsTheTimer() {
         // Spadek w 800 ms zeruje licznik, więc w 1200 ms mija dopiero 0,4 s od nowego startu.
-        val decision = decideFrames(0L to 0.9f, 400L to 0.9f, 800L to 0.5f, 1_200L to 0.9f, 1_600L to 0.9f)
+        val decision = decideFrames(0L to 0.9f, 400L to 0.9f, 800L to 0.4f, 1_200L to 0.9f, 1_600L to 0.9f)
         assertEquals(RecognitionHint.HoldStill, decision.hint)
         assertEquals(1_200L, decision.matchSinceMillis)
     }
@@ -94,7 +94,7 @@ class DismissDecisionTest {
     @Test
     fun photo_isAcceptedOnlyAboveThreshold() {
         assertTrue(isPhotoAccepted(0.9f))
-        assertTrue(isPhotoAccepted(0.85f))
-        assertFalse(isPhotoAccepted(0.84f))
+        assertTrue(isPhotoAccepted(0.55f))
+        assertFalse(isPhotoAccepted(0.54f))
     }
 }

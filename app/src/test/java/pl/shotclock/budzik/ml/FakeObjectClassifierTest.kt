@@ -3,6 +3,7 @@ package pl.shotclock.budzik.ml
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import pl.shotclock.budzik.alarm.DefaultConfidenceThreshold
 
 /** Udawany model: ciemno albo pusto → „inne”, dużo szczegółów → szukany przedmiot. */
 class FakeObjectClassifierTest {
@@ -40,14 +41,15 @@ class FakeObjectClassifierTest {
     fun detailedImage_seesTheRequestedObjectAboveThreshold() {
         val results = fakeResults(FrameStats(brightness = 120f, detail = 60f), ModelLabels.SECOND)
         assertEquals(ModelLabels.SECOND, results.first().label)
-        assertTrue(results.confidenceOf(ModelLabels.SECOND) > 0.85f)
+        assertTrue(results.confidenceOf(ModelLabels.SECOND) > DefaultConfidenceThreshold)
     }
 
     @Test
     fun someDetail_givesMediumConfidence() {
         val confidence = fakeResults(FrameStats(brightness = 120f, detail = 25f), ModelLabels.FIRST)
             .confidenceOf(ModelLabels.FIRST)
-        assertTrue(confidence in 0.5f..0.85f)
+        // Między „Nie widzę” (poniżej 0.3) a progiem, czyli podpowiedź „Przybliż”.
+        assertTrue(confidence in 0.3f..DefaultConfidenceThreshold)
     }
 
     @Test
