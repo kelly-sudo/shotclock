@@ -97,10 +97,10 @@ fun ScreenContainer(
 private fun ScreenContainerPreview() {
     ShotClockTheme {
         AppBackground {
-            ScreenContainer(title = stringResource(R.string.camera_title), onBack = {}) {
+            ScreenContainer(title = stringResource(R.string.tab_settings), onBack = {}) {
                 AppCard {
                     Text(
-                        text = stringResource(R.string.camera_placeholder),
+                        text = stringResource(R.string.settings_placeholder),
                         style = MaterialTheme.typography.bodyLarge,
                     )
                 }

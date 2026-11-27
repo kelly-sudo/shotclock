@@ -94,10 +94,29 @@
     <string name="ring_notification_open">Otwórz</string>
 
     <!-- Ekran kamery -->
-    <string name="camera_title">Kamera</string>
-    <string name="camera_placeholder">Tutaj pojawi się podgląd z kamery i rozpoznawanie przedmiotu (Etap 4).</string>
-    <!-- Tymczasowy przycisk do Etapu 4: bez rozpoznawania nie byłoby jak zatrzymać alarmu. -->
-    <string name="camera_dismiss_temporary">Wyłącz alarm (tymczasowo)</string>
+    <string name="camera_looking_for">Szukam</string>
+    <string name="camera_starting">Uruchamiam kamerę…</string>
+    <string name="camera_starting_detail">To potrwa sekundę.</string>
+    <string name="camera_hint_not_visible">Nie widzę przedmiotu</string>
+    <string name="camera_hint_not_visible_detail">Skieruj kamerę na przedmiot i umieść go w ramce.</string>
+    <string name="camera_hint_wrong_object">To inny przedmiot</string>
+    <string name="camera_hint_wrong_object_detail">Szukamy: %1$s.</string>
+    <string name="camera_hint_move_closer">Przybliż</string>
+    <string name="camera_hint_move_closer_detail">Przedmiot powinien wypełnić większość ramki.</string>
+    <string name="camera_hint_hold">Jeszcze chwilę…</string>
+    <string name="camera_hint_hold_detail">Trzymaj telefon nieruchomo.</string>
+    <string name="camera_hint_recognized">Rozpoznano!</string>
+    <string name="camera_hint_recognized_detail">Alarm wyłączony. Dzień dobry!</string>
+    <string name="camera_photo_rejected">Na zdjęciu nie ma przedmiotu</string>
+    <string name="camera_photo_rejected_detail">Podejdź bliżej i spróbuj jeszcze raz.</string>
+    <string name="camera_confidence">Pewność</string>
+    <string name="camera_confidence_value">%1$d%%</string>
+    <string name="camera_take_photo">Zrób zdjęcie przedmiotu</string>
+    <string name="camera_recognized_badge">Przedmiot rozpoznany</string>
+    <string name="camera_permission_title">Potrzebny dostęp do kamery</string>
+    <string name="camera_permission_text">Alarm wyłączysz, robiąc zdjęcie przedmiotu. Obraz analizujemy tylko na telefonie i nigdzie go nie zapisujemy.</string>
+    <string name="camera_permission_blocked">Dostęp do kamery jest zablokowany. Włącz go w ustawieniach telefonu: Uprawnienia → Aparat.</string>
+    <string name="camera_permission_allow">Zezwól na kamerę</string>
 
     <!-- Uprawnienia potrzebne do dzwonienia -->
     <string name="permission_notifications_title">Włącz powiadomienia</string>

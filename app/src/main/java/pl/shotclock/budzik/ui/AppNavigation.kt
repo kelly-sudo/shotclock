@@ -19,7 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import pl.shotclock.budzik.R
 import pl.shotclock.budzik.ui.alarms.AlarmsRoute
-import pl.shotclock.budzik.ui.camera.CameraScreen
+import pl.shotclock.budzik.ui.camera.CameraRoute
 import pl.shotclock.budzik.ui.components.AppBackground
 import pl.shotclock.budzik.ui.components.AppBottomBar
 import pl.shotclock.budzik.ui.components.BottomBarItem
@@ -118,7 +118,11 @@ fun AppNavigation() {
                 RingScreen(uiState = sampleRingUiState(), onOpenCamera = { navController.navigate(Routes.CAMERA) })
             }
             composable(Routes.CAMERA) {
-                CameraScreen(onBack = { navController.popBackStack() })
+                // Podgląd z ustawień: rozpoznaje pierwszy przedmiot, ale nie wyłącza żadnego alarmu.
+                CameraRoute(
+                    onBack = { navController.popBackStack() },
+                    onFinished = { navController.popBackStack() },
+                )
             }
             composable(Routes.ONBOARDING) {
                 OnboardingScreen(

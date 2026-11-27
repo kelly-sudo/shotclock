@@ -17,6 +17,12 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Kamera do zdjęcia przedmiotu. Zdjęcia analizujemy tylko w pamięci, nigdy nie zapisujemy na dysku. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Wystarczy dowolna kamera (tylna albo przednia), np. kamera laptopa w emulatorze. -->
+    <uses-feature
+        android:name="android.hardware.camera.any"
+        android:required="true" />
     <!-- Procesor nie zasypia w trakcie dzwonienia przy zgaszonym ekranie. -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 

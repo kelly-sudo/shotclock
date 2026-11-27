@@ -23,6 +23,10 @@ object AppViewModelProvider {
         initializer {
             RingViewModel(shotClockApplication().container.ringController)
         }
+        initializer {
+            val container = shotClockApplication().container
+            CameraViewModel(container.ringController, container::createClassifier)
+        }
     }
 }
 
