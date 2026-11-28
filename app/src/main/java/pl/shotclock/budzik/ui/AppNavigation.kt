@@ -24,12 +24,12 @@ import pl.shotclock.budzik.ui.components.AppBackground
 import pl.shotclock.budzik.ui.components.AppBottomBar
 import pl.shotclock.budzik.ui.components.BottomBarItem
 import pl.shotclock.budzik.ui.edit.EditAlarmRoute
-import pl.shotclock.budzik.ui.history.HistoryScreen
-import pl.shotclock.budzik.ui.objects.ObjectsScreen
+import pl.shotclock.budzik.ui.history.HistoryRoute
+import pl.shotclock.budzik.ui.objects.ObjectsRoute
 import pl.shotclock.budzik.ui.onboarding.OnboardingScreen
 import pl.shotclock.budzik.ui.ring.RingScreen
 import pl.shotclock.budzik.ui.ring.sampleRingUiState
-import pl.shotclock.budzik.ui.settings.SettingsScreen
+import pl.shotclock.budzik.ui.settings.SettingsRoute
 import pl.shotclock.budzik.ui.theme.ScreenTransitionMillis
 import pl.shotclock.budzik.viewmodel.AlarmsViewModel
 import pl.shotclock.budzik.viewmodel.AppViewModelProvider
@@ -82,10 +82,10 @@ fun AppNavigation() {
                     onOpenAlarm = { alarmId -> navController.navigate(Routes.editAlarm(alarmId)) },
                 )
             }
-            composable(Routes.HISTORY) { HistoryScreen() }
-            composable(Routes.OBJECTS) { ObjectsScreen() }
+            composable(Routes.HISTORY) { HistoryRoute() }
+            composable(Routes.OBJECTS) { ObjectsRoute() }
             composable(Routes.SETTINGS) {
-                SettingsScreen(
+                SettingsRoute(
                     onOpenOnboarding = { navController.navigate(Routes.ONBOARDING) },
                     onOpenRing = { navController.navigate(Routes.RING) },
                     onOpenCamera = { navController.navigate(Routes.CAMERA) },

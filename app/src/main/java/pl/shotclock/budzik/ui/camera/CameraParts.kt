@@ -159,9 +159,13 @@ private fun SuccessBadge(visible: Boolean) {
  * Pasek jest w kolorze akcentu dopiero nad progiem.
  */
 @Composable
-fun ConfidenceBar(confidence: Float, modifier: Modifier = Modifier) {
+fun ConfidenceBar(
+    confidence: Float,
+    modifier: Modifier = Modifier,
+    threshold: Float = DefaultConfidenceThreshold,
+) {
     val fill = animateFloatAsState(confidence.coerceIn(0f, 1f), tween(AnalysisAnimationMillis), label = "confidence")
-    val aboveThreshold = confidence >= DefaultConfidenceThreshold
+    val aboveThreshold = confidence >= threshold
     val barColor by animateColorAsState(
         targetValue = if (aboveThreshold) Accent else TextSecondary,
         animationSpec = tween(ColorChangeMillis),
@@ -186,7 +190,7 @@ fun ConfidenceBar(confidence: Float, modifier: Modifier = Modifier) {
                 .drawBehind {
                     val radius = CornerRadius(size.height / 2)
                     drawRoundRect(barColor, size = Size(size.width * fill.value, size.height), cornerRadius = radius)
-                    val markX = size.width * DefaultConfidenceThreshold
+                    val markX = size.width * threshold
                     drawRect(
                         color = TextPrimary,
                         topLeft = Offset(markX, 0f),

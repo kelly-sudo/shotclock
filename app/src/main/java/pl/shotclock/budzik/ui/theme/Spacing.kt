@@ -42,6 +42,8 @@ object Sizes {
     val chartHeight = 104.dp
     // Miejsce nad słupkami na wartość dzisiejszego dnia, żeby zmieściła się nawet nad najwyższym słupkiem.
     val chartValueSpace = 24.dp
+    // Najniższy słupek: krótki czas wstania i dzień bez pobudki też mają widoczną kreskę.
+    val chartBarMin = 6.dp
 
     // Ilustracje przedmiotów
     val illustrationSmall = 32.dp

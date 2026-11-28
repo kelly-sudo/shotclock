@@ -12,11 +12,12 @@ import kotlinx.coroutines.launch
 import pl.shotclock.budzik.data.Alarm
 import pl.shotclock.budzik.data.AlarmRepository
 import pl.shotclock.budzik.data.RequiredObject
+import pl.shotclock.budzik.data.SettingsRepository
 import pl.shotclock.budzik.data.Weekdays
 
 /** Wszystko, co pokazuje ekran edycji: alarm ze zmianami, których jeszcze nie zapisano. */
 data class EditAlarmUiState(
-    // Zanim alarm wczyta się z bazy, nie pokazujemy formularza, żeby godzina nie przeskoczyła.
+    // Zanim alarm (albo ustawienia dla nowego alarmu) się wczyta, nie pokazujemy formularza, żeby nic nie przeskoczyło.
     val isLoading: Boolean = false,
     val isNew: Boolean = true,
     val alarm: Alarm = Alarm(hour = EditAlarmViewModel.DEFAULT_HOUR, minute = 0, days = Weekdays.workdays),
@@ -25,24 +26,27 @@ data class EditAlarmUiState(
 class EditAlarmViewModel(
     savedStateHandle: SavedStateHandle,
     private val repository: AlarmRepository,
+    private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
     // Id alarmu przychodzi z nawigacji (adres "edit_alarm?alarmId=3"). Brak id oznacza nowy alarm.
     private val alarmId: Long = savedStateHandle[ALARM_ID_ARG] ?: NEW_ALARM_ID
 
-    private val _uiState = MutableStateFlow(EditAlarmUiState(isLoading = alarmId != NEW_ALARM_ID))
+    private val _uiState = MutableStateFlow(EditAlarmUiState(isLoading = true))
     val uiState: StateFlow<EditAlarmUiState> = _uiState.asStateFlow()
 
     init {
-        if (alarmId != NEW_ALARM_ID) {
-            viewModelScope.launch {
-                val alarm = repository.getAlarm(alarmId)
-                // Jeśli alarmu już nie ma w bazie, ekran po prostu utworzy nowy.
-                _uiState.value = if (alarm != null) {
-                    EditAlarmUiState(isNew = false, alarm = alarm)
-                } else {
-                    EditAlarmUiState()
-                }
+        viewModelScope.launch {
+            val alarm = if (alarmId != NEW_ALARM_ID) repository.getAlarm(alarmId) else null
+            // Jeśli alarmu nie ma w bazie (nowy albo już usunięty), tworzymy nowy z domyślnym dźwiękiem i wibracjami z ustawień.
+            _uiState.value = if (alarm != null) {
+                EditAlarmUiState(isNew = false, alarm = alarm)
+            } else {
+                val settings = settingsRepository.current()
+                val defaults = EditAlarmUiState().alarm
+                EditAlarmUiState(
+                    alarm = defaults.copy(soundUri = settings.defaultSoundUri, vibration = settings.defaultVibration),
+                )
             }
         }
     }

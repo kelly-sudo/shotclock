@@ -4,7 +4,7 @@ Budzik na Androida, który **przestaje dzwonić dopiero wtedy, gdy zrobisz zdję
 
 Przedmiot rozpoznaje model AI, który działa **lokalnie na telefonie, bez internetu**. Zdjęcia są analizowane w pamięci i nigdy nie trafiają na dysk.
 
-> Projekt studencki na zajęcia „Aplikacje Mobilne”. Aplikacja jest w budowie: ukończone są Etapy 1–5 (szczegóły w sekcji [Plan budowy](#plan-budowy)).
+> Projekt studencki na zajęcia „Aplikacje Mobilne”. Aplikacja jest w budowie: ukończone są Etapy 1–6 (szczegóły w sekcji [Plan budowy](#plan-budowy)).
 
 ## Zrzuty ekranu
 
@@ -12,11 +12,15 @@ Przedmiot rozpoznaje model AI, który działa **lokalnie na telefonie, bez inter
 |:---:|:---:|:---:|:---:|:---:|
 | ![Lista alarmów](docs/screenshots/alarmy.png) | ![Edycja alarmu](docs/screenshots/edycja.png) | ![Ekran dzwonienia](docs/screenshots/dzwonienie.png) | ![Kamera z celownikiem](docs/screenshots/kamera.jpg) | ![Przedmiot rozpoznany](docs/screenshots/rozpoznano.jpg) |
 
-| Sukces | Wyjście awaryjne | Zadanie matematyczne | Brak zgody na kamerę | Przedmioty | Historia |
-|:---:|:---:|:---:|:---:|:---:|:---:|
-| ![Alarm wyłączony: czas wstania i seria dni](docs/screenshots/sukces.png) | ![Przycisk „Nie mogę znaleźć przedmiotu”](docs/screenshots/dzwonienie-awaryjne.png) | ![Zadanie matematyczne](docs/screenshots/zadanie.png) | ![Prośba o kamerę](docs/screenshots/kamera-zgoda.png) | ![Przedmioty](docs/screenshots/przedmioty.png) | ![Historia](docs/screenshots/historia.png) |
+| Sukces | Wyjście awaryjne | Zadanie matematyczne | Brak zgody na kamerę |
+|:---:|:---:|:---:|:---:|
+| ![Alarm wyłączony: czas wstania i seria dni](docs/screenshots/sukces.png) | ![Przycisk „Nie mogę znaleźć przedmiotu”](docs/screenshots/dzwonienie-awaryjne.png) | ![Zadanie matematyczne](docs/screenshots/zadanie.png) | ![Prośba o kamerę](docs/screenshots/kamera-zgoda.png) |
 
-Zrzuty z emulatora Android Studio (kamera pokazuje wirtualny pokój emulatora). Alarmy, dzwonienie, kamera, ekran sukcesu i wyjście awaryjne działają naprawdę. Rozpoznawanie jest na razie udawane przez `FakeObjectClassifier`, dopóki zespół AI nie dostarczy modelu. Ekrany przedmiotów i historii pokazują przykładowe dane (podłączymy je w kolejnych etapach).
+| Historia | Przedmioty | Ustawienia | Tryb deweloperski |
+|:---:|:---:|:---:|:---:|
+| ![Historia: seria dni, wykres z 7 dni, ostatnie pobudki](docs/screenshots/historia.png) | ![Przedmioty z liczbą alarmów i stanem modelu](docs/screenshots/przedmioty.png) | ![Ustawienia](docs/screenshots/ustawienia.png) | ![Próg pewności i podgląd ekranów](docs/screenshots/tryb-deweloperski.png) |
+
+Zrzuty z emulatora Android Studio (kamera pokazuje wirtualny pokój emulatora). Wszystkie ekrany poza onboardingiem działają na prawdziwych danych. Rozpoznawanie jest na razie udawane przez `FakeObjectClassifier`, dopóki zespół AI nie dostarczy modelu.
 
 ## Jak to działa
 
@@ -46,7 +50,11 @@ Stan na dziś: ✅ działa, 🧩 ekran gotowy na przykładowych danych, ⏳ w pl
 | Ekran sukcesu po wyłączeniu alarmu: animacja ptaszka, czas wstania, seria dni z rzędu, udane dni w tym tygodniu | ✅ |
 | Zapis każdej pobudki w bazie (`WakeEvent`): czas dzwonienia i wyłączenia, liczba prób, rozpoznany przedmiot, pewność | ✅ |
 | Wyjście awaryjne „Nie mogę znaleźć przedmiotu” po 10 nieudanych zdjęciach albo 10 minutach dzwonienia: zadanie matematyczne na własnej klawiaturze, zapis w historii jako wyłączenie awaryjne | ✅ |
-| Ekran przedmiotów, historia ze statystykami i wykresem z 7 dni, ustawienia, onboarding | 🧩 |
+| Historia pobudek z bazy: seria dni, najlepsza seria, średni czas wstania, wykres z 7 dni, lista ostatnich pobudek (także awaryjnych) | ✅ |
+| Ekran przedmiotów: liczba alarmów przy każdym przedmiocie i stan modelu (tryb testowy, brak modelu albo jego wersja) | ✅ |
+| Ustawienia w DataStore: domyślny dźwięk i wibracje dla nowych alarmów, tryb testowy, informacje o aplikacji | ✅ |
+| Ukryty tryb deweloperski (7 dotknięć wersji): wybór progu pewności i podgląd ekranów | ✅ |
+| Onboarding z prośbą o uprawnienia | 🧩 Etap 7 |
 | Prawdziwy model TensorFlow Lite od zespołu AI | ⏳ Etap 8 |
 
 ## Stos technologiczny
@@ -57,7 +65,7 @@ Stan na dziś: ✅ działa, 🧩 ekran gotowy na przykładowych danych, ⏳ w pl
 | Interfejs | Jetpack Compose, Material 3 (z własnym ciemnym stylem), Navigation Compose |
 | Architektura | MVVM: ViewModel + StateFlow, Kotlin Coroutines |
 | Baza danych | SQLite przez Room (generowanie kodu przez KSP) |
-| Ustawienia | DataStore *(Etap 6)* |
+| Ustawienia | DataStore Preferences |
 | Kamera | CameraX 1.7 (`camera-camera2`, `camera-lifecycle`, `camera-view`) |
 | AI / ML | Interfejs `ObjectClassifier` z udawanym `FakeObjectClassifier`; TensorFlow Lite / LiteRT *(Etap 8)* |
 | Alarm | AlarmManager `setAlarmClock`, foreground service, full-screen intent |
@@ -98,10 +106,10 @@ pl.shotclock.budzik
 │   ├── history/      historia i statystyki pobudek
 │   └── settings/     ustawienia
 ├── viewmodel/        jeden ViewModel na ekran
-├── data/             Room (encje, DAO, baza), repozytoria, statystyki pobudek
+├── data/             Room (encje, DAO, baza), DataStore (ustawienia), repozytoria, statystyki pobudek
 ├── alarm/            planowanie, receiver, serwis dzwonienia, boot receiver, decyzja o wyłączeniu
 ├── camera/           obsługa CameraX: CameraSession (podgląd, klatki, zdjęcie), FrameAnalyzer
-└── ml/               ObjectClassifier, FakeObjectClassifier (TfliteObjectClassifier w Etapie 8)
+└── ml/               ObjectClassifier, FakeObjectClassifier, ModelInfo (TfliteObjectClassifier w Etapie 8)
 ```
 
 ### Model danych
@@ -144,6 +152,20 @@ Dzwonienie ─┤                                       ├──▶ RingViewMod
 - **Ekran sukcesu** (`ui/ring/SuccessScreen.kt`) odwzorowuje makietę: ptaszek rysuje się w kółku, potem rozchodzą się fale i iskry, a karty wjeżdżają po kolei. Animacja czyta postęp dopiero przy rysowaniu, więc nie obciąża starszego telefonu.
 - Ekran zadania ma własną klawiaturę numeryczną zamiast systemowej: działa tak samo na zablokowanym ekranie i nie zasłania zadania. Na niskim ekranie (360 × 640 dp) albo przy dużej czcionce da się go przewinąć.
 
+### Historia, przedmioty i ustawienia (Etap 6)
+
+```
+Room: wake_events ──Flow──▶ HistoryViewModel ──summarizeHistory()──▶ ekran historii
+Room: alarms      ──Flow──▶ ObjectsViewModel ──countAlarmsByObject()──▶ ekran przedmiotów
+DataStore         ──Flow──▶ SettingsViewModel, ObjectsViewModel, CameraViewModel (próg), EditAlarmViewModel (domyślne)
+```
+
+- **Historia odświeża się sama.** `WakeEventDao.observeAll()` zwraca `Flow`, więc nowa pobudka pojawia się na liście bez przeładowania ekranu.
+- **Statystyki** to dalej czyste funkcje w `data/WakeStats.kt`: `averageWakeUpSeconds` (tylko pobudki zakończone zdjęciem, bo awaryjne trwają ponad 10 minut i zawyżałyby średnią), `bestStreak` (najdłuższa seria w historii, liczona tak samo jak bieżąca) i `lastSevenDays` (siedem dni kończących się dziś, średnia z kilku pobudek jednego dnia, `null` dla dnia bez pobudki).
+- **Ustawienia** (`data/AppSettings.kt`, `data/SettingsRepository.kt`) są w DataStore, nie w Room: to kilka pojedynczych wartości, a nie tabela. Domyślny dźwięk i wibracje dostaje każdy nowy alarm; zapisanych alarmów to nie zmienia.
+- **Tryb testowy i model:** `ml/ModelInfo.kt` sprawdza, czy w `assets` są `model.tflite` i `labels.txt`. Czysta funkcja `classifierMode` decyduje: tryb testowy włączony → udawany model; wyłączony, ale brak plików → nadal udawany (ekran mówi „czeka na model”); pliki są i tryb wyłączony → prawdziwy model (Etap 8).
+- **Tryb deweloperski** włącza się 7 dotknięciami wersji aplikacji, jak w ustawieniach Androida. Jest w nim próg pewności (50, 55, 60, 70 albo 85%) i przyciski podglądu ekranów. Wyłączenie trybu przywraca próg 55%, żeby nie został zmieniony „po cichu”. Pasek pewności na ekranie kamery rysuje kreskę w miejscu wybranego progu.
+
 ## Jak zbudować i uruchomić
 
 Potrzebne:
@@ -156,7 +178,7 @@ Potrzebne:
 2. Poczekaj, aż Gradle pobierze zależności (pierwszy raz trwa to kilka minut).
 3. Wybierz emulator albo podłączony telefon i kliknij **Run ▶**.
 
-Do testów kamery na emulatorze ustaw w AVD `Camera → Back: Webcam0`, czyli kamerę laptopa. Domyślna scena wirtualna (`VirtualScene`) też działa: pokazuje pokój, który `FakeObjectClassifier` „rozpoznaje” po około sekundzie. Ekran kamery bez dzwoniącego alarmu otworzysz w `Ustawienia → Podgląd ekranów → Kamera` (wtedy nic się nie wyłącza).
+Do testów kamery na emulatorze ustaw w AVD `Camera → Back: Webcam0`, czyli kamerę laptopa. Domyślna scena wirtualna (`VirtualScene`) też działa: pokazuje pokój, który `FakeObjectClassifier` „rozpoznaje” po około sekundzie. Ekran kamery bez dzwoniącego alarmu otworzysz w trybie deweloperskim: `Ustawienia → O aplikacji → Wersja` (dotknij 7 razy), potem `Podgląd ekranów → Kamera` (wtedy nic się nie wyłącza).
 
 ### Z wiersza poleceń
 
@@ -195,6 +217,9 @@ Gotowy plik APK znajdziesz w `app/build/outputs/apk/debug/`.
 - `viewmodel/EmergencyViewModelTest`: wpisywanie i kasowanie cyfr, limit 3 cyfr, dobra i zła odpowiedź.
 - `data/WakeStatsTest`: czas wstania, seria dni (dwa alarmy jednego dnia, dzień bez alarmu, przerwanie serii wyłączeniem awaryjnym), udane dni w tygodniu.
 - `data/WakeEventRepositoryTest`: zapis pobudki i podsumowanie dla ekranu sukcesu.
+- `data/HistoryStatsTest`: średni czas wstania (bez wyłączeń awaryjnych), najlepsza seria, wykres z 7 dni (pusty dzień, dwie pobudki jednego dnia, pomijanie starszych pobudek).
+- `data/SettingsRepositoryTest`: ustawienia w prawdziwym DataStore w pliku tymczasowym: wartości domyślne (próg 55%), zapis i odczyt, powrót do domyślnego dźwięku, przywrócenie progu po wyłączeniu trybu deweloperskiego, bezpieczny zakres progu.
+- `viewmodel/SettingsAndObjectsTest`: odliczanie do trybu deweloperskiego, wybór udawanego albo prawdziwego modelu, liczba alarmów przy każdym przedmiocie.
 - `ml/FakeObjectClassifierTest`: jasność i szczegóły obrazu, wyniki udawanego modelu (ciemno i pusto → `inne`, dużo szczegółów → szukany przedmiot, suma pewności = 1).
 - `data/AlarmRepositoryTest`: repozytorium ustawia i odwołuje alarmy w systemie razem ze zmianami w bazie.
 - `data/ConvertersTest`: zapis dni tygodnia w bazie i ich odczyt.
@@ -206,9 +231,9 @@ Gotowy plik APK znajdziesz w `app/build/outputs/apk/debug/`.
 ```
 
 - `data/AlarmDaoTest`: zapis i odczyt wszystkich pól, sortowanie po godzinie, edycja, włączanie i wyłączanie, przywracanie usuniętego alarmu z tym samym id.
-- `data/WakeEventDaoTest`: zapis pobudki zwykłej i awaryjnej (bez przedmiotu i pewności), sortowanie od najnowszej.
+- `data/WakeEventDaoTest`: zapis pobudki zwykłej i awaryjnej (bez przedmiotu i pewności), sortowanie od najnowszej, lista obserwowana przez ekran historii.
 
-W kolejnych etapach dojdą testy średniego czasu wstania i wykresu (Etap 6) oraz test modelu na zdjęciach testowych. Ręczne scenariusze na telefonie: alarm przy zablokowanym ekranie, po restarcie, w trybie samolotowym i przy słabym świetle.
+W Etapie 8 dojdzie test modelu na zdjęciach testowych. Ręczne scenariusze na telefonie: alarm przy zablokowanym ekranie, po restarcie, w trybie samolotowym i przy słabym świetle.
 
 ## Kontrakt z zespołem AI
 
@@ -233,7 +258,9 @@ Klasa `inne` jest obowiązkowa. Bez niej model „rozpozna” jako przedmiot cok
 **W kodzie:**
 - Etykiety `przedmiot_1` i `przedmiot_2` są przypisane do przedmiotów w `data/RequiredObject.kt`, a ich nazwy, ilustracje i kolory w `ui/objects/ObjectVisual.kt`. Obecnie to szczoteczka do zębów i kubek.
 - Wynik klasyfikacji: `ClassificationResult(label: String, confidence: Float)` oraz pełna lista wyników.
-- Próg pewności: domyślnie 0.55, czyli środek przedziału 50–60% ustalonego z prowadzącym (`DefaultConfidenceThreshold` w `alarm/DismissDecision.kt`), w Etapie 6 do zmiany w ustawieniach deweloperskich.
+- Próg pewności: domyślnie 0.55, czyli środek przedziału 50–60% ustalonego z prowadzącym (`DefaultConfidenceThreshold` w `alarm/DismissDecision.kt`). Da się go zmienić w trybie deweloperskim w ustawieniach.
+- Wersja modelu pokazywana w aplikacji to stała `ModelFiles.VERSION` w `ml/ModelInfo.kt`. Przy każdym nowym pliku `model.tflite` warto ją podbić, żeby na demo było widać, który model działa.
+- Tryb testowy w ustawieniach (domyślnie włączony) wymusza `FakeObjectClassifier`, nawet gdy prawdziwy model jest już w aplikacji. Przydaje się na demo, gdy światło jest słabe.
 - Podmiana modelu: `AppContainer.createClassifier()` zwraca dziś `FakeObjectClassifier`. W Etapie 8 zwróci `TfliteObjectClassifier`, a reszta aplikacji się nie zmieni.
 
 ## Plan budowy
@@ -245,7 +272,7 @@ Klasa `inne` jest obowiązkowa. Bez niej model „rozpozna” jako przedmiot cok
 | 3. Dzwonienie | AlarmManager, foreground service, narastająca głośność, wibracje, full-screen intent, boot receiver | ✅ gotowe |
 | 4. Kamera | Uprawnienia, CameraX, celownik, analiza klatek z `FakeObjectClassifier`, decyzja o wyłączeniu + testy | ✅ gotowe |
 | 5. Pełny scenariusz | Dzwonienie → kamera → sukces, zapis `WakeEvent`, wyjście awaryjne + testy | ✅ gotowe |
-| 6. Historia, przedmioty, ustawienia | Statystyki, wykres, DataStore, tryb testowy | ⏳ |
+| 6. Historia, przedmioty, ustawienia | Statystyki, wykres, DataStore, tryb testowy, tryb deweloperski z progiem pewności + testy | ✅ gotowe |
 | 7. Onboarding i dopracowanie | Uprawnienia z wyjaśnieniem, animacje, puste stany | ⏳ |
 | 8. Integracja modelu | `TfliteObjectClassifier`, pliki od zespołu AI, testy na zdjęciach | ⏳ |
 | 9. Stabilizacja | Testy na Samsungu, wydajność, przygotowanie do demo | ⏳ |

@@ -167,17 +167,36 @@
 
     <!-- Przedmioty -->
     <string name="objects_description">Te dwa rozpoznaje model. Działa bez internetu.</string>
-    <string name="objects_used_sample">W 1 alarmie</string>
+    <string name="objects_used_none">Żaden alarm go nie wymaga</string>
+    <plurals name="objects_used">
+        <item quantity="one">W %1$d alarmie</item>
+        <item quantity="few">W %1$d alarmach</item>
+        <item quantity="many">W %1$d alarmach</item>
+        <item quantity="other">W %1$d alarmach</item>
+    </plurals>
+    <plurals name="objects_used_random">
+        <item quantity="one">Może trafić się w %1$d alarmie z losowym przedmiotem</item>
+        <item quantity="few">Może trafić się w %1$d alarmach z losowym przedmiotem</item>
+        <item quantity="many">Może trafić się w %1$d alarmach z losowym przedmiotem</item>
+        <item quantity="other">Może trafić się w %1$d alarmach z losowym przedmiotem</item>
+    </plurals>
     <string name="objects_model">Model rozpoznawania</string>
     <string name="objects_model_test">tryb testowy</string>
+    <string name="objects_model_missing">czeka na model</string>
+    <!-- Wersja prawdziwego modelu, np. „wersja 1.0” -->
+    <string name="objects_model_version">wersja %1$s</string>
 
-    <!-- Historia (przykładowe dane do Etapu 6) -->
-    <string name="history_streak_sample">8</string>
-    <string name="history_streak_label">dni z rzędu</string>
-    <string name="history_best_sample">12</string>
+    <!-- Historia -->
+    <plurals name="history_streak_label">
+        <item quantity="one">dzień z rzędu</item>
+        <item quantity="few">dni z rzędu</item>
+        <item quantity="many">dni z rzędu</item>
+        <item quantity="other">dni z rzędu</item>
+    </plurals>
     <string name="history_best_label">najlepsza seria</string>
-    <string name="history_average_sample">1 min 42 s</string>
     <string name="history_average_label">średni czas wstania</string>
+    <!-- Brak średniej, bo nie ma jeszcze pobudki zakończonej zdjęciem -->
+    <string name="history_no_value">–</string>
     <string name="history_chart_title">Czas wstania, ostatnie 7 dni</string>
     <string name="history_chart_today">Dziś</string>
     <!-- Wartość nad dzisiejszym słupkiem: minuty i sekundy, np. 1:42 -->
@@ -185,22 +204,55 @@
     <!-- Opis wykresu czytany przez TalkBack, np. „Czas wstania z ostatnich 7 dni: Wtorek 47 s, …” -->
     <string name="history_chart_description">Czas wstania z ostatnich 7 dni: %1$s</string>
     <string name="history_chart_day">%1$s %2$s</string>
+    <string name="history_chart_day_empty">%1$s bez pobudki</string>
     <string name="history_events_title">Ostatnie pobudki</string>
     <string name="duration_minutes_seconds">%1$d min %2$d s</string>
     <string name="duration_minutes">%1$d min</string>
     <string name="duration_seconds">%1$d s</string>
-    <string name="history_event_today">Dziś, 7:31</string>
-    <string name="history_event_today_details">Szczoteczka · 96% · 1 próba</string>
-    <string name="history_event_today_time">1 min 42 s</string>
-    <string name="history_event_yesterday">Wczoraj, 9:01</string>
-    <string name="history_event_yesterday_details">Kubek · 91% · 2 próby</string>
-    <string name="history_event_yesterday_time">1 min 15 s</string>
+    <!-- Kiedy wyłączono alarm, np. „Dziś, 7:31”, „Wczoraj, 9:01”, „12 lis, 7:30” -->
+    <string name="history_event_today">Dziś, %1$s</string>
+    <string name="history_event_yesterday">Wczoraj, %1$s</string>
+    <string name="history_event_date">%1$s, %2$s</string>
+    <!-- Szczegóły pobudki, np. „Szczoteczka · 96% · 1 próba” -->
+    <string name="history_event_details">%1$s · %2$d%% · %3$s</string>
+    <string name="history_event_emergency">Wyłączenie awaryjne · %1$s</string>
+    <plurals name="history_attempts">
+        <item quantity="one">%1$d próba</item>
+        <item quantity="few">%1$d próby</item>
+        <item quantity="many">%1$d prób</item>
+        <item quantity="other">%1$d próby</item>
+    </plurals>
+    <string name="history_empty_title">Jeszcze nie ma pobudek</string>
+    <string name="history_empty_description">Gdy wyłączysz pierwszy alarm zdjęciem przedmiotu, tutaj pojawi się czas wstania i seria dni.</string>
 
     <!-- Ustawienia -->
-    <string name="settings_vibration_sample">Wibracje</string>
-    <string name="settings_placeholder">Właściwe ustawienia pojawią się w Etapie 6. Ten przełącznik jest tylko przykładem.</string>
+    <string name="settings_section_alarm">Nowe alarmy</string>
+    <string name="settings_default_sound">Domyślny dźwięk</string>
+    <string name="settings_default_vibration">Wibracje</string>
+    <string name="settings_defaults_hint">Tak zacznie każdy nowy alarm. Zapisanych alarmów to nie zmienia.</string>
+    <string name="settings_section_recognition">Rozpoznawanie</string>
+    <string name="settings_test_mode">Tryb testowy</string>
+    <string name="settings_test_mode_description">Udawany model zamiast prawdziwego. Rozpoznaje każdy wyraźny obraz.</string>
+    <string name="settings_model_missing_hint">Model od zespołu AI jeszcze nie dotarł, więc aplikacja i tak korzysta z udawanego modelu.</string>
+    <string name="settings_section_about">O aplikacji</string>
+    <string name="settings_version">Wersja</string>
+    <string name="settings_model_version">Model rozpoznawania</string>
+    <string name="settings_about_description">Projekt na zajęcia „Aplikacje Mobilne”. Zdjęcia są analizowane tylko w pamięci telefonu i nigdzie nie są zapisywane.</string>
+    <string name="settings_license">Czcionka Manrope, licencja SIL Open Font License 1.1</string>
+    <plurals name="settings_developer_taps_left">
+        <item quantity="one">Jeszcze %1$d dotknięcie do trybu deweloperskiego</item>
+        <item quantity="few">Jeszcze %1$d dotknięcia do trybu deweloperskiego</item>
+        <item quantity="many">Jeszcze %1$d dotknięć do trybu deweloperskiego</item>
+        <item quantity="other">Jeszcze %1$d dotknięcia do trybu deweloperskiego</item>
+    </plurals>
+    <string name="settings_section_developer">Tryb deweloperski</string>
+    <string name="settings_threshold">Próg pewności</string>
+    <string name="settings_threshold_description">Ile pewności modelu wystarczy do wyłączenia alarmu. Domyślnie 55%.</string>
+    <!-- Próg w procentach na chipie, np. „55%” -->
+    <string name="settings_threshold_value">%1$d%%</string>
+    <string name="settings_developer_off">Wyłącz tryb deweloperski</string>
     <string name="settings_preview_title">Podgląd ekranów</string>
-    <string name="settings_preview_description">Sekcja tymczasowa. Te ekrany nie mają jeszcze swoich wyzwalaczy.</string>
+    <string name="settings_preview_description">Otwiera ekrany bez prawdziwego alarmu, żeby sprawdzić, jak wyglądają.</string>
     <string name="settings_preview_onboarding">Onboarding</string>
     <string name="settings_preview_ring">Dzwonienie</string>
     <string name="settings_preview_camera">Kamera</string>

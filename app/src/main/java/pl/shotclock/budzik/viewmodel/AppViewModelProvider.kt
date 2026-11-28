@@ -18,7 +18,8 @@ object AppViewModelProvider {
         }
         initializer {
             // SavedStateHandle zawiera argumenty z nawigacji, m.in. id edytowanego alarmu.
-            EditAlarmViewModel(createSavedStateHandle(), shotClockApplication().container.alarmRepository)
+            val container = shotClockApplication().container
+            EditAlarmViewModel(createSavedStateHandle(), container.alarmRepository, container.settingsRepository)
         }
         initializer {
             val container = shotClockApplication().container
@@ -28,8 +29,19 @@ object AppViewModelProvider {
             EmergencyViewModel()
         }
         initializer {
+            HistoryViewModel(shotClockApplication().container.wakeEventRepository.events)
+        }
+        initializer {
             val container = shotClockApplication().container
-            CameraViewModel(container.ringController, container::createClassifier)
+            ObjectsViewModel(container.alarmRepository.alarms, container.settingsRepository.settings, container.modelInfo)
+        }
+        initializer {
+            val container = shotClockApplication().container
+            SettingsViewModel(container.settingsRepository, container.modelInfo, container.appVersion)
+        }
+        initializer {
+            val container = shotClockApplication().container
+            CameraViewModel(container.ringController, container::createClassifier, container.settingsRepository.settings)
         }
     }
 }

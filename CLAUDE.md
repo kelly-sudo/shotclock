@@ -82,7 +82,7 @@ Nowoczesny, ciemny interfejs z wyraźną hierarchią: grube cyfry, duże ilustra
 - Motyw ciemny jest domyślny; tryb jasny opcjonalnie później.
 
 **Komponenty wielokrotnego użytku** (w `ui/components`, wszystkie ekrany z nich korzystają):
-`AppBackground`, `AppCard`, `AppButton`, `AppIconButton`, `AppToggle`, `AppChip` (dni tygodnia), `PresetChip` (szybkie wybory), `ObjectTile` (wybór przedmiotu), `AppBottomBar`, `PulsingHalo` (ekran dzwonienia), `TimeDisplay`, `TimeWheel` (przewijany wybór godziny), `AppTextField` (pole tekstowe), `AppSnackbar` (komunikat z „Cofnij”), `ScreenContainer` (wspólny układ zwykłego ekranu, opcjonalnie z przyciskiem przypiętym na dole).
+`AppBackground`, `AppCard`, `AppButton`, `AppIconButton`, `AppToggle`, `AppChip` (dni tygodnia), `PresetChip` (szybkie wybory), `ObjectTile` (wybór przedmiotu), `AppBottomBar`, `PulsingHalo` (ekran dzwonienia), `TimeDisplay`, `TimeWheel` (przewijany wybór godziny), `AppTextField` (pole tekstowe), `AppSnackbar` (komunikat z „Cofnij”), `OptionRow` (wiersz opcji w karcie), `ScreenContainer` (wspólny układ zwykłego ekranu, opcjonalnie z przyciskiem przypiętym na dole).
 Elementy używane tylko na ekranie kamery (`Reticle` z linią skanowania i znaczkiem sukcesu, `ConfidenceBar`, `ShutterButton`) są w `ui/camera/CameraParts.kt`, a szkło to `glassSurface` w `ui/theme/Surfaces.kt`.
 
 **Dostępność:** kontrast tekstu co najmniej 4.5:1 (tekst główny prawie biały), elementy dotykowe min. 48 dp, opisy `contentDescription` dla ikon.
@@ -158,7 +158,7 @@ Realizuj etapami, w tej kolejności. Po każdym etapie zatrzymaj się i poczekaj
 - [x] **Etap 3 – Dzwonienie:** AlarmManager, foreground service, dźwięk z narastającą głośnością, wibracje, full-screen intent, ekran dzwonienia, boot receiver
 - [x] **Etap 4 – Kamera:** uprawnienia, CameraX, celownik, analiza klatek z FakeObjectClassifier, decyzja o wyłączeniu + testy
 - [x] **Etap 5 – Pełny scenariusz:** dzwonienie → kamera → sukces, zapis WakeEvent, wyjście awaryjne
-- [ ] **Etap 6 – Historia, przedmioty, ustawienia:** statystyki, wykres, DataStore, tryb testowy
+- [x] **Etap 6 – Historia, przedmioty, ustawienia:** statystyki, wykres, DataStore, tryb testowy
 - [ ] **Etap 7 – Onboarding i dopracowanie:** uprawnienia z wyjaśnieniem, animacje, puste stany
 - [ ] **Etap 8 – Integracja modelu:** TfliteObjectClassifier, podmiana plików od zespołu AI, testy na zdjęciach
 - [ ] **Etap 9 – Stabilizacja:** testy na Samsungu, poprawki wydajności, przygotowanie do demo
