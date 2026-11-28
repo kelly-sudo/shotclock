@@ -65,6 +65,15 @@ class SettingsRepositoryTest {
     }
 
     @Test
+    fun onboardingIsShownUntilFinished() = runTest {
+        assertFalse(repository.current().onboardingDone)
+
+        repository.setOnboardingDone()
+
+        assertTrue(repository.current().onboardingDone)
+    }
+
+    @Test
     fun defaultSoundCanBeResetToPhoneDefault() = runTest {
         repository.setDefaultSound("content://media/alarm/5")
         repository.setDefaultSound(null)

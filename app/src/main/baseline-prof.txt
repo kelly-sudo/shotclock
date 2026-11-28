@@ -1,0 +1,14 @@
+# Baseline Profile: lista kodu, który Android kompiluje „z góry” (AOT) od razu po instalacji,
+# zamiast tłumaczyć go w locie przy pierwszych uruchomieniach. Dzięki temu aplikacja startuje szybciej
+# i nie przycina się przy pierwszym otwarciu ekranów, zwłaszcza na starszym telefonie.
+#
+# Biblioteki (Compose, Room, Navigation) mają już własne profile, a ten plik dokłada nasz kod.
+# Gwiazdki oznaczają „wszystkie klasy i metody w pakiecie pl.shotclock.budzik”: aplikacja jest mała,
+# więc kompilujemy ją całą. Profil instaluje biblioteka androidx.profileinstaller, którą Compose już dołącza.
+# Działa tylko w wersji release (w debug Android celowo nie kompiluje kodu z góry).
+
+# Klasy wczytywane przy starcie.
+Lpl/shotclock/budzik/**;
+
+# Wszystkie metody: H = często używane, S = przy starcie, P = po starcie.
+HSPLpl/shotclock/budzik/**;->**(**)**

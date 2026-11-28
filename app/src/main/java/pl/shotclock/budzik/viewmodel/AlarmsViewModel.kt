@@ -3,6 +3,7 @@ package pl.shotclock.budzik.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import java.time.LocalDateTime
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import pl.shotclock.budzik.alarm.TimeUntil
@@ -54,11 +56,14 @@ class AlarmsViewModel(private val repository: AlarmRepository) : ViewModel() {
                 otherAlarms = alarms.filter { it.id != next?.alarm?.id },
                 recentlyDeleted = deleted,
             )
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
-            initialValue = AlarmsUiState(),
-        )
+        }
+            // Szukanie najbliższego alarmu odbywa się w tle, a nie na wątku, który rysuje ekran.
+            .flowOn(Dispatchers.Default)
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+                initialValue = AlarmsUiState(),
+            )
 
     fun setEnabled(alarm: Alarm, enabled: Boolean) {
         viewModelScope.launch { repository.setEnabled(alarm.id, enabled) }

@@ -16,6 +16,8 @@ data class AppSettings(
     val developerMode: Boolean = false,
     // Od 0 do 1. Ile pewności modelu wystarczy, żeby uznać przedmiot za rozpoznany.
     val confidenceThreshold: Float = DefaultConfidenceThreshold,
+    // false przy pierwszym uruchomieniu: wtedy aplikacja zaczyna od onboardingu (powitanie i zgody).
+    val onboardingDone: Boolean = false,
 )
 
 /** Progi do wyboru w trybie deweloperskim. 55% to wartość ustalona z prowadzącym. */

@@ -28,6 +28,7 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
             testMode = preferences[Keys.TEST_MODE] ?: defaults.testMode,
             developerMode = preferences[Keys.DEVELOPER_MODE] ?: defaults.developerMode,
             confidenceThreshold = safeThreshold(preferences[Keys.THRESHOLD] ?: defaults.confidenceThreshold),
+            onboardingDone = preferences[Keys.ONBOARDING_DONE] ?: defaults.onboardingDone,
         )
     }
 
@@ -61,6 +62,11 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         dataStore.edit { it[Keys.THRESHOLD] = safeThreshold(threshold) }
     }
 
+    /** Onboarding przejrzany: przy kolejnych uruchomieniach aplikacja startuje od razu na liście alarmów. */
+    suspend fun setOnboardingDone() {
+        dataStore.edit { it[Keys.ONBOARDING_DONE] = true }
+    }
+
     // Nazwy kluczy w pliku ustawień. Nie zmieniamy ich, bo telefon straciłby zapisane wartości.
     private object Keys {
         val DEFAULT_SOUND = stringPreferencesKey("default_sound")
@@ -68,6 +74,7 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         val TEST_MODE = booleanPreferencesKey("test_mode")
         val DEVELOPER_MODE = booleanPreferencesKey("developer_mode")
         val THRESHOLD = floatPreferencesKey("confidence_threshold")
+        val ONBOARDING_DONE = booleanPreferencesKey("onboarding_done")
     }
 
     companion object {

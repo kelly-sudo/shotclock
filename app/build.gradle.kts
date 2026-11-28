@@ -22,9 +22,14 @@ android {
 
     buildTypes {
         release {
+            // R8 zmniejsza i optymalizuje kod. Wersja release działa wyraźnie płynniej niż debug,
+            // dlatego płynność sprawdzamy zawsze na release (Build Variants → release).
             optimization {
                 enable = true
             }
+            // Podpis kluczem debug z Android Studio: release można od razu zainstalować na telefonie testowym.
+            // Do sklepu Google Play potrzebny byłby własny klucz, ale ten projekt tam nie trafia.
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
