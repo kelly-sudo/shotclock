@@ -28,6 +28,7 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
             testMode = preferences[Keys.TEST_MODE] ?: defaults.testMode,
             developerMode = preferences[Keys.DEVELOPER_MODE] ?: defaults.developerMode,
             confidenceThreshold = safeThreshold(preferences[Keys.THRESHOLD] ?: defaults.confidenceThreshold),
+            previewObject = previewObjectOf(preferences[Keys.PREVIEW_OBJECT]) ?: defaults.previewObject,
             onboardingDone = preferences[Keys.ONBOARDING_DONE] ?: defaults.onboardingDone,
         )
     }
@@ -50,12 +51,21 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         dataStore.edit { it[Keys.TEST_MODE] = testMode }
     }
 
-    /** Wyłączenie trybu deweloperskiego przywraca też domyślny próg, żeby nie został zmieniony „po cichu”. */
+    /** Wyłączenie trybu deweloperskiego przywraca też domyślny próg i przedmiot podglądu, żeby nic nie zostało zmienione „po cichu”. */
     suspend fun setDeveloperMode(developerMode: Boolean) {
         dataStore.edit { preferences ->
             preferences[Keys.DEVELOPER_MODE] = developerMode
-            if (!developerMode) preferences.remove(Keys.THRESHOLD)
+            if (!developerMode) {
+                preferences.remove(Keys.THRESHOLD)
+                preferences.remove(Keys.PREVIEW_OBJECT)
+            }
         }
+    }
+
+    /** Przedmiot dla podglądu kamery. Losowy nie ma sensu w podglądzie, więc zapisujemy tylko konkretny przedmiot. */
+    suspend fun setPreviewObject(previewObject: RequiredObject) {
+        if (previewObject == RequiredObject.RANDOM) return
+        dataStore.edit { it[Keys.PREVIEW_OBJECT] = previewObject.name }
     }
 
     suspend fun setConfidenceThreshold(threshold: Float) {
@@ -75,7 +85,12 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         val DEVELOPER_MODE = booleanPreferencesKey("developer_mode")
         val THRESHOLD = floatPreferencesKey("confidence_threshold")
         val ONBOARDING_DONE = booleanPreferencesKey("onboarding_done")
+        val PREVIEW_OBJECT = stringPreferencesKey("preview_object")
     }
+
+    // Zapisujemy nazwę przedmiotu (FIRST / SECOND). Nieznana albo losowa nazwa daje null, czyli wartość domyślną.
+    private fun previewObjectOf(name: String?): RequiredObject? =
+        RequiredObject.entries.find { it.name == name && it != RequiredObject.RANDOM }
 
     companion object {
         /** Tworzy repozytorium z plikiem ustawień w pamięci aplikacji. Wywołujemy tylko raz, w AppContainer. */

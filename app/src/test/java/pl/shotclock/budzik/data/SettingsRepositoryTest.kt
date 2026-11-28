@@ -65,6 +65,22 @@ class SettingsRepositoryTest {
     }
 
     @Test
+    fun previewObjectIsSavedAndResetWithDeveloperMode() = runTest {
+        assertEquals(RequiredObject.FIRST, repository.current().previewObject)
+
+        repository.setDeveloperMode(true)
+        repository.setPreviewObject(RequiredObject.SECOND)
+        assertEquals(RequiredObject.SECOND, repository.current().previewObject)
+
+        // Losowy przedmiot nie ma sensu w podglądzie, więc zostaje poprzedni wybór.
+        repository.setPreviewObject(RequiredObject.RANDOM)
+        assertEquals(RequiredObject.SECOND, repository.current().previewObject)
+
+        repository.setDeveloperMode(false)
+        assertEquals(RequiredObject.FIRST, repository.current().previewObject)
+    }
+
+    @Test
     fun onboardingIsShownUntilFinished() = runTest {
         assertFalse(repository.current().onboardingDone)
 

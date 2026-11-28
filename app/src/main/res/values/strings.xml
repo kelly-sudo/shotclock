@@ -279,4 +279,6 @@
     <string name="settings_preview_onboarding">Onboarding</string>
     <string name="settings_preview_ring">Dzwonienie</string>
     <string name="settings_preview_camera">Kamera</string>
+    <string name="settings_preview_object">Przedmiot w podglądzie kamery</string>
+    <string name="settings_preview_object_description">Którego przedmiotu szuka podgląd kamery. Prawdziwy alarm zawsze szuka przedmiotu z alarmu.</string>
 </resources>

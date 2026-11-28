@@ -26,6 +26,7 @@ import kotlin.math.roundToInt
 import pl.shotclock.budzik.R
 import pl.shotclock.budzik.data.AppSettings
 import pl.shotclock.budzik.data.ConfidenceThresholdOptions
+import pl.shotclock.budzik.data.RequiredObject
 import pl.shotclock.budzik.ml.ClassifierMode
 import pl.shotclock.budzik.ui.components.AppBackground
 import pl.shotclock.budzik.ui.components.AppButton
@@ -37,6 +38,7 @@ import pl.shotclock.budzik.ui.components.PresetChip
 import pl.shotclock.budzik.ui.components.ScreenContainer
 import pl.shotclock.budzik.ui.edit.rememberSoundPicker
 import pl.shotclock.budzik.ui.edit.soundTitle
+import pl.shotclock.budzik.ui.objects.ObjectVisual
 import pl.shotclock.budzik.ui.theme.Accent
 import pl.shotclock.budzik.ui.theme.SectionLabelText
 import pl.shotclock.budzik.ui.theme.ShotClockTheme
@@ -58,6 +60,7 @@ data class SettingsActions(
     val onDefaultVibrationChange: (Boolean) -> Unit = {},
     val onTestModeChange: (Boolean) -> Unit = {},
     val onThresholdChange: (Float) -> Unit = {},
+    val onPreviewObjectChange: (RequiredObject) -> Unit = {},
     val onVersionTap: () -> Unit = {},
     val onDeveloperModeOff: () -> Unit = {},
     // Podgląd ekranów (tylko w trybie deweloperskim), dopóki nie mają prawdziwych wyzwalaczy.
@@ -83,6 +86,7 @@ fun SettingsRoute(
             onDefaultVibrationChange = viewModel::setDefaultVibration,
             onTestModeChange = viewModel::setTestMode,
             onThresholdChange = viewModel::setConfidenceThreshold,
+            onPreviewObjectChange = viewModel::setPreviewObject,
             onVersionTap = viewModel::onVersionTapped,
             onDeveloperModeOff = viewModel::turnOffDeveloperMode,
             onOpenOnboarding = onOpenOnboarding,
@@ -111,7 +115,7 @@ fun SettingsScreen(
         // Sekcja pojawia się dopiero po 7 dotknięciach wersji, więc nie ma animacji wjazdu.
         if (uiState.settings.developerMode) {
             SectionTitle(R.string.settings_section_developer)
-            DeveloperCard(uiState.settings.confidenceThreshold, actions)
+            DeveloperCard(uiState.settings, actions)
         }
         SectionTitle(R.string.settings_section_about, Modifier.entranceFrom(rememberEntrance(order = 4)))
         AboutCard(uiState, actions, Modifier.entranceFrom(rememberEntrance(order = 5)))
@@ -206,7 +210,8 @@ private fun RecognitionCard(uiState: SettingsUiState, actions: SettingsActions, 
 }
 
 @Composable
-private fun DeveloperCard(threshold: Float, actions: SettingsActions) {
+private fun DeveloperCard(settings: AppSettings, actions: SettingsActions) {
+    val threshold = settings.confidenceThreshold
     AppCard(Modifier.fillMaxWidth()) {
         Text(text = stringResource(R.string.settings_threshold), style = MaterialTheme.typography.titleMedium)
         Text(
@@ -238,6 +243,28 @@ private fun DeveloperCard(threshold: Float, actions: SettingsActions) {
         )
         SecondaryButton(stringResource(R.string.settings_preview_onboarding), actions.onOpenOnboarding)
         SecondaryButton(stringResource(R.string.settings_preview_ring), actions.onOpenRing)
+        Text(
+            text = stringResource(R.string.settings_preview_object),
+            modifier = Modifier.padding(top = Spacing.small),
+            style = MaterialTheme.typography.titleMedium,
+        )
+        Text(
+            text = stringResource(R.string.settings_preview_object_description),
+            style = MaterialTheme.typography.bodyMedium,
+            color = TextSecondary,
+        )
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(Spacing.small),
+            verticalArrangement = Arrangement.spacedBy(Spacing.small),
+        ) {
+            listOf(RequiredObject.FIRST, RequiredObject.SECOND).forEach { option ->
+                PresetChip(
+                    label = stringResource(ObjectVisual.of(option).nameRes),
+                    selected = option == settings.previewObject,
+                    onClick = { actions.onPreviewObjectChange(option) },
+                )
+            }
+        }
         SecondaryButton(stringResource(R.string.settings_preview_camera), actions.onOpenCamera)
         SecondaryButton(stringResource(R.string.settings_developer_off), actions.onDeveloperModeOff)
     }

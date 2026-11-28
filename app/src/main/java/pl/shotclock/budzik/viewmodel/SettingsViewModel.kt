@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import pl.shotclock.budzik.data.AppSettings
+import pl.shotclock.budzik.data.RequiredObject
 import pl.shotclock.budzik.data.SettingsRepository
 import pl.shotclock.budzik.ml.ClassifierMode
 import pl.shotclock.budzik.ml.ModelInfo
@@ -70,6 +71,8 @@ class SettingsViewModel(
     fun setTestMode(testMode: Boolean) = save { repository.setTestMode(testMode) }
 
     fun setConfidenceThreshold(threshold: Float) = save { repository.setConfidenceThreshold(threshold) }
+
+    fun setPreviewObject(previewObject: RequiredObject) = save { repository.setPreviewObject(previewObject) }
 
     /** Dotknięcie wersji aplikacji. Siódme z rzędu włącza tryb deweloperski. */
     fun onVersionTapped() {

@@ -54,19 +54,30 @@ data class CameraUiState(
  */
 class CameraViewModel(
     private val ringController: RingController,
-    createClassifier: (RequiredObject) -> ObjectClassifier,
+    private val createClassifier: (RequiredObject) -> ObjectClassifier,
     settings: Flow<AppSettings>,
 ) : ViewModel() {
-    private val objectToFind = ringController.ringing.value?.objectToFind ?: RequiredObject.FIRST
-    private val requiredLabel = objectToFind.modelLabel ?: ModelLabels.FIRST
-    // Drugi przedmiot, żeby podpowiedzieć „To inny przedmiot”.
-    private val otherLabel = if (requiredLabel == ModelLabels.FIRST) ModelLabels.SECOND else ModelLabels.FIRST
-    private val classifier = createClassifier(objectToFind)
+    // Podgląd z ustawień: nic nie dzwoni, więc szukany przedmiot wybiera się w trybie deweloperskim.
+    private val isPreview = ringController.ringing.value == null
+    private val initialObject = ringController.ringing.value?.objectToFind ?: RequiredObject.FIRST
 
-    private val _uiState = MutableStateFlow(CameraUiState(objectToFind))
+    // Szukany przedmiot może się zmienić tylko w podglądzie (gdy ustawienia się wczytają albo zmienią),
+    // a czyta go analiza klatek w innym wątku, dlatego @Volatile.
+    @Volatile
+    private var requiredLabel = initialObject.modelLabel ?: ModelLabels.FIRST
+
+    // Drugi przedmiot, żeby podpowiedzieć „To inny przedmiot”.
+    @Volatile
+    private var otherLabel = otherLabelFor(requiredLabel)
+
+    @Volatile
+    private var classifier = createClassifier(initialObject)
+
+    private val _uiState = MutableStateFlow(CameraUiState(initialObject))
     val uiState: StateFlow<CameraUiState> = _uiState.asStateFlow()
 
-    // Od kiedy pewność jest nad progiem. Zmienia go tylko analiza klatek (jeden wątek w tle).
+    // Od kiedy pewność jest nad progiem. Zmienia go analiza klatek (wątek w tle), a w podglądzie także zmiana przedmiotu.
+    @Volatile
     private var matchSinceMillis: Long? = null
     private var photoMessageJob: Job? = null
 
@@ -79,8 +90,20 @@ class CameraViewModel(
             settings.collect { settings ->
                 threshold = settings.confidenceThreshold
                 _uiState.update { it.copy(threshold = settings.confidenceThreshold) }
+                if (isPreview && settings.previewObject != _uiState.value.objectToFind) {
+                    changeObjectToFind(settings.previewObject)
+                }
             }
         }
+    }
+
+    /** Tylko podgląd: szukamy innego przedmiotu i zaczynamy rozpoznawanie od zera. */
+    private fun changeObjectToFind(objectToFind: RequiredObject) {
+        requiredLabel = objectToFind.modelLabel ?: ModelLabels.FIRST
+        otherLabel = otherLabelFor(requiredLabel)
+        classifier = createClassifier(objectToFind)
+        matchSinceMillis = null
+        _uiState.update { it.copy(objectToFind = objectToFind, confidence = 0f, hint = RecognitionHint.NotVisible) }
     }
 
     /** Ekran kamery się otworzył: liczenie czasu utrzymania zaczyna się od zera. */
@@ -144,3 +167,6 @@ class CameraViewModel(
         }
     }
 }
+
+private fun otherLabelFor(requiredLabel: String): String =
+    if (requiredLabel == ModelLabels.FIRST) ModelLabels.SECOND else ModelLabels.FIRST
