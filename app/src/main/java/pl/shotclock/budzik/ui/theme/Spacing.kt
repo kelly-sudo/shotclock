@@ -54,6 +54,11 @@ object Sizes {
     val illustrationHero = 92.dp
     val illustrationCard = 112.dp
     val illustrationHistoryBox = 40.dp
+    val illustrationOnboarding = 152.dp
+
+    // Onboarding: kropki stron i znaczek „gotowe” przy zgodzie
+    val pageDot = 8.dp
+    val setupDoneBadge = 32.dp
 
     // Ekran dzwonienia: pole z falami, kółko i przedmiot w środku
     val ringHalo = 208.dp

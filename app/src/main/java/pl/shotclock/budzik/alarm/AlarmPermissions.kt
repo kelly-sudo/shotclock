@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.PowerManager
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
@@ -47,6 +48,42 @@ object AlarmPermissions {
         !canUseFullScreenIntent(context) -> MissingPermission.FULL_SCREEN
         else -> null
     }
+
+    fun canUseCamera(context: Context): Boolean =
+        ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+
+    /** true, gdy optymalizacja baterii nie dotyczy tej aplikacji (na Samsungu: Bateria → Bez ograniczeń). */
+    fun ignoresBatteryOptimizations(context: Context): Boolean =
+        context.getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(context.packageName)
+
+    /** Czy krok z onboardingu jest już załatwiony. */
+    fun isDone(context: Context, step: SetupStep): Boolean = when (step) {
+        SetupStep.NOTIFICATIONS -> canPostNotifications(context)
+        SetupStep.EXACT_ALARMS -> canScheduleExactAlarms(context)
+        SetupStep.FULL_SCREEN -> canUseFullScreenIntent(context)
+        SetupStep.CAMERA -> canUseCamera(context)
+        SetupStep.BATTERY -> ignoresBatteryOptimizations(context)
+    }
+
+    /** Ekran ustawień systemu dla kroku z onboardingu, gdy nie da się o niego zapytać w okienku. */
+    fun settingsIntent(context: Context, step: SetupStep): Intent = when (step) {
+        SetupStep.NOTIFICATIONS -> settingsIntent(context, MissingPermission.NOTIFICATIONS)
+        SetupStep.EXACT_ALARMS -> settingsIntent(context, MissingPermission.EXACT_ALARMS)
+        SetupStep.FULL_SCREEN -> settingsIntent(context, MissingPermission.FULL_SCREEN)
+        SetupStep.CAMERA -> appDetailsIntent(context)
+        // Na Samsungu przełącznik jest na stronie aplikacji (Bateria → Bez ograniczeń).
+        // Na innych telefonach otwieramy listę aplikacji z optymalizacją baterii.
+        SetupStep.BATTERY -> if (isSamsung()) {
+            appDetailsIntent(context)
+        } else {
+            Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+    }
+
+    /** Strona tej aplikacji w ustawieniach telefonu (uprawnienia, bateria, powiadomienia). */
+    private fun appDetailsIntent(context: Context): Intent =
+        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, "package:${context.packageName}".toUri())
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
     /** Ekran ustawień systemu, na którym użytkownik może sam włączyć brakujące uprawnienie. */
     fun settingsIntent(context: Context, permission: MissingPermission): Intent {

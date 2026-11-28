@@ -37,6 +37,8 @@ private const val EntranceMillis = 600
 private const val EntranceStepMillis = 90L
 private const val ShakeLoopMillis = 2600
 private val EntranceOffset = 20.dp
+private val FloatDistance = 6.dp
+private const val FloatAngle = 4f
 
 /** Skala przycisku: lekko maleje przy naciśnięciu i sprężyście wraca. */
 @Composable
@@ -92,6 +94,12 @@ fun rememberPulse(durationMillis: Int, label: String, startOffsetMillis: Int = 0
         ),
         label = label,
     )
+
+/** Ilustracja delikatnie unosi się i kołysze, np. w pustym stanie i w onboardingu. [pulse] pochodzi z [rememberPulse]. */
+fun Modifier.floatingBy(pulse: State<Float>): Modifier = graphicsLayer {
+    translationY = (pulse.value - 0.5f) * FloatDistance.toPx()
+    rotationZ = (pulse.value - 0.5f) * FloatAngle
+}
 
 /** Wartość rosnąca od 0 do 1 i zaczynająca od nowa: do rozchodzących się fal. */
 @Composable

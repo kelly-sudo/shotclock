@@ -14,6 +14,9 @@ import pl.shotclock.budzik.ShotClockApplication
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
+            AppStartViewModel(shotClockApplication().container.settingsRepository)
+        }
+        initializer {
             AlarmsViewModel(shotClockApplication().container.alarmRepository)
         }
         initializer {

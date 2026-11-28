@@ -4,9 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import java.time.LocalDate
 import java.time.ZoneId
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import pl.shotclock.budzik.data.HistorySummary
@@ -50,9 +52,12 @@ class HistoryViewModel(
                 today = now,
                 zone = zone(),
             )
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(StopTimeoutMillis),
-            initialValue = HistoryUiState(),
-        )
+        }
+            // Statystyki liczymy w tle, a nie na wątku, który rysuje ekran. Przy długiej historii ekran się nie zatnie.
+            .flowOn(Dispatchers.Default)
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(StopTimeoutMillis),
+                initialValue = HistoryUiState(),
+            )
 }

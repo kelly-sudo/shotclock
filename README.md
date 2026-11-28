@@ -4,7 +4,7 @@ Budzik na Androida, który **przestaje dzwonić dopiero wtedy, gdy zrobisz zdję
 
 Przedmiot rozpoznaje model AI, który działa **lokalnie na telefonie, bez internetu**. Zdjęcia są analizowane w pamięci i nigdy nie trafiają na dysk.
 
-> Projekt studencki na zajęcia „Aplikacje Mobilne”. Aplikacja jest w budowie: ukończone są Etapy 1–6 (szczegóły w sekcji [Plan budowy](#plan-budowy)).
+> Projekt studencki na zajęcia „Aplikacje Mobilne”. Aplikacja jest w budowie: ukończone są Etapy 1–7 (szczegóły w sekcji [Plan budowy](#plan-budowy)).
 
 ## Zrzuty ekranu
 
@@ -16,11 +16,11 @@ Przedmiot rozpoznaje model AI, który działa **lokalnie na telefonie, bez inter
 |:---:|:---:|:---:|:---:|
 | ![Alarm wyłączony: czas wstania i seria dni](docs/screenshots/sukces.png) | ![Przycisk „Nie mogę znaleźć przedmiotu”](docs/screenshots/dzwonienie-awaryjne.png) | ![Zadanie matematyczne](docs/screenshots/zadanie.png) | ![Prośba o kamerę](docs/screenshots/kamera-zgoda.png) |
 
-| Historia | Przedmioty | Ustawienia | Tryb deweloperski |
-|:---:|:---:|:---:|:---:|
-| ![Historia: seria dni, wykres z 7 dni, ostatnie pobudki](docs/screenshots/historia.png) | ![Przedmioty z liczbą alarmów i stanem modelu](docs/screenshots/przedmioty.png) | ![Ustawienia](docs/screenshots/ustawienia.png) | ![Próg pewności i podgląd ekranów](docs/screenshots/tryb-deweloperski.png) |
+| Onboarding | Zgody w onboardingu | Historia | Przedmioty | Ustawienia | Tryb deweloperski |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| ![Onboarding: pierwsza z trzech kart z wyjaśnieniem](docs/screenshots/onboarding.png) | ![Lista zgód z wyjaśnieniem, po co jest każda](docs/screenshots/onboarding-zgody.png) | ![Historia: seria dni, wykres z 7 dni, ostatnie pobudki](docs/screenshots/historia.png) | ![Przedmioty z liczbą alarmów i stanem modelu](docs/screenshots/przedmioty.png) | ![Ustawienia](docs/screenshots/ustawienia.png) | ![Próg pewności i podgląd ekranów](docs/screenshots/tryb-deweloperski.png) |
 
-Zrzuty z emulatora Android Studio (kamera pokazuje wirtualny pokój emulatora). Wszystkie ekrany poza onboardingiem działają na prawdziwych danych. Rozpoznawanie jest na razie udawane przez `FakeObjectClassifier`, dopóki zespół AI nie dostarczy modelu.
+Zrzuty z emulatora Android Studio (kamera pokazuje wirtualny pokój emulatora). Wszystkie ekrany działają na prawdziwych danych. Rozpoznawanie jest na razie udawane przez `FakeObjectClassifier`, dopóki zespół AI nie dostarczy modelu.
 
 ## Jak to działa
 
@@ -54,7 +54,8 @@ Stan na dziś: ✅ działa, 🧩 ekran gotowy na przykładowych danych, ⏳ w pl
 | Ekran przedmiotów: liczba alarmów przy każdym przedmiocie i stan modelu (tryb testowy, brak modelu albo jego wersja) | ✅ |
 | Ustawienia w DataStore: domyślny dźwięk i wibracje dla nowych alarmów, tryb testowy, informacje o aplikacji | ✅ |
 | Ukryty tryb deweloperski (7 dotknięć wersji): wybór progu pewności i podgląd ekranów | ✅ |
-| Onboarding z prośbą o uprawnienia | 🧩 Etap 7 |
+| Onboarding przy pierwszym uruchomieniu: 3 karty z wyjaśnieniem i lista zgód (powiadomienia, dokładne alarmy, dzwonienie na zablokowanym ekranie, kamera, bateria) z obsługą odmowy i podpowiedzią dla Samsunga | ✅ |
+| Płynność na starszym telefonie: obliczenia list poza wątkiem rysującym ekran, wersja release z R8 i Baseline Profile | ✅ |
 | Prawdziwy model TensorFlow Lite od zespołu AI | ⏳ Etap 8 |
 
 ## Stos technologiczny
@@ -166,6 +167,27 @@ DataStore         ──Flow──▶ SettingsViewModel, ObjectsViewModel, Camer
 - **Tryb testowy i model:** `ml/ModelInfo.kt` sprawdza, czy w `assets` są `model.tflite` i `labels.txt`. Czysta funkcja `classifierMode` decyduje: tryb testowy włączony → udawany model; wyłączony, ale brak plików → nadal udawany (ekran mówi „czeka na model”); pliki są i tryb wyłączony → prawdziwy model (Etap 8).
 - **Tryb deweloperski** włącza się 7 dotknięciami wersji aplikacji, jak w ustawieniach Androida. Jest w nim próg pewności (50, 55, 60, 70 albo 85%) i przyciski podglądu ekranów. Wyłączenie trybu przywraca próg 55%, żeby nie został zmieniony „po cichu”. Pasek pewności na ekranie kamery rysuje kreskę w miejscu wybranego progu.
 
+### Onboarding i płynność (Etap 7)
+
+```
+Pierwsze uruchomienie ──▶ 3 karty z wyjaśnieniem ──▶ Kilka zgód ──▶ „Zaczynamy” ──▶ lista alarmów
+                          (przesuwane w bok)          (✓ albo przycisk)
+```
+
+- **Kiedy widać onboarding.** `viewmodel/AppStartViewModel` czyta raz przy starcie ustawienie `onboardingDone` z DataStore. Gdy go nie ma, aplikacja zaczyna od onboardingu, a po „Zaczynamy” zapisuje, że już go przejrzano. W trybie deweloperskim da się go otworzyć ponownie (Podgląd ekranów → Onboarding).
+- **Które zgody.** Czysta funkcja `setupStepsFor(sdkInt)` (`alarm/SetupSteps.kt`) wybiera tylko te, które istnieją na danej wersji Androida: powiadomienia od Androida 13, dokładne alarmy tylko na Androidzie 12, dzwonienie na zablokowanym ekranie od Androida 14, a kamera i bateria zawsze.
+- **Odmowa.** O powiadomienia i kamerę pytamy w okienku systemowym. Gdy ktoś odmówi „na stałe”, system już nie zapyta, więc przycisk zmienia się na „Otwórz ustawienia”. Po powrocie z ustawień lista sprawdza zgody jeszcze raz i pokazuje ✓.
+- **Samsung.** One UI usypia aplikacje, żeby oszczędzać baterię, a uśpiony budzik może się spóźnić. Na Samsungu krok „Bateria bez ograniczeń” otwiera stronę aplikacji i mówi dokładnie, co wybrać (Bateria → Bez ograniczeń).
+- **Płynność.** Pomiar na emulatorze (ten sam scenariusz: przełączanie zakładek, przewijanie, edycja alarmu; około 2050 klatek):
+
+  | Wersja | Wolne klatki wątku UI | 99% klatek szybciej niż | Zimny start |
+  |---|---|---|---|
+  | debug | 25 | 48 ms | ok. 530 ms |
+  | release (R8) | 4 | 32 ms | ok. 290 ms |
+  | release + Baseline Profile | 4 | 32 ms | ok. 240 ms |
+
+  Najważniejszy wniosek: **wersja debug jest dużo wolniejsza** (Android nie optymalizuje kodu, który da się debugować). Płynność sprawdzamy więc zawsze na wersji release. Do tego listy alarmów i historia liczą się w tle (`flowOn(Dispatchers.Default)`), a plik `app/src/main/baseline-prof.txt` każe Androidowi skompilować kod aplikacji z góry przy instalacji, więc pierwsze otwarcia ekranów nie przycinają. Animacje od początku czytają wartości wewnątrz `graphicsLayer` (`ui/theme/Motion.kt`), więc w każdej klatce zmienia się tylko rysowanie, bez przebudowy ekranu.
+
 ## Jak zbudować i uruchomić
 
 Potrzebne:
@@ -198,6 +220,16 @@ JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home" ./gradle
 
 Gotowy plik APK znajdziesz w `app/build/outputs/apk/debug/`.
 
+### Wersja do testów na telefonie (release)
+
+Na starszym telefonie testuj **wersję release**: jest wyraźnie płynniejsza niż debug. W Android Studio wybierz `Build → Select Build Variant → release` i kliknij **Run ▶** albo z wiersza poleceń:
+
+```bash
+./gradlew installRelease
+```
+
+Release jest podpisany kluczem debug z Android Studio, więc instaluje się bez dodatkowej konfiguracji (projekt nie trafia do Google Play). Jeśli na telefonie jest już wersja debug, nie trzeba jej odinstalowywać: obie mają ten sam podpis.
+
 ## Testy
 
 **Testy jednostkowe** (JUnit, uruchamiane na komputerze, bez telefonu):
@@ -218,7 +250,8 @@ Gotowy plik APK znajdziesz w `app/build/outputs/apk/debug/`.
 - `data/WakeStatsTest`: czas wstania, seria dni (dwa alarmy jednego dnia, dzień bez alarmu, przerwanie serii wyłączeniem awaryjnym), udane dni w tygodniu.
 - `data/WakeEventRepositoryTest`: zapis pobudki i podsumowanie dla ekranu sukcesu.
 - `data/HistoryStatsTest`: średni czas wstania (bez wyłączeń awaryjnych), najlepsza seria, wykres z 7 dni (pusty dzień, dwie pobudki jednego dnia, pomijanie starszych pobudek).
-- `data/SettingsRepositoryTest`: ustawienia w prawdziwym DataStore w pliku tymczasowym: wartości domyślne (próg 55%), zapis i odczyt, powrót do domyślnego dźwięku, przywrócenie progu po wyłączeniu trybu deweloperskiego, bezpieczny zakres progu.
+- `alarm/SetupStepsTest`: które zgody pokazuje onboarding na Androidzie 8, 12, 13 i 14+, rozpoznanie Samsunga.
+- `data/SettingsRepositoryTest`: ustawienia w prawdziwym DataStore w pliku tymczasowym: wartości domyślne (próg 55%), onboarding pokazywany do pierwszego „Zaczynamy”, zapis i odczyt, powrót do domyślnego dźwięku, przywrócenie progu po wyłączeniu trybu deweloperskiego, bezpieczny zakres progu.
 - `viewmodel/SettingsAndObjectsTest`: odliczanie do trybu deweloperskiego, wybór udawanego albo prawdziwego modelu, liczba alarmów przy każdym przedmiocie.
 - `ml/FakeObjectClassifierTest`: jasność i szczegóły obrazu, wyniki udawanego modelu (ciemno i pusto → `inne`, dużo szczegółów → szukany przedmiot, suma pewności = 1).
 - `data/AlarmRepositoryTest`: repozytorium ustawia i odwołuje alarmy w systemie razem ze zmianami w bazie.
@@ -273,7 +306,7 @@ Klasa `inne` jest obowiązkowa. Bez niej model „rozpozna” jako przedmiot cok
 | 4. Kamera | Uprawnienia, CameraX, celownik, analiza klatek z `FakeObjectClassifier`, decyzja o wyłączeniu + testy | ✅ gotowe |
 | 5. Pełny scenariusz | Dzwonienie → kamera → sukces, zapis `WakeEvent`, wyjście awaryjne + testy | ✅ gotowe |
 | 6. Historia, przedmioty, ustawienia | Statystyki, wykres, DataStore, tryb testowy, tryb deweloperski z progiem pewności + testy | ✅ gotowe |
-| 7. Onboarding i dopracowanie | Uprawnienia z wyjaśnieniem, animacje, puste stany | ⏳ |
+| 7. Onboarding i dopracowanie | Onboarding ze zgodami i podpowiedzią dla Samsunga, płynność (release, Baseline Profile, obliczenia w tle), animacje, puste stany | ✅ gotowe |
 | 8. Integracja modelu | `TfliteObjectClassifier`, pliki od zespołu AI, testy na zdjęciach | ⏳ |
 | 9. Stabilizacja | Testy na Samsungu, wydajność, przygotowanie do demo | ⏳ |
 

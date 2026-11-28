@@ -163,7 +163,29 @@
     <!-- Onboarding -->
     <string name="onboarding_title">Witaj w ShotClock</string>
     <string name="onboarding_description">Ten budzik ucichnie dopiero wtedy, gdy zrobisz zdjęcie wskazanego przedmiotu. Musisz więc wstać z łóżka.</string>
+    <string name="onboarding_photo_title">Zdjęcie zamiast drzemki</string>
+    <string name="onboarding_photo_description">Kamera rozpoznaje przedmiot na telefonie, bez internetu. Zdjęć nigdzie nie zapisujemy.</string>
+    <string name="onboarding_streak_title">Wstawaj i zbieraj serię</string>
+    <string name="onboarding_streak_description">W historii zobaczysz czas wstania i serię dni z rzędu. Gdy przedmiotu nie ma pod ręką, po 10 próbach albo 10 minutach wyłączysz alarm zadaniem matematycznym.</string>
     <string name="onboarding_next">Dalej</string>
+    <string name="onboarding_skip">Pomiń</string>
+    <string name="onboarding_start">Zaczynamy</string>
+    <!-- Czytnik ekranu: „Strona 2 z 4” -->
+    <string name="onboarding_page">Strona %1$d z %2$d</string>
+    <string name="setup_title">Kilka zgód</string>
+    <string name="setup_description">Bez nich budzik może nie zadzwonić. Każdą zmienisz później w ustawieniach telefonu.</string>
+    <string name="setup_done">Gotowe</string>
+    <string name="setup_notifications_title">Powiadomienia</string>
+    <string name="setup_notifications_description">Przez powiadomienie pokazujemy ekran dzwonienia.</string>
+    <string name="setup_exact_alarms_title">Alarmy i przypomnienia</string>
+    <string name="setup_exact_alarms_description">Android wymaga tej zgody, żeby alarm zadzwonił co do minuty.</string>
+    <string name="setup_full_screen_title">Dzwonienie na zablokowanym ekranie</string>
+    <string name="setup_full_screen_description">Ekran dzwonienia otworzy się sam, nawet gdy telefon jest zablokowany.</string>
+    <string name="setup_camera_title">Kamera</string>
+    <string name="setup_camera_description">Zdjęciem przedmiotu wyłączasz alarm. Obraz analizujemy tylko w pamięci telefonu.</string>
+    <string name="setup_battery_title">Bateria bez ograniczeń</string>
+    <string name="setup_battery_description">Jeśli alarm się spóźnia albo nie dzwoni, wyłącz optymalizację baterii dla ShotClock.</string>
+    <string name="setup_battery_samsung_description">Samsung usypia aplikacje, żeby oszczędzać baterię. Otwórz ustawienia i wybierz: Bateria → Bez ograniczeń.</string>
 
     <!-- Przedmioty -->
     <string name="objects_description">Te dwa rozpoznaje model. Działa bez internetu.</string>

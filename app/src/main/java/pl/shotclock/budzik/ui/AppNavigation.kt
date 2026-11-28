@@ -8,8 +8,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -32,9 +32,11 @@ import pl.shotclock.budzik.ui.ring.sampleRingUiState
 import pl.shotclock.budzik.ui.settings.SettingsRoute
 import pl.shotclock.budzik.ui.theme.ScreenTransitionMillis
 import pl.shotclock.budzik.viewmodel.AlarmsViewModel
+import pl.shotclock.budzik.viewmodel.AppStartViewModel
 import pl.shotclock.budzik.viewmodel.AppViewModelProvider
 import pl.shotclock.budzik.viewmodel.EditAlarmViewModel.Companion.ALARM_ID_ARG
 import pl.shotclock.budzik.viewmodel.EditAlarmViewModel.Companion.NEW_ALARM_ID
+import pl.shotclock.budzik.viewmodel.StartScreen
 
 /** Nazwy wszystkich ekranów w jednym miejscu. */
 private object Routes {
@@ -62,15 +64,22 @@ private val bottomBarItems = listOf(
 )
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+    startViewModel: AppStartViewModel = viewModel(factory = AppViewModelProvider.Factory),
+) {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
+    val startScreen by startViewModel.startScreen.collectAsStateWithLifecycle()
 
     AppBackground {
+        // Zanim ustawienia się wczytają, widać samo tło (ten sam kolor co okno przy starcie), bez mignięcia listy.
+        if (startScreen == StartScreen.Loading) return@AppBackground
+
         NavHost(
             navController = navController,
-            startDestination = Routes.ALARMS,
+            // Przy pierwszym uruchomieniu aplikacja zaczyna od onboardingu.
+            startDestination = if (startScreen == StartScreen.Onboarding) Routes.ONBOARDING else Routes.ALARMS,
             enterTransition = { fadeIn(tween(ScreenTransitionMillis)) },
             exitTransition = { fadeOut(tween(ScreenTransitionMillis)) },
             popEnterTransition = { fadeIn(tween(ScreenTransitionMillis)) },
@@ -126,7 +135,18 @@ fun AppNavigation() {
             }
             composable(Routes.ONBOARDING) {
                 OnboardingScreen(
-                    onFinish = { navController.popBackStack(Routes.ALARMS, inclusive = false) },
+                    onFinish = {
+                        startViewModel.finishOnboarding()
+                        if (navController.previousBackStackEntry != null) {
+                            // Otwarty z ustawień (podgląd): wracamy tam, skąd przyszliśmy.
+                            navController.popBackStack()
+                        } else {
+                            // Pierwsze uruchomienie: lista alarmów zastępuje onboarding, więc „wstecz” już do niego nie wróci.
+                            navController.navigate(Routes.ALARMS) {
+                                popUpTo(Routes.ONBOARDING) { inclusive = true }
+                            }
+                        }
+                    },
                 )
             }
         }
@@ -145,7 +165,8 @@ fun AppNavigation() {
 /** Przełącza zakładkę tak, żeby każda pamiętała swój stan i żeby na stosie nie gromadziły się kopie ekranów. */
 private fun NavHostController.openTab(route: String) {
     navigate(route) {
-        popUpTo(graph.findStartDestination().id) { saveState = true }
+        // Lista alarmów jest zawsze na dole stosu (także gdy aplikacja wystartowała od onboardingu).
+        popUpTo(Routes.ALARMS) { saveState = true }
         launchSingleTop = true
         restoreState = true
     }
