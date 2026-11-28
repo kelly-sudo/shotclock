@@ -1,6 +1,8 @@
 package pl.shotclock.budzik.data
 
 import java.time.ZoneId
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -64,4 +66,6 @@ private class FakeWakeEventDao : WakeEventDao {
     }
 
     override suspend fun getAll(): List<WakeEvent> = events.sortedByDescending { it.dismissedAt }
+
+    override fun observeAll(): Flow<List<WakeEvent>> = flowOf(events.sortedByDescending { it.dismissedAt })
 }

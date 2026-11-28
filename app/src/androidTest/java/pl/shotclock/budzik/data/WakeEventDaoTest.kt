@@ -3,6 +3,7 @@ package pl.shotclock.budzik.data
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -67,5 +68,13 @@ class WakeEventDaoTest {
         val newerId = dao.insert(recognizedWake.copy(dismissedAt = 2_000))
 
         assertEquals(listOf(newerId, olderId), dao.getAll().map { it.id })
+    }
+
+    @Test
+    fun observedListContainsNewWakes() = runTest {
+        // Ekran historii słucha tej listy, więc po zapisie musi dostać nową pobudkę.
+        val id = dao.insert(recognizedWake)
+
+        assertEquals(listOf(id), dao.observeAll().first().map { it.id })
     }
 }

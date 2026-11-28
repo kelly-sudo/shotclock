@@ -232,7 +232,7 @@ private fun HintPanel(
             )
             Text(text = detail, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
         }
-        ConfidenceBar(confidence = uiState.confidence)
+        ConfidenceBar(confidence = uiState.confidence, threshold = uiState.threshold)
         if (showEmergencyExit) {
             AppButton(
                 text = stringResource(R.string.emergency_open),

@@ -68,3 +68,57 @@ fun summarizeWake(event: WakeEvent, allEvents: List<WakeEvent>, zone: ZoneId): W
         today = today.dayOfWeek,
     )
 }
+
+/** Czas wstania jednego dnia na wykresie. [seconds] to null, gdy tego dnia nie było pobudki zakończonej zdjęciem. */
+data class DayWakeTime(val date: LocalDate, val seconds: Int?)
+
+/** Wszystko, co pokazuje ekran historii. */
+data class HistorySummary(
+    val streakDays: Int,
+    val bestStreakDays: Int,
+    // null, gdy nie ma jeszcze żadnej pobudki zakończonej zdjęciem.
+    val averageWakeUpSeconds: Int?,
+    // Siedem dni, od najstarszego do dzisiejszego.
+    val lastSevenDays: List<DayWakeTime>,
+)
+
+/**
+ * Średni czas wstania w sekundach. Liczymy tylko pobudki zakończone zdjęciem:
+ * wyłączenie awaryjne trwa zwykle ponad 10 minut i zawyżałoby średnią.
+ */
+fun averageWakeUpSeconds(events: List<WakeEvent>): Int? {
+    val photoWakes = events.filter { !it.emergency }
+    if (photoWakes.isEmpty()) return null
+    return photoWakes.map { wakeUpSeconds(it) }.average().toInt()
+}
+
+/** Najdłuższa seria w całej historii, liczona tak samo jak [currentStreak]. */
+fun bestStreak(events: List<WakeEvent>, zone: ZoneId): Int {
+    val daysWithAlarm = events.map { it.dismissedDate(zone) }.distinct().sorted()
+    val good = goodDays(events, zone)
+    var best = 0
+    var current = 0
+    for (day in daysWithAlarm) {
+        current = if (day in good) current + 1 else 0
+        best = maxOf(best, current)
+    }
+    return best
+}
+
+/** Czas wstania z ostatnich 7 dni, kończąc na [today]. Gdy w jednym dniu było kilka pobudek, bierzemy średnią. */
+fun lastSevenDays(events: List<WakeEvent>, today: LocalDate, zone: ZoneId): List<DayWakeTime> {
+    val byDay = events.filter { !it.emergency }.groupBy { it.dismissedDate(zone) }
+    return (6 downTo 0).map { daysAgo ->
+        val date = today.minusDays(daysAgo.toLong())
+        DayWakeTime(date, byDay[date]?.let { averageWakeUpSeconds(it) })
+    }
+}
+
+/** Statystyki do ekranu historii z całej listy pobudek. */
+fun summarizeHistory(events: List<WakeEvent>, today: LocalDate, zone: ZoneId): HistorySummary =
+    HistorySummary(
+        streakDays = currentStreak(events, zone),
+        bestStreakDays = bestStreak(events, zone),
+        averageWakeUpSeconds = averageWakeUpSeconds(events),
+        lastSevenDays = lastSevenDays(events, today, zone),
+    )
