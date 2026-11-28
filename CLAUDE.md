@@ -157,7 +157,7 @@ Realizuj etapami, w tej kolejności. Po każdym etapie zatrzymaj się i poczekaj
 - [x] **Etap 2 – Alarmy w bazie:** Room, lista alarmów, edycja alarmu, testy DAO
 - [x] **Etap 3 – Dzwonienie:** AlarmManager, foreground service, dźwięk z narastającą głośnością, wibracje, full-screen intent, ekran dzwonienia, boot receiver
 - [x] **Etap 4 – Kamera:** uprawnienia, CameraX, celownik, analiza klatek z FakeObjectClassifier, decyzja o wyłączeniu + testy
-- [ ] **Etap 5 – Pełny scenariusz:** dzwonienie → kamera → sukces, zapis WakeEvent, wyjście awaryjne
+- [x] **Etap 5 – Pełny scenariusz:** dzwonienie → kamera → sukces, zapis WakeEvent, wyjście awaryjne
 - [ ] **Etap 6 – Historia, przedmioty, ustawienia:** statystyki, wykres, DataStore, tryb testowy
 - [ ] **Etap 7 – Onboarding i dopracowanie:** uprawnienia z wyjaśnieniem, animacje, puste stany
 - [ ] **Etap 8 – Integracja modelu:** TfliteObjectClassifier, podmiana plików od zespołu AI, testy na zdjęciach

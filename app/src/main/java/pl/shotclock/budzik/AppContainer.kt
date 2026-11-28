@@ -10,6 +10,7 @@ import pl.shotclock.budzik.alarm.RingController
 import pl.shotclock.budzik.data.AlarmRepository
 import pl.shotclock.budzik.data.AppDatabase
 import pl.shotclock.budzik.data.RequiredObject
+import pl.shotclock.budzik.data.WakeEventRepository
 import pl.shotclock.budzik.ml.FakeObjectClassifier
 import pl.shotclock.budzik.ml.ModelLabels
 import pl.shotclock.budzik.ml.ObjectClassifier
@@ -26,6 +27,7 @@ class AppContainer(context: Context) {
     val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     val alarmRepository = AlarmRepository(database.alarmDao(), alarmScheduler)
+    val wakeEventRepository = WakeEventRepository(database.wakeEventDao())
     val ringController = RingController(context)
 
     /**

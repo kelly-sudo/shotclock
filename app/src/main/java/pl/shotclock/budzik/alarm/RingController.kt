@@ -5,6 +5,7 @@ import android.content.Intent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import pl.shotclock.budzik.data.Alarm
 import pl.shotclock.budzik.data.RequiredObject
 
@@ -13,8 +14,10 @@ data class RingingAlarm(
     val alarm: Alarm,
     // Konkretny przedmiot do sfotografowania. Przy „losowym” wylosowany w chwili rozpoczęcia dzwonienia.
     val objectToFind: RequiredObject,
-    // Kiedy zaczął dzwonić (System.currentTimeMillis). Przyda się do liczenia czasu wstania w Etapie 5.
+    // Kiedy zaczął dzwonić (System.currentTimeMillis). Z tego liczymy czas wstania.
     val startedAtMillis: Long,
+    // Nieudane ręczne zdjęcia. Po 10 pojawia się wyjście awaryjne (alarm/EmergencyExit.kt).
+    val failedAttempts: Int = 0,
 )
 
 /**
@@ -37,7 +40,12 @@ class RingController(private val context: Context) {
         _ringing.value = null
     }
 
-    /** Wyłącza alarm: cisza, koniec wibracji, ekran dzwonienia się zamyka. Wywołuje to CameraViewModel po rozpoznaniu przedmiotu. */
+    /** Ręczne zdjęcie nie przekroczyło progu. Gdy nic nie dzwoni (podgląd z ustawień), nic się nie dzieje. */
+    fun onPhotoRejected() {
+        _ringing.update { it?.copy(failedAttempts = it.failedAttempts + 1) }
+    }
+
+    /** Wyłącza alarm: cisza i koniec wibracji. Wywołuje to RingViewModel po rozpoznaniu przedmiotu albo zadaniu matematycznym. */
     fun dismiss() {
         _ringing.value = null
         context.stopService(Intent(context, RingService::class.java))
