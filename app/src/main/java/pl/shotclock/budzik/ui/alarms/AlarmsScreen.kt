@@ -75,7 +75,9 @@ import pl.shotclock.budzik.ui.theme.Spacing
 import pl.shotclock.budzik.ui.theme.TextPrimary
 import pl.shotclock.budzik.ui.theme.TextSecondary
 import pl.shotclock.budzik.ui.theme.entranceFrom
+import pl.shotclock.budzik.ui.theme.floatingBy
 import pl.shotclock.budzik.ui.theme.rememberEntrance
+import pl.shotclock.budzik.ui.theme.rememberPulse
 import pl.shotclock.budzik.viewmodel.AlarmsUiState
 import pl.shotclock.budzik.viewmodel.AlarmsViewModel
 import pl.shotclock.budzik.viewmodel.AppViewModelProvider
@@ -83,6 +85,7 @@ import pl.shotclock.budzik.viewmodel.AppViewModelProvider
 private const val DisabledCardAlpha = 0.6f
 // Przy długiej liście dalsze karty wjeżdżają razem, żeby nie czekać na nie zbyt długo.
 private const val MaxEntranceOrder = 6
+private const val EmptyFloatMillis = 2200
 
 /** Akcje, które lista alarmów przekazuje dalej. Zebrane w jednym miejscu, żeby nie podawać ich osobno. */
 data class AlarmsActions(
@@ -424,9 +427,10 @@ private fun AlarmCard(
     }
 }
 
-/** Pusty stan: zachęta do dodania pierwszego alarmu. Dopracujemy go w Etapie 7. */
+/** Pusty stan: zachęta do dodania pierwszego alarmu. Szczoteczka delikatnie się unosi, żeby ekran nie był martwy. */
 @Composable
 private fun EmptyAlarms(onAddAlarm: () -> Unit, modifier: Modifier = Modifier) {
+    val float = rememberPulse(EmptyFloatMillis, label = "empty float")
     AppCard(
         modifier = modifier.fillMaxWidth(),
         tint = MintTint,
@@ -437,7 +441,8 @@ private fun EmptyAlarms(onAddAlarm: () -> Unit, modifier: Modifier = Modifier) {
             contentDescription = null,
             modifier = Modifier
                 .size(Sizes.illustrationCard)
-                .align(Alignment.CenterHorizontally),
+                .align(Alignment.CenterHorizontally)
+                .floatingBy(float),
         )
         Text(
             text = stringResource(R.string.alarms_empty_title),

@@ -1,16 +1,12 @@
 package pl.shotclock.budzik.ui.edit
 
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -20,7 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
@@ -40,6 +35,7 @@ import pl.shotclock.budzik.ui.components.AppIconButton
 import pl.shotclock.budzik.ui.components.AppTextField
 import pl.shotclock.budzik.ui.components.AppToggle
 import pl.shotclock.budzik.ui.components.ObjectTile
+import pl.shotclock.budzik.ui.components.OptionRow
 import pl.shotclock.budzik.ui.components.PresetChip
 import pl.shotclock.budzik.ui.components.ScreenContainer
 import pl.shotclock.budzik.ui.components.TimeWheel
@@ -255,7 +251,7 @@ private fun AlarmOptionsCard(alarm: Alarm, actions: EditAlarmActions) {
         val pickSound = rememberSoundPicker(alarm.soundUri, actions.onSoundChange)
         OptionRow(
             icon = R.drawable.ic_music,
-            label = R.string.edit_sound,
+            label = stringResource(R.string.edit_sound),
             onClick = pickSound,
             onClickLabel = stringResource(R.string.edit_sound_change),
         ) {
@@ -270,53 +266,20 @@ private fun AlarmOptionsCard(alarm: Alarm, actions: EditAlarmActions) {
             )
             Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null, tint = TextSecondary)
         }
-        OptionRow(R.drawable.ic_vibration, R.string.edit_vibration) {
+        OptionRow(stringResource(R.string.edit_vibration), icon = R.drawable.ic_vibration) {
             AppToggle(
                 checked = alarm.vibration,
                 onCheckedChange = actions.onVibrationChange,
                 contentDescription = stringResource(R.string.edit_vibration),
             )
         }
-        OptionRow(R.drawable.ic_volume, R.string.edit_rising_volume) {
+        OptionRow(stringResource(R.string.edit_rising_volume), icon = R.drawable.ic_volume) {
             AppToggle(
                 checked = alarm.risingVolume,
                 onCheckedChange = actions.onRisingVolumeChange,
                 contentDescription = stringResource(R.string.edit_rising_volume),
             )
         }
-    }
-}
-
-@Composable
-private fun OptionRow(
-    @DrawableRes icon: Int,
-    @StringRes label: Int,
-    onClick: (() -> Unit)? = null,
-    onClickLabel: String? = null,
-    trailing: @Composable RowScope.() -> Unit,
-) {
-    // Wiersz rośnie, gdy przy dużej czcionce opis łamie się na dwie linie.
-    Row(
-        modifier = Modifier
-            .heightIn(min = Sizes.optionRowHeight)
-            .then(
-                if (onClick != null) {
-                    Modifier.clickable(onClickLabel = onClickLabel, role = Role.Button, onClick = onClick)
-                } else {
-                    Modifier
-                },
-            ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Spacing.smallMedium),
-    ) {
-        // Opis nie jest potrzebny, bo obok ikony jest tekst.
-        Icon(painterResource(icon), contentDescription = null)
-        Text(
-            text = stringResource(label),
-            modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodyLarge,
-        )
-        trailing()
     }
 }
 

@@ -10,7 +10,10 @@ import pl.shotclock.budzik.alarm.RingController
 import pl.shotclock.budzik.data.AlarmRepository
 import pl.shotclock.budzik.data.AppDatabase
 import pl.shotclock.budzik.data.RequiredObject
+import pl.shotclock.budzik.data.SettingsRepository
+import pl.shotclock.budzik.data.WakeEventRepository
 import pl.shotclock.budzik.ml.FakeObjectClassifier
+import pl.shotclock.budzik.ml.ModelInfo
 import pl.shotclock.budzik.ml.ModelLabels
 import pl.shotclock.budzik.ml.ObjectClassifier
 import pl.shotclock.budzik.ml.TfliteObjectClassifier
@@ -27,7 +30,16 @@ class AppContainer(context: Context) {
     val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     val alarmRepository = AlarmRepository(database.alarmDao(), alarmScheduler)
+    val wakeEventRepository = WakeEventRepository(database.wakeEventDao())
     val ringController = RingController(context)
+    val settingsRepository = SettingsRepository.create(context)
+
+    /** Czy zespół AI dostarczył już model (pliki w assets) i jaka to wersja. */
+    val modelInfo = ModelInfo.read(context)
+
+    /** Wersja aplikacji z build.gradle.kts (versionName), pokazywana w ustawieniach. */
+    val appVersion: String =
+        context.packageManager.getPackageInfo(context.packageName, 0).versionName.orEmpty()
 
     // Prawdziwy model wczytujemy raz, przy pierwszym otwarciu kamery (to kilka MB, szkoda czytać je za każdym razem).
     private val realClassifier: ObjectClassifier? by lazy {
@@ -37,6 +49,7 @@ class AppContainer(context: Context) {
     /**
      * Klasyfikator do rozpoznawania przedmiotu: prawdziwy model, jeśli jest w assets,
      * a jeśli go nie ma, udawany, który „widzi” przedmiot, którego szukamy.
+     * Gałąź testowa: przełącznik trybu testowego z ustawień (classifierMode) nie jest tu jeszcze podłączony (Etap 8).
      */
     fun createClassifier(objectToFind: RequiredObject): ObjectClassifier =
         realClassifier ?: FakeObjectClassifier(pretendToSee = objectToFind.modelLabel ?: ModelLabels.FIRST)

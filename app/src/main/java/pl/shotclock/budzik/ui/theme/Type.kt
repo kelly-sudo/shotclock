@@ -111,3 +111,15 @@ val SmallLabelMinSize = 9.sp
 
 // Liczba serii dni na ekranie historii.
 val StatNumberText = TimeTextBase.copy(fontSize = 60.sp, lineHeight = 64.sp)
+
+// Nagłówek ekranu sukcesu „Alarm wyłączony”: większy niż zwykły tytuł, ale mieści się w jednej linii na 360 dp.
+val SuccessTitleText = TextStyle(
+    fontFamily = AppFont,
+    fontWeight = FontWeight.ExtraBold,
+    fontSize = 32.sp,
+    lineHeight = 38.sp,
+    letterSpacing = (-0.03).em,
+)
+
+// Najmniejszy rozmiar wartości w kartach ekranu sukcesu (np. „10 min 42 s” na wąskim ekranie).
+val StatValueMinSize = 16.sp

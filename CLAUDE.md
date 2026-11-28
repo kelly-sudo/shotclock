@@ -82,7 +82,7 @@ Nowoczesny, ciemny interfejs z wyraźną hierarchią: grube cyfry, duże ilustra
 - Motyw ciemny jest domyślny; tryb jasny opcjonalnie później.
 
 **Komponenty wielokrotnego użytku** (w `ui/components`, wszystkie ekrany z nich korzystają):
-`AppBackground`, `AppCard`, `AppButton`, `AppIconButton`, `AppToggle`, `AppChip` (dni tygodnia), `PresetChip` (szybkie wybory), `ObjectTile` (wybór przedmiotu), `AppBottomBar`, `PulsingHalo` (ekran dzwonienia), `TimeDisplay`, `TimeWheel` (przewijany wybór godziny), `AppTextField` (pole tekstowe), `AppSnackbar` (komunikat z „Cofnij”), `ScreenContainer` (wspólny układ zwykłego ekranu, opcjonalnie z przyciskiem przypiętym na dole).
+`AppBackground`, `AppCard`, `AppButton`, `AppIconButton`, `AppToggle`, `AppChip` (dni tygodnia), `PresetChip` (szybkie wybory), `ObjectTile` (wybór przedmiotu), `AppBottomBar`, `PulsingHalo` (ekran dzwonienia), `TimeDisplay`, `TimeWheel` (przewijany wybór godziny), `AppTextField` (pole tekstowe), `AppSnackbar` (komunikat z „Cofnij”), `OptionRow` (wiersz opcji w karcie), `ScreenContainer` (wspólny układ zwykłego ekranu, opcjonalnie z przyciskiem przypiętym na dole).
 Elementy używane tylko na ekranie kamery (`Reticle` z linią skanowania i znaczkiem sukcesu, `ConfidenceBar`, `ShutterButton`) są w `ui/camera/CameraParts.kt`, a szkło to `glassSurface` w `ui/theme/Surfaces.kt`.
 
 **Dostępność:** kontrast tekstu co najmniej 4.5:1 (tekst główny prawie biały), elementy dotykowe min. 48 dp, opisy `contentDescription` dla ikon.
@@ -120,6 +120,7 @@ Nawigacja: pływający dolny pasek z zakładkami Alarmy / Historia / Przedmioty 
 - **Uprawnienia:** CAMERA, POST_NOTIFICATIONS (13+), SCHEDULE_EXACT_ALARM / USE_EXACT_ALARM, USE_FULL_SCREEN_INTENT (14+), RECEIVE_BOOT_COMPLETED, FOREGROUND_SERVICE (+ odpowiedni typ usługi), VIBRATE. Zawsze sprawdzaj wersję API i obsłuż odmowę.
 - **Easter egg:** alarm na 21:37 gra `res/raw/easter_2137.mp3` zamiast wybranego dźwięku (reguła w `alarm/RingSound.kt`, test w `RingSoundTest`). Bez pliku gra zwykły dźwięk.
 - **Samsung:** dodaj w onboardingu podpowiedź o wyłączeniu optymalizacji baterii dla aplikacji, jeśli alarmy nie działają.
+- **Płynność:** płynność sprawdzamy na wersji release (R8, podpisana kluczem debug, `installRelease`), bo debug jest kilka razy wolniejszy. `app/src/main/baseline-prof.txt` kompiluje kod aplikacji z góry. Obliczenia stanu ekranu w ViewModelach przez `flowOn(Dispatchers.Default)`.
 - Zdjęcia z kamery analizowane w pamięci, **nie zapisujemy ich na dysku** (prywatność).
 
 ## Model danych (Room)
@@ -157,8 +158,8 @@ Realizuj etapami, w tej kolejności. Po każdym etapie zatrzymaj się i poczekaj
 - [x] **Etap 2 – Alarmy w bazie:** Room, lista alarmów, edycja alarmu, testy DAO
 - [x] **Etap 3 – Dzwonienie:** AlarmManager, foreground service, dźwięk z narastającą głośnością, wibracje, full-screen intent, ekran dzwonienia, boot receiver
 - [x] **Etap 4 – Kamera:** uprawnienia, CameraX, celownik, analiza klatek z FakeObjectClassifier, decyzja o wyłączeniu + testy
-- [ ] **Etap 5 – Pełny scenariusz:** dzwonienie → kamera → sukces, zapis WakeEvent, wyjście awaryjne
-- [ ] **Etap 6 – Historia, przedmioty, ustawienia:** statystyki, wykres, DataStore, tryb testowy
-- [ ] **Etap 7 – Onboarding i dopracowanie:** uprawnienia z wyjaśnieniem, animacje, puste stany
+- [x] **Etap 5 – Pełny scenariusz:** dzwonienie → kamera → sukces, zapis WakeEvent, wyjście awaryjne
+- [x] **Etap 6 – Historia, przedmioty, ustawienia:** statystyki, wykres, DataStore, tryb testowy
+- [x] **Etap 7 – Onboarding i dopracowanie:** uprawnienia z wyjaśnieniem, animacje, puste stany
 - [ ] **Etap 8 – Integracja modelu:** TfliteObjectClassifier, podmiana plików od zespołu AI, testy na zdjęciach
 - [ ] **Etap 9 – Stabilizacja:** testy na Samsungu, poprawki wydajności, przygotowanie do demo

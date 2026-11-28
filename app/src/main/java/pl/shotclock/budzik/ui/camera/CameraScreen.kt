@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -33,6 +34,7 @@ import pl.shotclock.budzik.R
 import pl.shotclock.budzik.alarm.RecognitionHint
 import pl.shotclock.budzik.data.RequiredObject
 import pl.shotclock.budzik.ui.components.AppButton
+import pl.shotclock.budzik.ui.components.AppButtonStyle
 import pl.shotclock.budzik.ui.components.AppCard
 import pl.shotclock.budzik.ui.components.AppIconButton
 import pl.shotclock.budzik.ui.objects.ObjectImage
@@ -55,30 +57,39 @@ import pl.shotclock.budzik.viewmodel.CameraUiState
 import pl.shotclock.budzik.viewmodel.CameraViewModel
 import kotlin.math.roundToInt
 
-// Tyle trwa animacja sukcesu, zanim ekran się zamknie.
-private const val SuccessDisplayMillis = 1_600L
+// Tyle widać znaczek sukcesu na celowniku, zanim pojawi się ekran sukcesu.
+private const val SuccessDisplayMillis = 1_200L
 
 // Tylko do testów modelu: pokazuje pod paskiem pewności wyniki dla wszystkich klas. Przed demo ustaw false.
 private const val ShowModelScores = true
 
 /**
  * Ekran kamery z ViewModelem: pyta o zgodę, uruchamia kamerę i rozpoznawanie.
- * Po rozpoznaniu przedmiotu (alarm już ucichł) pokazuje sukces i wywołuje [onFinished].
+ * Po rozpoznaniu przedmiotu od razu wywołuje [onRecognized] (wtedy alarm cichnie),
+ * pokazuje na celowniku znaczek sukcesu i po chwili wywołuje [onFinished].
+ * Podgląd z ustawień nie podaje [onRecognized], więc niczego nie wyłącza.
  */
 @Composable
 fun CameraRoute(
     onBack: () -> Unit,
     onFinished: () -> Unit,
+    onRecognized: (confidence: Float) -> Unit = {},
+    emergencyExitAvailable: Boolean = false,
+    onEmergencyExit: () -> Unit = {},
     viewModel: CameraViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val cameraAccess = rememberCameraAccess()
+    // Najnowsze wersje funkcji, bo efekt niżej działa dłużej niż jedno przerysowanie ekranu.
+    val currentOnRecognized by rememberUpdatedState(onRecognized)
+    val currentOnFinished by rememberUpdatedState(onFinished)
 
     LaunchedEffect(Unit) { viewModel.onCameraOpened() }
     LaunchedEffect(uiState.isRecognized) {
         if (uiState.isRecognized) {
+            currentOnRecognized(uiState.confidence)
             delay(SuccessDisplayMillis)
-            onFinished()
+            currentOnFinished()
         }
     }
     val close = { if (uiState.isRecognized) onFinished() else onBack() }
@@ -91,6 +102,8 @@ fun CameraRoute(
         CameraScreen(
             uiState = uiState,
             onBack = close,
+            emergencyExitAvailable = emergencyExitAvailable,
+            onEmergencyExit = onEmergencyExit,
             onTakePhoto = {
                 viewModel.onTakePhotoStarted()
                 session.takePhoto(onPhoto = viewModel::onPhotoTaken, onError = viewModel::onPhotoFailed)
@@ -110,6 +123,7 @@ fun CameraRoute(
 /**
  * Wygląd ekranu kamery. [preview] to obraz z kamery; w podglądach @Preview zastępuje go zwykłe tło.
  * Na górze: powrót i szukany przedmiot. W środku celownik. Na dole szklany panel z podpowiedzią i migawka.
+ * Gdy [emergencyExitAvailable], w panelu jest też przycisk „Nie mogę znaleźć przedmiotu”.
  */
 @Composable
 fun CameraScreen(
@@ -117,6 +131,8 @@ fun CameraScreen(
     onBack: () -> Unit,
     onTakePhoto: () -> Unit,
     modifier: Modifier = Modifier,
+    emergencyExitAvailable: Boolean = false,
+    onEmergencyExit: () -> Unit = {},
     preview: @Composable () -> Unit = {},
 ) {
     Box(modifier.fillMaxSize().background(CameraBackground)) {
@@ -141,7 +157,13 @@ fun CameraScreen(
                         .aspectRatio(1f, matchHeightConstraintsFirst = true),
                 )
             }
-            HintPanel(uiState, Modifier.fillMaxWidth().entranceFrom(rememberEntrance(order = 1)))
+            HintPanel(
+                uiState = uiState,
+                // Po rozpoznaniu alarm już ucichł, więc wyjście awaryjne nie jest potrzebne.
+                showEmergencyExit = emergencyExitAvailable && !uiState.isRecognized,
+                onEmergencyExit = onEmergencyExit,
+                modifier = Modifier.fillMaxWidth().entranceFrom(rememberEntrance(order = 1)),
+            )
             ShutterButton(
                 onClick = onTakePhoto,
                 enabled = uiState.hasFrame && !uiState.isTakingPhoto && !uiState.isRecognized,
@@ -190,9 +212,14 @@ private fun CameraTopBar(objectToFind: RequiredObject, onBack: () -> Unit) {
     }
 }
 
-/** Szklany panel: duża podpowiedź, jedno zdanie wyjaśnienia i pasek pewności. */
+/** Szklany panel: duża podpowiedź, jedno zdanie wyjaśnienia, pasek pewności i ewentualnie wyjście awaryjne. */
 @Composable
-private fun HintPanel(uiState: CameraUiState, modifier: Modifier = Modifier) {
+private fun HintPanel(
+    uiState: CameraUiState,
+    showEmergencyExit: Boolean,
+    onEmergencyExit: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val (title, detail) = hintTexts(uiState)
     Column(
         modifier = modifier
@@ -209,13 +236,21 @@ private fun HintPanel(uiState: CameraUiState, modifier: Modifier = Modifier) {
             )
             Text(text = detail, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
         }
-        ConfidenceBar(confidence = uiState.confidence)
+        ConfidenceBar(confidence = uiState.confidence, threshold = uiState.threshold)
         if (ShowModelScores && uiState.modelScores.isNotEmpty()) {
             val scores = uiState.modelScores.joinToString("  ·  ") { "${it.label} ${(it.confidence * 100).roundToInt()}%" }
             Text(
                 text = stringResource(R.string.camera_model_scores, scores),
                 style = SectionLabelText,
                 color = TextSecondary,
+            )
+        }
+        if (showEmergencyExit) {
+            AppButton(
+                text = stringResource(R.string.emergency_open),
+                onClick = onEmergencyExit,
+                modifier = Modifier.fillMaxWidth().padding(top = Spacing.small),
+                style = AppButtonStyle.Secondary,
             )
         }
     }
@@ -319,6 +354,25 @@ private fun CameraScreenMoveCloserPreview() {
             ),
             onBack = {},
             onTakePhoto = {},
+            preview = { FakePreview() },
+        )
+    }
+}
+
+@Preview(widthDp = 360, heightDp = 640)
+@Composable
+private fun CameraScreenEmergencyPreview() {
+    ShotClockTheme {
+        CameraScreen(
+            uiState = CameraUiState(
+                objectToFind = RequiredObject.FIRST,
+                confidence = 0.12f,
+                hint = RecognitionHint.NotVisible,
+                hasFrame = true,
+            ),
+            onBack = {},
+            onTakePhoto = {},
+            emergencyExitAvailable = true,
             preview = { FakePreview() },
         )
     }

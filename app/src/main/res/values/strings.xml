@@ -88,6 +88,38 @@
     <string name="ring_task">Zrób zdjęcie</string>
     <string name="ring_open_camera">Otwórz kamerę</string>
     <string name="ring_note">Ucichnie dopiero po rozpoznaniu przedmiotu</string>
+    <string name="emergency_open">Nie mogę znaleźć przedmiotu</string>
+
+    <!-- Wyjście awaryjne: zadanie matematyczne -->
+    <string name="emergency_title">Wyjście awaryjne</string>
+    <string name="emergency_task_label">Rozwiąż zadanie, żeby wyłączyć alarm</string>
+    <!-- Zadanie, np. „23 × 7 + 48” -->
+    <string name="emergency_task">%1$d × %2$d + %3$d</string>
+    <string name="emergency_answer_empty">?</string>
+    <!-- Opis pola z wynikiem dla czytnika ekranu -->
+    <string name="emergency_answer_description">Wpisany wynik: %1$s</string>
+    <string name="emergency_answer_description_empty">Wynik jeszcze nie wpisany</string>
+    <string name="emergency_wrong">Zły wynik. Spróbuj z nowym zadaniem.</string>
+    <string name="emergency_note">Takie wyłączenie zapisze się w historii i przerwie serię dni.</string>
+    <string name="emergency_delete">Usuń cyfrę</string>
+    <string name="emergency_submit">Sprawdź wynik</string>
+
+    <!-- Ekran sukcesu po wyłączeniu alarmu -->
+    <string name="success_title">Alarm wyłączony</string>
+    <!-- Np. „Rozpoznano: Szczoteczka, pewność 96%” -->
+    <string name="success_recognized">Rozpoznano: %1$s, pewność %2$d%%</string>
+    <string name="success_emergency">Wyłączony zadaniem matematycznym</string>
+    <string name="success_wake_time">czas wstania</string>
+    <plurals name="success_streak_label">
+        <item quantity="one">dzień z rzędu</item>
+        <item quantity="few">dni z rzędu</item>
+        <item quantity="many">dni z rzędu</item>
+        <item quantity="other">dni z rzędu</item>
+    </plurals>
+    <!-- Opis kółek z dniami tygodnia dla czytnika ekranu -->
+    <string name="success_week_description">Udane pobudki w tym tygodniu: %1$s</string>
+    <string name="success_week_description_none">W tym tygodniu nie ma jeszcze udanych pobudek</string>
+    <string name="success_done">Gotowe</string>
     <string name="ring_channel_name">Dzwoniące alarmy</string>
     <string name="ring_channel_description">Pokazuje ekran dzwonienia, gdy alarm się włącza</string>
     <string name="ring_notification_text">Zrób zdjęcie przedmiotu, żeby wyłączyć alarm</string>
@@ -132,21 +164,62 @@
     <!-- Onboarding -->
     <string name="onboarding_title">Witaj w ShotClock</string>
     <string name="onboarding_description">Ten budzik ucichnie dopiero wtedy, gdy zrobisz zdjęcie wskazanego przedmiotu. Musisz więc wstać z łóżka.</string>
+    <string name="onboarding_photo_title">Zdjęcie zamiast drzemki</string>
+    <string name="onboarding_photo_description">Kamera rozpoznaje przedmiot na telefonie, bez internetu. Zdjęć nigdzie nie zapisujemy.</string>
+    <string name="onboarding_streak_title">Wstawaj i zbieraj serię</string>
+    <string name="onboarding_streak_description">W historii zobaczysz czas wstania i serię dni z rzędu. Gdy przedmiotu nie ma pod ręką, po 10 próbach albo 10 minutach wyłączysz alarm zadaniem matematycznym.</string>
     <string name="onboarding_next">Dalej</string>
+    <string name="onboarding_skip">Pomiń</string>
+    <string name="onboarding_start">Zaczynamy</string>
+    <!-- Czytnik ekranu: „Strona 2 z 4” -->
+    <string name="onboarding_page">Strona %1$d z %2$d</string>
+    <string name="setup_title">Kilka zgód</string>
+    <string name="setup_description">Bez nich budzik może nie zadzwonić. Każdą zmienisz później w ustawieniach telefonu.</string>
+    <string name="setup_done">Gotowe</string>
+    <string name="setup_notifications_title">Powiadomienia</string>
+    <string name="setup_notifications_description">Przez powiadomienie pokazujemy ekran dzwonienia.</string>
+    <string name="setup_exact_alarms_title">Alarmy i przypomnienia</string>
+    <string name="setup_exact_alarms_description">Android wymaga tej zgody, żeby alarm zadzwonił co do minuty.</string>
+    <string name="setup_full_screen_title">Dzwonienie na zablokowanym ekranie</string>
+    <string name="setup_full_screen_description">Ekran dzwonienia otworzy się sam, nawet gdy telefon jest zablokowany.</string>
+    <string name="setup_camera_title">Kamera</string>
+    <string name="setup_camera_description">Zdjęciem przedmiotu wyłączasz alarm. Obraz analizujemy tylko w pamięci telefonu.</string>
+    <string name="setup_battery_title">Bateria bez ograniczeń</string>
+    <string name="setup_battery_description">Jeśli alarm się spóźnia albo nie dzwoni, wyłącz optymalizację baterii dla ShotClock.</string>
+    <string name="setup_battery_samsung_description">Samsung usypia aplikacje, żeby oszczędzać baterię. Otwórz ustawienia i wybierz: Bateria → Bez ograniczeń.</string>
 
     <!-- Przedmioty -->
     <string name="objects_description">Te dwa rozpoznaje model. Działa bez internetu.</string>
-    <string name="objects_used_sample">W 1 alarmie</string>
+    <string name="objects_used_none">Żaden alarm go nie wymaga</string>
+    <plurals name="objects_used">
+        <item quantity="one">W %1$d alarmie</item>
+        <item quantity="few">W %1$d alarmach</item>
+        <item quantity="many">W %1$d alarmach</item>
+        <item quantity="other">W %1$d alarmach</item>
+    </plurals>
+    <plurals name="objects_used_random">
+        <item quantity="one">Może trafić się w %1$d alarmie z losowym przedmiotem</item>
+        <item quantity="few">Może trafić się w %1$d alarmach z losowym przedmiotem</item>
+        <item quantity="many">Może trafić się w %1$d alarmach z losowym przedmiotem</item>
+        <item quantity="other">Może trafić się w %1$d alarmach z losowym przedmiotem</item>
+    </plurals>
     <string name="objects_model">Model rozpoznawania</string>
     <string name="objects_model_test">tryb testowy</string>
+    <string name="objects_model_missing">czeka na model</string>
+    <!-- Wersja prawdziwego modelu, np. „wersja 1.0” -->
+    <string name="objects_model_version">wersja %1$s</string>
 
-    <!-- Historia (przykładowe dane do Etapu 6) -->
-    <string name="history_streak_sample">8</string>
-    <string name="history_streak_label">dni z rzędu</string>
-    <string name="history_best_sample">12</string>
+    <!-- Historia -->
+    <plurals name="history_streak_label">
+        <item quantity="one">dzień z rzędu</item>
+        <item quantity="few">dni z rzędu</item>
+        <item quantity="many">dni z rzędu</item>
+        <item quantity="other">dni z rzędu</item>
+    </plurals>
     <string name="history_best_label">najlepsza seria</string>
-    <string name="history_average_sample">1 min 42 s</string>
     <string name="history_average_label">średni czas wstania</string>
+    <!-- Brak średniej, bo nie ma jeszcze pobudki zakończonej zdjęciem -->
+    <string name="history_no_value">–</string>
     <string name="history_chart_title">Czas wstania, ostatnie 7 dni</string>
     <string name="history_chart_today">Dziś</string>
     <!-- Wartość nad dzisiejszym słupkiem: minuty i sekundy, np. 1:42 -->
@@ -154,22 +227,55 @@
     <!-- Opis wykresu czytany przez TalkBack, np. „Czas wstania z ostatnich 7 dni: Wtorek 47 s, …” -->
     <string name="history_chart_description">Czas wstania z ostatnich 7 dni: %1$s</string>
     <string name="history_chart_day">%1$s %2$s</string>
+    <string name="history_chart_day_empty">%1$s bez pobudki</string>
     <string name="history_events_title">Ostatnie pobudki</string>
     <string name="duration_minutes_seconds">%1$d min %2$d s</string>
     <string name="duration_minutes">%1$d min</string>
     <string name="duration_seconds">%1$d s</string>
-    <string name="history_event_today">Dziś, 7:31</string>
-    <string name="history_event_today_details">Szczoteczka · 96% · 1 próba</string>
-    <string name="history_event_today_time">1 min 42 s</string>
-    <string name="history_event_yesterday">Wczoraj, 9:01</string>
-    <string name="history_event_yesterday_details">Kubek · 91% · 2 próby</string>
-    <string name="history_event_yesterday_time">1 min 15 s</string>
+    <!-- Kiedy wyłączono alarm, np. „Dziś, 7:31”, „Wczoraj, 9:01”, „12 lis, 7:30” -->
+    <string name="history_event_today">Dziś, %1$s</string>
+    <string name="history_event_yesterday">Wczoraj, %1$s</string>
+    <string name="history_event_date">%1$s, %2$s</string>
+    <!-- Szczegóły pobudki, np. „Szczoteczka · 96% · 1 próba” -->
+    <string name="history_event_details">%1$s · %2$d%% · %3$s</string>
+    <string name="history_event_emergency">Wyłączenie awaryjne · %1$s</string>
+    <plurals name="history_attempts">
+        <item quantity="one">%1$d próba</item>
+        <item quantity="few">%1$d próby</item>
+        <item quantity="many">%1$d prób</item>
+        <item quantity="other">%1$d próby</item>
+    </plurals>
+    <string name="history_empty_title">Jeszcze nie ma pobudek</string>
+    <string name="history_empty_description">Gdy wyłączysz pierwszy alarm zdjęciem przedmiotu, tutaj pojawi się czas wstania i seria dni.</string>
 
     <!-- Ustawienia -->
-    <string name="settings_vibration_sample">Wibracje</string>
-    <string name="settings_placeholder">Właściwe ustawienia pojawią się w Etapie 6. Ten przełącznik jest tylko przykładem.</string>
+    <string name="settings_section_alarm">Nowe alarmy</string>
+    <string name="settings_default_sound">Domyślny dźwięk</string>
+    <string name="settings_default_vibration">Wibracje</string>
+    <string name="settings_defaults_hint">Tak zacznie każdy nowy alarm. Zapisanych alarmów to nie zmienia.</string>
+    <string name="settings_section_recognition">Rozpoznawanie</string>
+    <string name="settings_test_mode">Tryb testowy</string>
+    <string name="settings_test_mode_description">Udawany model zamiast prawdziwego. Rozpoznaje każdy wyraźny obraz.</string>
+    <string name="settings_model_missing_hint">Model od zespołu AI jeszcze nie dotarł, więc aplikacja i tak korzysta z udawanego modelu.</string>
+    <string name="settings_section_about">O aplikacji</string>
+    <string name="settings_version">Wersja</string>
+    <string name="settings_model_version">Model rozpoznawania</string>
+    <string name="settings_about_description">Projekt na zajęcia „Aplikacje Mobilne”. Zdjęcia są analizowane tylko w pamięci telefonu i nigdzie nie są zapisywane.</string>
+    <string name="settings_license">Czcionka Manrope, licencja SIL Open Font License 1.1</string>
+    <plurals name="settings_developer_taps_left">
+        <item quantity="one">Jeszcze %1$d dotknięcie do trybu deweloperskiego</item>
+        <item quantity="few">Jeszcze %1$d dotknięcia do trybu deweloperskiego</item>
+        <item quantity="many">Jeszcze %1$d dotknięć do trybu deweloperskiego</item>
+        <item quantity="other">Jeszcze %1$d dotknięcia do trybu deweloperskiego</item>
+    </plurals>
+    <string name="settings_section_developer">Tryb deweloperski</string>
+    <string name="settings_threshold">Próg pewności</string>
+    <string name="settings_threshold_description">Ile pewności modelu wystarczy do wyłączenia alarmu. Domyślnie 55%.</string>
+    <!-- Próg w procentach na chipie, np. „55%” -->
+    <string name="settings_threshold_value">%1$d%%</string>
+    <string name="settings_developer_off">Wyłącz tryb deweloperski</string>
     <string name="settings_preview_title">Podgląd ekranów</string>
-    <string name="settings_preview_description">Sekcja tymczasowa. Te ekrany nie mają jeszcze swoich wyzwalaczy.</string>
+    <string name="settings_preview_description">Otwiera ekrany bez prawdziwego alarmu, żeby sprawdzić, jak wyglądają.</string>
     <string name="settings_preview_onboarding">Onboarding</string>
     <string name="settings_preview_ring">Dzwonienie</string>
     <string name="settings_preview_camera">Kamera</string>

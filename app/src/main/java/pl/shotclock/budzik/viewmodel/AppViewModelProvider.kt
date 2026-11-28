@@ -14,18 +14,37 @@ import pl.shotclock.budzik.ShotClockApplication
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
+            AppStartViewModel(shotClockApplication().container.settingsRepository)
+        }
+        initializer {
             AlarmsViewModel(shotClockApplication().container.alarmRepository)
         }
         initializer {
             // SavedStateHandle zawiera argumenty z nawigacji, m.in. id edytowanego alarmu.
-            EditAlarmViewModel(createSavedStateHandle(), shotClockApplication().container.alarmRepository)
-        }
-        initializer {
-            RingViewModel(shotClockApplication().container.ringController)
+            val container = shotClockApplication().container
+            EditAlarmViewModel(createSavedStateHandle(), container.alarmRepository, container.settingsRepository)
         }
         initializer {
             val container = shotClockApplication().container
-            CameraViewModel(container.ringController, container::createClassifier)
+            RingViewModel(container.ringController, container.wakeEventRepository)
+        }
+        initializer {
+            EmergencyViewModel()
+        }
+        initializer {
+            HistoryViewModel(shotClockApplication().container.wakeEventRepository.events)
+        }
+        initializer {
+            val container = shotClockApplication().container
+            ObjectsViewModel(container.alarmRepository.alarms, container.settingsRepository.settings, container.modelInfo)
+        }
+        initializer {
+            val container = shotClockApplication().container
+            SettingsViewModel(container.settingsRepository, container.modelInfo, container.appVersion)
+        }
+        initializer {
+            val container = shotClockApplication().container
+            CameraViewModel(container.ringController, container::createClassifier, container.settingsRepository.settings)
         }
     }
 }

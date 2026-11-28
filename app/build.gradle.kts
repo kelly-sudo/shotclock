@@ -22,9 +22,14 @@ android {
 
     buildTypes {
         release {
+            // R8 zmniejsza i optymalizuje kod. Wersja release działa wyraźnie płynniej niż debug,
+            // dlatego płynność sprawdzamy zawsze na release (Build Variants → release).
             optimization {
                 enable = true
             }
+            // Podpis kluczem debug z Android Studio: release można od razu zainstalować na telefonie testowym.
+            // Do sklepu Google Play potrzebny byłby własny klucz, ale ten projekt tam nie trafia.
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -57,7 +62,10 @@ dependencies {
     implementation(libs.androidx.camera.view)
     // LiteRT: uruchamia model rozpoznawania przedmiotów (model.tflite z assets) lokalnie na telefonie.
     implementation(libs.litert)
+    // Ustawienia aplikacji (dźwięk, wibracje, tryb testowy, próg pewności) zapisane w pliku w telefonie.
+    implementation(libs.androidx.datastore.preferences)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)

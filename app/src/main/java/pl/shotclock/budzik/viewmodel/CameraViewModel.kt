@@ -8,13 +8,16 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import pl.shotclock.budzik.alarm.DefaultConfidenceThreshold
 import pl.shotclock.budzik.alarm.RecognitionHint
 import pl.shotclock.budzik.alarm.RingController
 import pl.shotclock.budzik.alarm.decideDismiss
 import pl.shotclock.budzik.alarm.isPhotoAccepted
+import pl.shotclock.budzik.data.AppSettings
 import pl.shotclock.budzik.data.RequiredObject
 import pl.shotclock.budzik.ml.ClassificationResult
 import pl.shotclock.budzik.ml.ModelLabels
@@ -34,8 +37,8 @@ data class CameraUiState(
     val hasFrame: Boolean = false,
     val isTakingPhoto: Boolean = false,
     val photoRejected: Boolean = false,
-    // Nieudane ręczne zdjęcia. W Etapie 5 po 10 próbach pojawi się wyjście awaryjne.
-    val failedAttempts: Int = 0,
+    // Próg z ustawień. Ekran rysuje go jako kreskę na pasku pewności.
+    val threshold: Float = DefaultConfidenceThreshold,
     // Wyniki modelu dla wszystkich klas z ostatniej klatki (podgląd na gałęzi testowej).
     val modelScores: List<ClassificationResult> = emptyList(),
 ) {
@@ -44,16 +47,17 @@ data class CameraUiState(
 
 /**
  * Rozpoznawanie przedmiotu na ekranie kamery. Dostaje klatki i zdjęcia, pyta klasyfikator,
- * a o wyłączeniu alarmu decyduje czysta funkcja [decideDismiss].
+ * a o tym, czy przedmiot rozpoznano, decyduje czysta funkcja [decideDismiss].
  *
+ * Sam alarm wyłącza RingViewModel: ekran kamery zgłasza mu rozpoznanie (CameraRoute, onRecognized).
  * Gdy nic nie dzwoni (podgląd z ustawień), szukamy pierwszego przedmiotu i nic nie wyłączamy.
  */
 class CameraViewModel(
     private val ringController: RingController,
     createClassifier: (RequiredObject) -> ObjectClassifier,
+    settings: Flow<AppSettings>,
 ) : ViewModel() {
-    private val ringingAlarm = ringController.ringing.value
-    private val objectToFind = ringingAlarm?.objectToFind ?: RequiredObject.FIRST
+    private val objectToFind = ringController.ringing.value?.objectToFind ?: RequiredObject.FIRST
     private val requiredLabel = objectToFind.modelLabel ?: ModelLabels.FIRST
     // Drugi przedmiot, żeby podpowiedzieć „To inny przedmiot”.
     private val otherLabel = if (requiredLabel == ModelLabels.FIRST) ModelLabels.SECOND else ModelLabels.FIRST
@@ -65,6 +69,19 @@ class CameraViewModel(
     // Od kiedy pewność jest nad progiem. Zmienia go tylko analiza klatek (jeden wątek w tle).
     private var matchSinceMillis: Long? = null
     private var photoMessageJob: Job? = null
+
+    // Próg pewności z ustawień deweloperskich. Zanim ustawienia się wczytają, obowiązuje domyślne 55%.
+    @Volatile
+    private var threshold = DefaultConfidenceThreshold
+
+    init {
+        viewModelScope.launch {
+            settings.collect { settings ->
+                threshold = settings.confidenceThreshold
+                _uiState.update { it.copy(threshold = settings.confidenceThreshold) }
+            }
+        }
+    }
 
     /** Ekran kamery się otworzył: liczenie czasu utrzymania zaczyna się od zera. */
     fun onCameraOpened() {
@@ -82,6 +99,7 @@ class CameraViewModel(
             otherObjectConfidence = results.confidenceOf(otherLabel),
             nowMillis = timeMillis,
             matchSinceMillis = matchSinceMillis,
+            threshold = threshold,
         )
         matchSinceMillis = decision.matchSinceMillis
         _uiState.update {
@@ -92,7 +110,6 @@ class CameraViewModel(
                 modelScores = results,
             )
         }
-        if (decision.shouldDismiss) onRecognized()
     }
 
     fun onTakePhotoStarted() {
@@ -103,26 +120,20 @@ class CameraViewModel(
     fun onPhotoTaken(image: Bitmap) {
         if (_uiState.value.isRecognized) return
         val confidence = classifier.classify(image).confidenceOf(requiredLabel)
-        if (isPhotoAccepted(confidence)) {
+        if (isPhotoAccepted(confidence, threshold)) {
             _uiState.update {
                 it.copy(isTakingPhoto = false, confidence = confidence, hint = RecognitionHint.Recognized)
             }
-            onRecognized()
         } else {
-            _uiState.update {
-                it.copy(isTakingPhoto = false, photoRejected = true, failedAttempts = it.failedAttempts + 1)
-            }
+            _uiState.update { it.copy(isTakingPhoto = false, photoRejected = true) }
+            // Licznik nieudanych prób trzyma RingController, bo z niego korzysta też ekran dzwonienia.
+            ringController.onPhotoRejected()
             hidePhotoMessageLater()
         }
     }
 
     fun onPhotoFailed() {
         _uiState.update { it.copy(isTakingPhoto = false) }
-    }
-
-    private fun onRecognized() {
-        // Wyłączamy tylko alarm, dla którego otwarto kamerę. Podgląd z ustawień niczego nie wyłącza.
-        if (ringingAlarm != null) ringController.dismiss()
     }
 
     private fun hidePhotoMessageLater() {

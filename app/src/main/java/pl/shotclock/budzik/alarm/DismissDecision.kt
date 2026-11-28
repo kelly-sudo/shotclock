@@ -2,7 +2,7 @@ package pl.shotclock.budzik.alarm
 
 /**
  * Domyślny próg pewności: 55%, czyli środek przedziału 50–60% ustalonego z prowadzącym.
- * W Etapie 6 da się go zmienić w ustawieniach deweloperskich.
+ * Da się go zmienić w ustawieniach deweloperskich (AppSettings.confidenceThreshold).
  */
 const val DefaultConfidenceThreshold = 0.55f
 

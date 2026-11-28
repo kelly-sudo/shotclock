@@ -100,7 +100,7 @@ private fun ScreenContainerPreview() {
             ScreenContainer(title = stringResource(R.string.tab_settings), onBack = {}) {
                 AppCard {
                     Text(
-                        text = stringResource(R.string.settings_placeholder),
+                        text = stringResource(R.string.objects_description),
                         style = MaterialTheme.typography.bodyLarge,
                     )
                 }
