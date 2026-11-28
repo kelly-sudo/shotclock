@@ -4,7 +4,7 @@ Budzik na Androida, który **przestaje dzwonić dopiero wtedy, gdy zrobisz zdję
 
 Przedmiot rozpoznaje model AI, który działa **lokalnie na telefonie, bez internetu**. Zdjęcia są analizowane w pamięci i nigdy nie trafiają na dysk.
 
-> Projekt studencki na zajęcia „Aplikacje Mobilne”. Aplikacja jest w budowie: ukończone są Etapy 1–4 (szczegóły w sekcji [Plan budowy](#plan-budowy)).
+> Projekt studencki na zajęcia „Aplikacje Mobilne”. Aplikacja jest w budowie: ukończone są Etapy 1–5 (szczegóły w sekcji [Plan budowy](#plan-budowy)).
 
 ## Zrzuty ekranu
 
@@ -12,11 +12,11 @@ Przedmiot rozpoznaje model AI, który działa **lokalnie na telefonie, bez inter
 |:---:|:---:|:---:|:---:|:---:|
 | ![Lista alarmów](docs/screenshots/alarmy.png) | ![Edycja alarmu](docs/screenshots/edycja.png) | ![Ekran dzwonienia](docs/screenshots/dzwonienie.png) | ![Kamera z celownikiem](docs/screenshots/kamera.jpg) | ![Przedmiot rozpoznany](docs/screenshots/rozpoznano.jpg) |
 
-| Brak zgody na kamerę | Przedmioty | Historia |
-|:---:|:---:|:---:|
-| ![Prośba o kamerę](docs/screenshots/kamera-zgoda.png) | ![Przedmioty](docs/screenshots/przedmioty.png) | ![Historia](docs/screenshots/historia.png) |
+| Sukces | Wyjście awaryjne | Zadanie matematyczne | Brak zgody na kamerę | Przedmioty | Historia |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| ![Alarm wyłączony: czas wstania i seria dni](docs/screenshots/sukces.png) | ![Przycisk „Nie mogę znaleźć przedmiotu”](docs/screenshots/dzwonienie-awaryjne.png) | ![Zadanie matematyczne](docs/screenshots/zadanie.png) | ![Prośba o kamerę](docs/screenshots/kamera-zgoda.png) | ![Przedmioty](docs/screenshots/przedmioty.png) | ![Historia](docs/screenshots/historia.png) |
 
-Zrzuty z emulatora Android Studio (kamera pokazuje wirtualny pokój emulatora). Alarmy, dzwonienie i kamera działają naprawdę. Rozpoznawanie jest na razie udawane przez `FakeObjectClassifier`, dopóki zespół AI nie dostarczy modelu. Ekrany przedmiotów i historii pokazują przykładowe dane (podłączymy je w kolejnych etapach).
+Zrzuty z emulatora Android Studio (kamera pokazuje wirtualny pokój emulatora). Alarmy, dzwonienie, kamera, ekran sukcesu i wyjście awaryjne działają naprawdę. Rozpoznawanie jest na razie udawane przez `FakeObjectClassifier`, dopóki zespół AI nie dostarczy modelu. Ekrany przedmiotów i historii pokazują przykładowe dane (podłączymy je w kolejnych etapach).
 
 ## Jak to działa
 
@@ -43,8 +43,10 @@ Stan na dziś: ✅ działa, 🧩 ekran gotowy na przykładowych danych, ⏳ w pl
 | Rozpoznawanie na żywo co 400 ms z paskiem pewności. Alarm cichnie, gdy pewność przez 1 s jest powyżej progu 55% | ✅ (na `FakeObjectClassifier`) |
 | Ręczne zdjęcie jako alternatywa (tylko w pamięci, bez zapisu na dysku) | ✅ |
 | Prośba o dostęp do kamery z wyjaśnieniem, obsługą odmowy i przejściem do ustawień telefonu | ✅ |
+| Ekran sukcesu po wyłączeniu alarmu: animacja ptaszka, czas wstania, seria dni z rzędu, udane dni w tym tygodniu | ✅ |
+| Zapis każdej pobudki w bazie (`WakeEvent`): czas dzwonienia i wyłączenia, liczba prób, rozpoznany przedmiot, pewność | ✅ |
+| Wyjście awaryjne „Nie mogę znaleźć przedmiotu” po 10 nieudanych zdjęciach albo 10 minutach dzwonienia: zadanie matematyczne na własnej klawiaturze, zapis w historii jako wyłączenie awaryjne | ✅ |
 | Ekran przedmiotów, historia ze statystykami i wykresem z 7 dni, ustawienia, onboarding | 🧩 |
-| Pełny scenariusz pobudki, zapis historii, wyjście awaryjne | ⏳ Etap 5 |
 | Prawdziwy model TensorFlow Lite od zespołu AI | ⏳ Etap 8 |
 
 ## Stos technologiczny
@@ -96,7 +98,7 @@ pl.shotclock.budzik
 │   ├── history/      historia i statystyki pobudek
 │   └── settings/     ustawienia
 ├── viewmodel/        jeden ViewModel na ekran
-├── data/             Room (encje, DAO, baza), repozytoria
+├── data/             Room (encje, DAO, baza), repozytoria, statystyki pobudek
 ├── alarm/            planowanie, receiver, serwis dzwonienia, boot receiver, decyzja o wyłączeniu
 ├── camera/           obsługa CameraX: CameraSession (podgląd, klatki, zdjęcie), FrameAnalyzer
 └── ml/               ObjectClassifier, FakeObjectClassifier (TfliteObjectClassifier w Etapie 8)
@@ -105,7 +107,9 @@ pl.shotclock.budzik
 ### Model danych
 
 - **`Alarm`** (tabela `alarms`, gotowa): id, godzina, minuta, dni tygodnia, włączony, etykieta, wymagany przedmiot (`FIRST`, `SECOND` albo `RANDOM`), dźwięk, wibracje, narastająca głośność.
-- **`WakeEvent`** (Etap 5): id alarmu, czas startu dzwonienia, czas wyłączenia, liczba prób, rozpoznany przedmiot, pewność, czy wyłączenie było awaryjne.
+- **`WakeEvent`** (tabela `wake_events`, gotowa): id alarmu, czas startu dzwonienia, czas wyłączenia, liczba prób, rozpoznany przedmiot, pewność, czy wyłączenie było awaryjne. Celowo bez klucza obcego do alarmu, żeby po usunięciu alarmu historia została.
+
+Baza ma wersję 2. Przejście z wersji 1 (same alarmy) robi ręczna migracja `AppDatabase.MIGRATION_1_2`: dodaje pustą tabelę z historią, a zapisane alarmy zostają.
 
 ### Jak działa rozpoznawanie (Etap 4)
 
@@ -123,6 +127,22 @@ CameraX ──klatka co 400 ms──▶ FrameAnalyzer ──Bitmap──▶ Came
 - **`ml/FakeObjectClassifier`** udaje model: ciemny albo jednolity obraz (zasłonięta kamera, pusta ściana) to `inne`, a im więcej szczegółów na obrazie, tym większa pewność, że widzi szukany przedmiot. Dzięki temu na emulatorze i telefonie da się sprawdzić wszystkie podpowiedzi.
 - **`alarm/DismissDecision.kt`** to czysta funkcja `decideDismiss` (bez Androida): szukany przedmiot + próg 0.55 + utrzymanie wyniku przez 1 s. Spadek pod próg zeruje licznik. Zwraca też podpowiedź: „Nie widzę przedmiotu”, „To inny przedmiot”, „Przybliż”, „Jeszcze chwilę…”, „Rozpoznano!”. Ręczne zdjęcie wystarczy, że raz przekroczy próg.
 - Zdjęcia i klatki żyją tylko w pamięci jako `Bitmap`. Nic nie trafia na dysk ani do galerii.
+
+### Jak przebiega pobudka (Etap 5)
+
+```
+            ┌──▶ Kamera ── rozpoznano ──────────────┐
+Dzwonienie ─┤                                       ├──▶ RingViewModel: cisza + zapis WakeEvent ──▶ Ekran sukcesu
+            └──▶ „Nie mogę znaleźć przedmiotu” ──▶ Zadanie matematyczne ── dobry wynik ──┘
+                 (po 10 nieudanych zdjęciach albo 10 min)
+```
+
+- **`viewmodel/RingViewModel`** prowadzi całą pobudkę w oknie `RingActivity`. Alarm wyłącza się w jednym miejscu, niezależnie od tego, czy pomogło zdjęcie, czy zadanie. Od razu zapisuje pobudkę w bazie i dostaje z powrotem podsumowanie do ekranu sukcesu.
+- **`alarm/RingController`** liczy nieudane ręczne zdjęcia. Z tego licznika i z czasu dzwonienia czysta funkcja `isEmergencyExitAvailable` (`alarm/EmergencyExit.kt`) decyduje, czy pokazać „Nie mogę znaleźć przedmiotu” na ekranie dzwonienia i kamery.
+- **`alarm/MathTask.kt`** losuje zadanie typu `23 × 7 + 48` i sprawdza wynik. Zły wynik daje nowe zadanie, żeby nie dało się zgadywać. Alarm dzwoni, dopóki wynik nie będzie dobry.
+- **`data/WakeStats.kt`** to czyste funkcje statystyk: czas wstania, seria dni i udane dni w tygodniu. **Seria** to liczba kolejnych dni z alarmem, w których każdą pobudkę zakończyło zdjęcie. Dzień bez alarmu (np. weekend bez budzika) serii nie przerywa, a wyłączenie awaryjne ją zeruje.
+- **Ekran sukcesu** (`ui/ring/SuccessScreen.kt`) odwzorowuje makietę: ptaszek rysuje się w kółku, potem rozchodzą się fale i iskry, a karty wjeżdżają po kolei. Animacja czyta postęp dopiero przy rysowaniu, więc nie obciąża starszego telefonu.
+- Ekran zadania ma własną klawiaturę numeryczną zamiast systemowej: działa tak samo na zablokowanym ekranie i nie zasłania zadania. Na niskim ekranie (360 × 640 dp) albo przy dużej czcionce da się go przewinąć.
 
 ## Jak zbudować i uruchomić
 
@@ -170,6 +190,11 @@ Gotowy plik APK znajdziesz w `app/build/outputs/apk/debug/`.
 - `alarm/RingVolumeTest`: narastanie głośności.
 - `alarm/RingSoundTest`: wybór dźwięku (także easter egg 21:37).
 - `alarm/DismissDecisionTest`: decyzja o wyłączeniu alarmu (próg 0.55, utrzymanie 1 s, zerowanie licznika po spadku, podpowiedzi „Nie widzę”, „Przybliż”, „To inny przedmiot”, ręczne zdjęcie).
+- `alarm/EmergencyExitTest`: kiedy pojawia się wyjście awaryjne (10 nieudanych zdjęć albo 10 minut dzwonienia).
+- `alarm/MathTaskTest`: wynik zadania, sprawdzanie odpowiedzi, zakres losowanych liczb.
+- `viewmodel/EmergencyViewModelTest`: wpisywanie i kasowanie cyfr, limit 3 cyfr, dobra i zła odpowiedź.
+- `data/WakeStatsTest`: czas wstania, seria dni (dwa alarmy jednego dnia, dzień bez alarmu, przerwanie serii wyłączeniem awaryjnym), udane dni w tygodniu.
+- `data/WakeEventRepositoryTest`: zapis pobudki i podsumowanie dla ekranu sukcesu.
 - `ml/FakeObjectClassifierTest`: jasność i szczegóły obrazu, wyniki udawanego modelu (ciemno i pusto → `inne`, dużo szczegółów → szukany przedmiot, suma pewności = 1).
 - `data/AlarmRepositoryTest`: repozytorium ustawia i odwołuje alarmy w systemie razem ze zmianami w bazie.
 - `data/ConvertersTest`: zapis dni tygodnia w bazie i ich odczyt.
@@ -181,8 +206,9 @@ Gotowy plik APK znajdziesz w `app/build/outputs/apk/debug/`.
 ```
 
 - `data/AlarmDaoTest`: zapis i odczyt wszystkich pól, sortowanie po godzinie, edycja, włączanie i wyłączanie, przywracanie usuniętego alarmu z tym samym id.
+- `data/WakeEventDaoTest`: zapis pobudki zwykłej i awaryjnej (bez przedmiotu i pewności), sortowanie od najnowszej.
 
-W kolejnych etapach dojdą testy statystyk (średni czas wstania, seria dni) i test modelu na zdjęciach testowych. Ręczne scenariusze na telefonie: alarm przy zablokowanym ekranie, po restarcie, w trybie samolotowym i przy słabym świetle.
+W kolejnych etapach dojdą testy średniego czasu wstania i wykresu (Etap 6) oraz test modelu na zdjęciach testowych. Ręczne scenariusze na telefonie: alarm przy zablokowanym ekranie, po restarcie, w trybie samolotowym i przy słabym świetle.
 
 ## Kontrakt z zespołem AI
 
@@ -218,7 +244,7 @@ Klasa `inne` jest obowiązkowa. Bez niej model „rozpozna” jako przedmiot cok
 | 2. Alarmy w bazie | Room, lista alarmów, edycja alarmu, usuwanie z „Cofnij”, testy DAO | ✅ gotowe |
 | 3. Dzwonienie | AlarmManager, foreground service, narastająca głośność, wibracje, full-screen intent, boot receiver | ✅ gotowe |
 | 4. Kamera | Uprawnienia, CameraX, celownik, analiza klatek z `FakeObjectClassifier`, decyzja o wyłączeniu + testy | ✅ gotowe |
-| 5. Pełny scenariusz | Dzwonienie → kamera → sukces, zapis `WakeEvent`, wyjście awaryjne | ⏳ |
+| 5. Pełny scenariusz | Dzwonienie → kamera → sukces, zapis `WakeEvent`, wyjście awaryjne + testy | ✅ gotowe |
 | 6. Historia, przedmioty, ustawienia | Statystyki, wykres, DataStore, tryb testowy | ⏳ |
 | 7. Onboarding i dopracowanie | Uprawnienia z wyjaśnieniem, animacje, puste stany | ⏳ |
 | 8. Integracja modelu | `TfliteObjectClassifier`, pliki od zespołu AI, testy na zdjęciach | ⏳ |

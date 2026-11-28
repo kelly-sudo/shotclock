@@ -88,6 +88,38 @@
     <string name="ring_task">Zrób zdjęcie</string>
     <string name="ring_open_camera">Otwórz kamerę</string>
     <string name="ring_note">Ucichnie dopiero po rozpoznaniu przedmiotu</string>
+    <string name="emergency_open">Nie mogę znaleźć przedmiotu</string>
+
+    <!-- Wyjście awaryjne: zadanie matematyczne -->
+    <string name="emergency_title">Wyjście awaryjne</string>
+    <string name="emergency_task_label">Rozwiąż zadanie, żeby wyłączyć alarm</string>
+    <!-- Zadanie, np. „23 × 7 + 48” -->
+    <string name="emergency_task">%1$d × %2$d + %3$d</string>
+    <string name="emergency_answer_empty">?</string>
+    <!-- Opis pola z wynikiem dla czytnika ekranu -->
+    <string name="emergency_answer_description">Wpisany wynik: %1$s</string>
+    <string name="emergency_answer_description_empty">Wynik jeszcze nie wpisany</string>
+    <string name="emergency_wrong">Zły wynik. Spróbuj z nowym zadaniem.</string>
+    <string name="emergency_note">Takie wyłączenie zapisze się w historii i przerwie serię dni.</string>
+    <string name="emergency_delete">Usuń cyfrę</string>
+    <string name="emergency_submit">Sprawdź wynik</string>
+
+    <!-- Ekran sukcesu po wyłączeniu alarmu -->
+    <string name="success_title">Alarm wyłączony</string>
+    <!-- Np. „Rozpoznano: Szczoteczka, pewność 96%” -->
+    <string name="success_recognized">Rozpoznano: %1$s, pewność %2$d%%</string>
+    <string name="success_emergency">Wyłączony zadaniem matematycznym</string>
+    <string name="success_wake_time">czas wstania</string>
+    <plurals name="success_streak_label">
+        <item quantity="one">dzień z rzędu</item>
+        <item quantity="few">dni z rzędu</item>
+        <item quantity="many">dni z rzędu</item>
+        <item quantity="other">dni z rzędu</item>
+    </plurals>
+    <!-- Opis kółek z dniami tygodnia dla czytnika ekranu -->
+    <string name="success_week_description">Udane pobudki w tym tygodniu: %1$s</string>
+    <string name="success_week_description_none">W tym tygodniu nie ma jeszcze udanych pobudek</string>
+    <string name="success_done">Gotowe</string>
     <string name="ring_channel_name">Dzwoniące alarmy</string>
     <string name="ring_channel_description">Pokazuje ekran dzwonienia, gdy alarm się włącza</string>
     <string name="ring_notification_text">Zrób zdjęcie przedmiotu, żeby wyłączyć alarm</string>

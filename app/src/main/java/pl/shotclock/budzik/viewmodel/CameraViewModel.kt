@@ -33,24 +33,22 @@ data class CameraUiState(
     val hasFrame: Boolean = false,
     val isTakingPhoto: Boolean = false,
     val photoRejected: Boolean = false,
-    // Nieudane ręczne zdjęcia. W Etapie 5 po 10 próbach pojawi się wyjście awaryjne.
-    val failedAttempts: Int = 0,
 ) {
     val isRecognized: Boolean get() = hint == RecognitionHint.Recognized
 }
 
 /**
  * Rozpoznawanie przedmiotu na ekranie kamery. Dostaje klatki i zdjęcia, pyta klasyfikator,
- * a o wyłączeniu alarmu decyduje czysta funkcja [decideDismiss].
+ * a o tym, czy przedmiot rozpoznano, decyduje czysta funkcja [decideDismiss].
  *
+ * Sam alarm wyłącza RingViewModel: ekran kamery zgłasza mu rozpoznanie (CameraRoute, onRecognized).
  * Gdy nic nie dzwoni (podgląd z ustawień), szukamy pierwszego przedmiotu i nic nie wyłączamy.
  */
 class CameraViewModel(
     private val ringController: RingController,
     createClassifier: (RequiredObject) -> ObjectClassifier,
 ) : ViewModel() {
-    private val ringingAlarm = ringController.ringing.value
-    private val objectToFind = ringingAlarm?.objectToFind ?: RequiredObject.FIRST
+    private val objectToFind = ringController.ringing.value?.objectToFind ?: RequiredObject.FIRST
     private val requiredLabel = objectToFind.modelLabel ?: ModelLabels.FIRST
     // Drugi przedmiot, żeby podpowiedzieć „To inny przedmiot”.
     private val otherLabel = if (requiredLabel == ModelLabels.FIRST) ModelLabels.SECOND else ModelLabels.FIRST
@@ -84,7 +82,6 @@ class CameraViewModel(
         _uiState.update {
             it.copy(hasFrame = true, confidence = results.confidenceOf(requiredLabel), hint = decision.hint)
         }
-        if (decision.shouldDismiss) onRecognized()
     }
 
     fun onTakePhotoStarted() {
@@ -99,22 +96,16 @@ class CameraViewModel(
             _uiState.update {
                 it.copy(isTakingPhoto = false, confidence = confidence, hint = RecognitionHint.Recognized)
             }
-            onRecognized()
         } else {
-            _uiState.update {
-                it.copy(isTakingPhoto = false, photoRejected = true, failedAttempts = it.failedAttempts + 1)
-            }
+            _uiState.update { it.copy(isTakingPhoto = false, photoRejected = true) }
+            // Licznik nieudanych prób trzyma RingController, bo z niego korzysta też ekran dzwonienia.
+            ringController.onPhotoRejected()
             hidePhotoMessageLater()
         }
     }
 
     fun onPhotoFailed() {
         _uiState.update { it.copy(isTakingPhoto = false) }
-    }
-
-    private fun onRecognized() {
-        // Wyłączamy tylko alarm, dla którego otwarto kamerę. Podgląd z ustawień niczego nie wyłącza.
-        if (ringingAlarm != null) ringController.dismiss()
     }
 
     private fun hidePhotoMessageLater() {

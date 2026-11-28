@@ -19,6 +19,8 @@ val TextSecondary = Color(0xFFA6ABB6)
 val Accent = Color(0xFF5EEAD4)
 val OnAccent = Color(0xFF06231F)
 val AccentGlow = Accent.copy(alpha = 0.3f)
+// Ciepły kolor części iskier w animacji sukcesu (jak na makiecie). Tylko do ozdoby, nigdy do tekstu.
+val CelebrationAmber = Color(0xFFFFC24D)
 
 // Kolory do podświetlenia na ciemnym tle: dni tygodnia i aktywna zakładka.
 val HighlightColor = TextPrimary

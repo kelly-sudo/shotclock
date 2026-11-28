@@ -39,6 +39,7 @@ import pl.shotclock.budzik.data.RequiredObject
 import pl.shotclock.budzik.ui.camera.CameraRoute
 import pl.shotclock.budzik.ui.components.AppBackground
 import pl.shotclock.budzik.ui.components.AppButton
+import pl.shotclock.budzik.ui.components.AppButtonStyle
 import pl.shotclock.budzik.ui.components.AppCard
 import pl.shotclock.budzik.ui.components.PulsingHalo
 import pl.shotclock.budzik.ui.components.TimeDisplay
@@ -63,9 +64,13 @@ import pl.shotclock.budzik.viewmodel.RingViewModel
 
 private const val BlinkMillis = 550
 
+/** Kolejne kroki pobudki w oknie RingActivity. */
+private enum class WakeStep { Ringing, Camera, Emergency, Success }
+
 /**
- * Ekran dzwonienia z ViewModelem. Najpierw pokazuje dzwoniący alarm, a po „Otwórz kamerę” ekran kamery.
- * Gdy alarm zostanie wyłączony (rozpoznanie przedmiotu na ekranie kamery), wywołuje [onFinished], żeby zamknąć okno.
+ * Cała pobudka z ViewModelem: dzwonienie → kamera → sukces albo dzwonienie → zadanie matematyczne → sukces.
+ * Alarm cichnie w chwili rozpoznania przedmiotu albo podania dobrego wyniku. „Gotowe” na ekranie sukcesu
+ * wywołuje [onFinished], żeby zamknąć okno.
  */
 @Composable
 fun RingRoute(
@@ -73,38 +78,74 @@ fun RingRoute(
     viewModel: RingViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var showCamera by rememberSaveable { mutableStateOf(false) }
-    // Alarm nie zmienia się w trakcie dzwonienia, więc wystarczy pierwszy stan. Dzięki temu po rozpoznaniu
-    // przedmiotu (alarm już ucichł) ekran kamery może jeszcze chwilę pokazać sukces.
-    val ringingAlarm = remember { uiState }
+    val summary by viewModel.summary.collectAsStateWithLifecycle()
+    var step by rememberSaveable { mutableStateOf(WakeStep.Ringing) }
+    // true, gdy to my wyłączyliśmy alarm (zdjęciem albo zadaniem). Wtedy okno czeka na ekran sukcesu.
+    var dismissedHere by rememberSaveable { mutableStateOf(false) }
+    // Ostatni stan dzwonienia. Po wyłączeniu alarmu uiState jest null, a ekran kamery jeszcze chwilę go pokazuje.
+    var lastRinging by remember { mutableStateOf(uiState) }
+    LaunchedEffect(uiState) { if (uiState != null) lastRinging = uiState }
+    val ringing = uiState ?: lastRinging
 
-    // Nie ma drzemki ani ucieczki: Wstecz na ekranie dzwonienia nic nie robi, a z kamery wraca do dzwonienia.
-    BackHandler { showCamera = false }
+    // Nie ma drzemki ani ucieczki: Wstecz na ekranie dzwonienia nic nie robi, a z kamery i zadania wraca do dzwonienia.
+    BackHandler {
+        when (step) {
+            WakeStep.Camera, WakeStep.Emergency -> step = WakeStep.Ringing
+            WakeStep.Ringing -> Unit
+            WakeStep.Success -> onFinished()
+        }
+    }
 
-    // Okno zamyka się, gdy nic nie dzwoni. Z kamery zamknie je sama kamera, po animacji sukcesu.
-    if (ringingAlarm == null || (uiState == null && !showCamera)) {
+    // Okno zamyka się, gdy nic nie dzwoni, a alarmu nie wyłączyliśmy tutaj (np. zamknął go system).
+    if (ringing == null || (uiState == null && !dismissedHere)) {
         LaunchedEffect(Unit) { onFinished() }
         return
     }
     Crossfade(
-        targetState = showCamera,
+        targetState = step,
         animationSpec = tween(ScreenTransitionMillis),
-        label = "ring or camera",
-    ) { camera ->
-        if (camera) {
-            CameraRoute(onBack = { showCamera = false }, onFinished = onFinished)
-        } else {
-            RingScreen(uiState = ringingAlarm, onOpenCamera = { showCamera = true })
+        label = "wake step",
+    ) { currentStep ->
+        when (currentStep) {
+            WakeStep.Ringing -> RingScreen(
+                uiState = ringing,
+                onOpenCamera = { step = WakeStep.Camera },
+                onEmergencyExit = { step = WakeStep.Emergency },
+            )
+            WakeStep.Camera -> CameraRoute(
+                onBack = { step = WakeStep.Ringing },
+                onFinished = { step = WakeStep.Success },
+                onRecognized = { confidence ->
+                    dismissedHere = true
+                    viewModel.onObjectRecognized(confidence)
+                },
+                emergencyExitAvailable = ringing.emergencyExitAvailable,
+                onEmergencyExit = { step = WakeStep.Emergency },
+            )
+            WakeStep.Emergency -> EmergencyRoute(
+                onBack = { step = WakeStep.Ringing },
+                onSolved = {
+                    dismissedHere = true
+                    viewModel.onEmergencyTaskSolved()
+                    step = WakeStep.Success
+                },
+            )
+            // Podsumowanie zapisuje się w bazie w ułamku sekundy. Do tego czasu ekran jest pusty.
+            WakeStep.Success -> summary?.let { SuccessScreen(summary = it, onDone = onFinished) }
         }
     }
 }
 
-/** Wygląd ekranu dzwonienia. Celowo nie ma tu przycisku drzemki. */
+/**
+ * Wygląd ekranu dzwonienia. Celowo nie ma tu przycisku drzemki.
+ * Po 10 nieudanych zdjęciach albo 10 minutach pojawia się „Nie mogę znaleźć przedmiotu”.
+ */
 @Composable
 fun RingScreen(
     uiState: RingUiState,
     onOpenCamera: () -> Unit,
     modifier: Modifier = Modifier,
+    onEmergencyExit: () -> Unit = {},
 ) {
     val visual = ObjectVisual.of(uiState.objectToFind)
 
@@ -164,12 +205,21 @@ fun RingScreen(
                 modifier = Modifier.fillMaxWidth(),
                 icon = R.drawable.ic_camera,
             )
-            Text(
-                text = stringResource(R.string.ring_note),
-                style = MaterialTheme.typography.bodyMedium,
-                color = TextSecondary,
-                textAlign = TextAlign.Center,
-            )
+            if (uiState.emergencyExitAvailable) {
+                AppButton(
+                    text = stringResource(R.string.emergency_open),
+                    onClick = onEmergencyExit,
+                    modifier = Modifier.fillMaxWidth(),
+                    style = AppButtonStyle.Secondary,
+                )
+            } else {
+                Text(
+                    text = stringResource(R.string.ring_note),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextSecondary,
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
     }
 }
@@ -239,7 +289,13 @@ private fun RingScreenMugPreview() {
     ShotClockTheme {
         AppBackground {
             RingScreen(
-                uiState = RingUiState(hour = 6, minute = 5, label = "", objectToFind = RequiredObject.SECOND),
+                uiState = RingUiState(
+                    hour = 6,
+                    minute = 5,
+                    label = "",
+                    objectToFind = RequiredObject.SECOND,
+                    emergencyExitAvailable = true,
+                ),
                 onOpenCamera = {},
             )
         }

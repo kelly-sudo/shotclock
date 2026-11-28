@@ -36,6 +36,7 @@ import pl.shotclock.budzik.R
 import pl.shotclock.budzik.ui.components.AppBackground
 import pl.shotclock.budzik.ui.components.AppCard
 import pl.shotclock.budzik.ui.components.ScreenContainer
+import pl.shotclock.budzik.ui.components.formatDuration
 import pl.shotclock.budzik.ui.objects.ObjectImage
 import pl.shotclock.budzik.ui.objects.ObjectVisual
 import pl.shotclock.budzik.ui.theme.Accent
@@ -202,18 +203,6 @@ private fun WakeChartCard(modifier: Modifier = Modifier) {
                 }
             }
         }
-    }
-}
-
-/** Czas w sekundach jako tekst, np. „1 min 42 s”, „3 min” albo „47 s”. */
-@Composable
-private fun formatDuration(seconds: Int): String {
-    val minutes = seconds / 60
-    val rest = seconds % 60
-    return when {
-        minutes == 0 -> stringResource(R.string.duration_seconds, rest)
-        rest == 0 -> stringResource(R.string.duration_minutes, minutes)
-        else -> stringResource(R.string.duration_minutes_seconds, minutes, rest)
     }
 }
 

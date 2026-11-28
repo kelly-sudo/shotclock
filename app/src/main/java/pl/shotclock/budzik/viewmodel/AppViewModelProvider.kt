@@ -21,7 +21,11 @@ object AppViewModelProvider {
             EditAlarmViewModel(createSavedStateHandle(), shotClockApplication().container.alarmRepository)
         }
         initializer {
-            RingViewModel(shotClockApplication().container.ringController)
+            val container = shotClockApplication().container
+            RingViewModel(container.ringController, container.wakeEventRepository)
+        }
+        initializer {
+            EmergencyViewModel()
         }
         initializer {
             val container = shotClockApplication().container
